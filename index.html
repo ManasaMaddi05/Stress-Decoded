@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exam Stress Visualization</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            'sans': ['Inter', 'sans-serif'],
+            'mono': ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            'stress': {
+              100: '#f3e8ff',
+              200: '#e9d5ff',
+              300: '#d8b4fe',
+              400: '#c084fc',
+              500: '#a855f7',
+              600: '#9333ea',
+              700: '#7e22ce',
+              800: '#6b21a8',
+              900: '#581c87',
+            },
+            'calm': {
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            }
+          },
+          backgroundImage: {
+            'stress-gradient': 'linear-gradient(to bottom right, #581c87, #7f1d1d)',
+          },
+          boxShadow: {
+            'glow': '0 0 15px rgba(168, 85, 247, 0.5)',
+            'calm-glow': '0 0 15px rgba(14, 165, 233, 0.5)',
+          },
+          animation: {
+            'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          },
+        }
+      }
+    }
+  </script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .scroll-container {
+      height: 100vh;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      scroll-behavior: smooth;
+    }
+    
+    .section {
+      height: 100vh;
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+      position: relative;
+    }
+    
+    .section.visible {
+      opacity: 1;
+    }
+    
+    .content-wrapper {
+      max-width: 800px;
+      width: 100%;
+      text-align: center;
+      position: relative;
+      z-index: 10;
+    }
+    
+    .scroll-indicator {
+      position: fixed;
+      top: 50%;
+      right: 4rem;
+      transform: translateY(-50%);
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .scroll-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.7);
+      background-color: transparent;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .scroll-dot:hover {
+      transform: scale(1.2);
+    }
+    
+    .scroll-dot.active {
+      background-color: white;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+    }
+    
+    .heart-bg {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+      background: linear-gradient(to bottom, #0d1b3d 0%, #162b60 100%);
+    }
+    
+    .heart-svg {
+      width: min(50vw, 600px);
+      height: auto;
+      opacity: 0.25;
+      animation: heartbeat 1.5s ease-in-out infinite;
+      transition: opacity 0.8s ease-in-out;
+      filter: drop-shadow(0 4px 10px rgba(255, 255, 255, 0.1));
+      transform-origin: center;
+    }
+    
+    @keyframes heartbeat {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.12);
+      }
+    }
+    
+    .fade-in {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 1s ease-out, transform 1s ease-out;
+    }
+    
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    .delay-300 {
+      transition-delay: 300ms;
+    }
+    
+    .delay-600 {
+      transition-delay: 600ms;
+    }
+    
+    .metric {
+      font-family: 'JetBrains Mono', monospace;
+      text-shadow: 0 0 10px rgba(168, 85, 247, 0.7);
+    }
+    
+    .metric-calm {
+      font-family: 'JetBrains Mono', monospace;
+      text-shadow: 0 0 10px rgba(14, 165, 233, 0.7);
+    }
+    
+    .bg-stress-pattern {
+      background-color: #1a103c;
+      background-image: radial-gradient(rgba(168, 85, 247, 0.1) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    
+    .bg-calm-pattern {
+      background-color: #0c2546;
+      background-image: radial-gradient(rgba(14, 165, 233, 0.1) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+  </style>
+</head>
+<body class="font-sans">
+  <div class="scroll-indicator hidden md:flex">
+    <div class="scroll-dot active" data-section="intro"></div>
+    <div class="scroll-dot" data-section="section-1"></div>
+    <div class="scroll-dot" data-section="section-2"></div>
+    <div class="scroll-dot" data-section="section-3"></div>
+    <div class="scroll-dot" data-section="section-4"></div>
+    <div class="scroll-dot" data-section="conclusion"></div>
+  </div>
+
+  <div class="scroll-container">
+    <section id="intro" class="section bg-stress-gradient text-white">
+      <div class="heart-bg">
+        <svg class="heart-svg" viewBox="0 0 32 32" fill="white" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 28.7c-.7 0-1.4-.3-1.9-.8L4.8 18.6C1.7 15.5 1.7 10.4 4.8 7.3c1.5-1.5 3.5-2.3 5.6-2.3s4.1.8 5.6 2.3L16 7.3l.1-.1c1.5-1.5 3.5-2.3 5.6-2.3s4.1.8 5.6 2.3c3.1 3.1 3.1 8.2 0 11.3L17.9 27.9c-.5.5-1.2.8-1.9.8z"/>
+        </svg>
+      </div>
+      
+      <!-- Overlaid Content Block -->
+      <div class="absolute inset-0 flex items-center justify-center z-10">
+        <div class="text-center px-4">
+          <h1 class="text-4xl md:text-6xl font-bold text-white tracking-wide leading-tight fade-in shadow-glow">
+            What Does <span class="metric text-stress-400">Stress</span> Look Like in Exams?
+          </h1>
+          <p class="text-lg md:text-2xl font-medium text-white/90 italic text-center max-w-xl mx-auto mt-4 fade-in delay-300">
+            Ten students. Three exams. One question: does stress help or hurt?
+          </p>
+          <div class="mt-8 fade-in delay-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto text-white animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <section id="section-1" class="section bg-stress-pattern">
+      <div class="content-wrapper">
+        <h2 class="text-3xl font-bold mb-6 text-white">Heart Rate Patterns</h2>
+        <div class="mb-8 w-full max-w-lg mx-auto h-64 bg-black/40 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-lg border border-stress-700/30">
+          <span class="metric text-stress-400 text-2xl">Heart Rate: <span class="text-3xl">92</span> BPM</span>
+        </div>
+        <p class="text-lg mb-4 text-white/80">During high-stress moments, students showed an average increase of <span class="metric text-stress-400">24%</span> in heart rate compared to their baseline.</p>
+        <p class="text-lg text-white/80">Students with <span class="metric-calm text-calm-400">lower anxiety scores</span> maintained more stable heart rates throughout the exam period.</p>
+      </div>
+    </section>
+    
+    <section id="section-2" class="section bg-calm-pattern">
+      <div class="content-wrapper">
+        <h2 class="text-3xl font-bold mb-6 text-white">Electrodermal Activity</h2>
+        <div class="mb-8 w-full max-w-lg mx-auto h-64 bg-black/40 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-lg border border-calm-700/30">
+          <span class="metric-calm text-calm-400 text-2xl">EDA: <span class="text-3xl">4.7</span> μS</span>
+        </div>
+        <p class="text-lg mb-4 text-white/80">Electrodermal activity (EDA) spiked by <span class="metric text-stress-400">215%</span> in the first 10 minutes of exam sessions.</p>
+        <p class="text-lg text-white/80">Students who performed better showed <span class="metric-calm text-calm-400">regulated EDA patterns</span> after the initial spike, suggesting better stress management.</p>
+      </div>
+    </section>
+    
+    <section id="section-3" class="section bg-stress-pattern">
+      <div class="content-wrapper">
+        <h2 class="text-3xl font-bold mb-6 text-white">Performance Correlation</h2>
+        <div class="mb-8 w-full max-w-lg mx-auto h-64 bg-black/40 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-lg border border-stress-700/30">
+          <span class="metric text-stress-400 text-2xl">Correlation: <span class="text-3xl">-0.68</span></span>
+        </div>
+        <p class="text-lg mb-4 text-white/80">We found a <span class="metric text-stress-400">negative correlation</span> between sustained high stress levels and exam performance.</p>
+        <p class="text-lg text-white/80">However, students with <span class="metric-calm text-calm-400">moderate stress responses</span> often outperformed those with minimal physiological reactions.</p>
+      </div>
+    </section>
+    
+    <section id="section-4" class="section bg-calm-pattern">
+      <div class="content-wrapper">
+        <h2 class="text-3xl font-bold mb-6 text-white">Stress Management</h2>
+        <div class="mb-8 w-full max-w-lg mx-auto h-64 bg-black/40 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-lg border border-calm-700/30">
+          <span class="metric-calm text-calm-400 text-2xl">Recovery Time: <span class="text-3xl">8.2</span> min</span>
+        </div>
+        <p class="text-lg mb-4 text-white/80">Top-performing students showed an average stress recovery time of <span class="metric-calm text-calm-400">8.2 minutes</span> after encountering difficult questions.</p>
+        <p class="text-lg text-white/80">Students who practiced mindfulness techniques showed <span class="metric-calm text-calm-400">42% faster</span> physiological recovery from stress spikes.</p>
+      </div>
+    </section>
+    
+    <section id="conclusion" class="section bg-stress-gradient text-white">
+      <div class="content-wrapper">
+        <h2 class="text-3xl font-bold mb-6">Key Findings</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div class="bg-black/30 backdrop-blur-sm p-6 rounded-lg shadow-lg border border-white/10">
+            <h3 class="text-xl font-semibold mb-3">Optimal Stress</h3>
+            <p>Moderate stress levels (<span class="metric-calm text-calm-400">15-25% HR increase</span>) correlated with peak performance</p>
+          </div>
+          <div class="bg-black/30 backdrop-blur-sm p-6 rounded-lg shadow-lg border border-white/10">
+            <h3 class="text-xl font-semibold mb-3">Recovery Patterns</h3>
+            <p>The ability to <span class="metric-calm text-calm-400">recover quickly</span> from stress spikes was more important than baseline stress levels</p>
+          </div>
+        </div>
+        <p class="text-lg italic">© 2023 Exam Stress Visualization Project</p>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const sections = document.querySelectorAll('.section');
+      const scrollDots = document.querySelectorAll('.scroll-dot');
+      const fadeElements = document.querySelectorAll('.fade-in');
+      
+      const observerOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.3 
+      };
+      
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const sectionId = entry.target.id;
+            
+            entry.target.classList.add('visible');
+            
+            if (sectionId === 'intro') {
+              fadeElements.forEach(el => {
+                el.classList.add('visible');
+              });
+            }
+            
+            scrollDots.forEach(dot => {
+              if (dot.dataset.section === sectionId) {
+                dot.classList.add('active');
+              } else {
+                dot.classList.remove('active');
+              }
+            });
+            
+            history.replaceState(null, null, `#${sectionId}`);
+          } else {
+          
+            
+            if (entry.target.id === 'intro') {
+              fadeElements.forEach(el => {
+                el.classList.remove('visible');
+              });
+            }
+          }
+        });
+      }, observerOptions);
+      
+
+      sections.forEach(section => {
+        observer.observe(section);
+      });
+
+      scrollDots.forEach(dot => {
+        dot.addEventListener('click', () => {
+          const sectionId = dot.dataset.section;
+          const section = document.getElementById(sectionId);
+          
+          if (section) {
+            section.scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+      });
+    
+      if (window.location.hash) {
+        const targetSection = document.querySelector(window.location.hash);
+        if (targetSection) {
+          targetSection.scrollIntoView();
+        }
+      }
+    });
+  </script>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="main.js"></script>  
+</body>
+</html>
