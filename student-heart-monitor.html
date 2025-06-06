@@ -61,12 +61,12 @@
     
     .main-content {
       display: flex;
-      flex-direction: column;
       gap: 1.5rem;
       flex: 1;
       height: 80vh;
       min-height: 600px;
       max-height: calc(100vh - 150px);
+      margin-top: 1.5rem; /* Add gap between dropdowns and visualizations */
     }
 
     .content-row {
@@ -77,19 +77,19 @@
     }
 
     .heart-rate-display {
-      flex: 0 0 250px; /* Narrower to prevent cutoff */
+      flex: 0 0 250px;
       background: var(--panel-bg);
       border: 1px solid var(--glow-green);
       border-radius: 8px;
-      padding: 1rem; /* Reduced padding */
+      padding: 1rem;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       box-shadow: 0 0 15px rgba(92, 255, 92, 0.3);
       height: 100%;
-      max-height: 100%; /* Ensure it doesn't exceed parent */
-      overflow: hidden; /* Prevent content from overflowing */
+      max-height: 100%;
+      overflow: hidden;
     }
     
     .hr-label {
@@ -147,7 +147,7 @@
       overflow-y: auto;
       overflow-x: hidden;
       height: auto;
-      max-height: calc(80vh - 220px); /* Reduced to make room for controls */
+      max-height: calc(80vh - 220px);
     }
     
     /* Style the scrollbar for the chart */
@@ -169,9 +169,16 @@
       background: rgba(92, 255, 92, 0.8);
     }
     
-    .controls {
-      margin-top: 0.5rem;
+    .controls-container {
+      display: flex;
+      justify-content: flex-end;
       width: 100%;
+      margin-top: 1.5rem; /* Add gap between visualization and slider */
+    }
+
+    .controls {
+      width: calc(100% - 250px - 1.5rem); /* Width of container minus heart-rate-display width and gap */
+      margin-left: auto; /* Push to the right */
       height: auto;
       min-height: 60px;
     }
@@ -259,8 +266,10 @@
       display: flex;
       justify-content: center;
       gap: 1.5rem;
-      margin-top: 0.5rem;
+      margin-top: 1rem;
       flex-wrap: wrap;
+      width: calc(100% - 250px - 1.5rem); /* Same width as controls */
+      margin-left: auto; /* Push to the right */
     }
     
     .legend-item {
@@ -329,10 +338,6 @@
         max-height: none;
       }
       
-      .content-row {
-        flex-direction: column;
-      }
-      
       .heart-rate-display {
         flex: 0 0 auto;
         height: 200px;
@@ -351,8 +356,13 @@
       }
       
       .controls {
-        height: auto;
-        margin-bottom: 1rem;
+        width: 100%;
+        margin-left: 0;
+      }
+      
+      .legend {
+        width: 100%;
+        margin-left: 0;
       }
     }
 
@@ -603,20 +613,20 @@
     </div>
     
     <div class="main-content">
-      <div class="content-row">
-        <div class="heart-rate-display">
-          <div class="hr-label">HR</div>
-          <div class="bpm-label">bpm</div>
-          <div class="hr-value" id="hr-value">80</div>
-          <div class="hr-subtitle">Heart Rate at Selected Time</div>
-        </div>
-        
-        <div class="chart-container">
-          <div class="chart-header">Heart Rate Over the Course of the Exam</div>
-          <div class="chart" id="heart-rate-chart"></div>
-        </div>
+      <div class="heart-rate-display">
+        <div class="hr-label">HR</div>
+        <div class="bpm-label">bpm</div>
+        <div class="hr-value" id="hr-value">80</div>
+        <div class="hr-subtitle">Heart Rate at Selected Time</div>
       </div>
       
+      <div class="chart-container">
+        <div class="chart-header">Heart Rate Over the Course of the Exam</div>
+        <div class="chart" id="heart-rate-chart"></div>
+      </div>
+    </div>
+    
+    <div class="controls-container">
       <div class="controls">
         <div class="slider-container">
           <div class="slider-header">
@@ -624,30 +634,30 @@
             <div class="time-label" id="time-label">00:00:00</div>
           </div>
           <div class="slider-track">
-            <div class="slider-progress" id="slider-progress" style="width: 0%"></div>
+            <div class="slider-progress" id="slider-progress"></div>
             <input type="range" min="0" max="100" value="0" class="slider" id="time-slider">
           </div>
           <div class="slider-caption">Move the slider to explore heart rate changes during the exam</div>
         </div>
-        
-        <div class="legend">
-          <div class="legend-item">
-            <div class="legend-color low-color"></div>
-            <div class="legend-label">Low</div>
-          </div>
-          <div class="legend-item">
-            <div class="legend-color resting-color"></div>
-            <div class="legend-label">Resting</div>
-          </div>
-          <div class="legend-item">
-            <div class="legend-color moderate-color"></div>
-            <div class="legend-label">Moderate</div>
-          </div>
-          <div class="legend-item">
-            <div class="legend-color high-color"></div>
-            <div class="legend-label">High</div>
-          </div>
-        </div>
+      </div>
+    </div>
+    
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-color low-color"></div>
+        <div class="legend-label">Low</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color resting-color"></div>
+        <div class="legend-label">Resting</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color moderate-color"></div>
+        <div class="legend-label">Moderate</div>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color high-color"></div>
+        <div class="legend-label">High</div>
       </div>
     </div>
   </div>
