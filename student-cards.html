@@ -179,6 +179,7 @@
     document.addEventListener('DOMContentLoaded', function() {
       const examButtons = document.querySelectorAll('.exam-button');
       let currentExam = 'midterm1';
+      let selectedStudents = new Set();
       
       // Set initial active button
       document.querySelector('[data-exam="midterm1"]').classList.add('active');
@@ -192,6 +193,23 @@
           loadAndDisplayData(currentExam);
         });
       });
+
+      // Listen for messages from parent window
+      window.addEventListener('message', function(event) {
+        if (event.data.type === 'updateSelectedStudents') {
+          selectedStudents = new Set(event.data.students);
+          loadAndDisplayData(currentExam);
+        } else if (event.data.type === 'changeExam') {
+          currentExam = event.data.exam;
+          examButtons.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.exam === currentExam);
+          });
+          loadAndDisplayData(currentExam);
+        }
+      });
+
+      // Notify parent that iframe is loaded
+      window.parent.postMessage({ type: 'iframeLoaded' }, '*');
       
       // Function to load and display data
       function loadAndDisplayData(exam) {
@@ -227,7 +245,8 @@
               
               // Get all student columns (S1_EDA, S2_EDA, etc.)
               const studentColumns = Object.keys(data[0])
-                .filter(key => key.startsWith('S') && key.endsWith('_EDA'));
+                .filter(key => key.startsWith('S') && key.endsWith('_EDA'))
+                .filter(key => selectedStudents.has(key.split('_')[0])); // Only include selected students
               
               if (studentColumns.length === 0) {
                 throw new Error('No student EDA columns found in CSV file');
@@ -268,8 +287,8 @@
                   
                   return {
                     student: studentKey,
-                    values,
-                    times,
+                    values: values,
+                    times: times,
                     stats: {
                       maxEDA,
                       avgEDA,
@@ -277,24 +296,16 @@
                       recoveryTime
                     }
                   };
-                } catch (err) {
-                  console.error(`Error processing student ${studentKey}:`, err);
-                  // Return default data structure for this student
-                  return {
-                    student: studentKey,
-                    values: [],
-                    times: [],
-                    stats: {
-                      maxEDA: 0,
-                      avgEDA: 0,
-                      peakTime: 0,
-                      recoveryTime: 0
-                    }
-                  };
+                } catch (error) {
+                  console.error(`Error processing data for ${studentKey}:`, error);
+                  return null;
                 }
-              });
+              }).filter(Boolean);
               
-              // Update statistics display with the first student's data
+              // Create the visualization
+              createVisualization(processedData);
+              
+              // Update stats with the first student's data
               if (processedData.length > 0) {
                 const firstStudent = processedData[0];
                 document.getElementById('max-eda').textContent = firstStudent.stats.maxEDA.toFixed(1);
@@ -303,36 +314,22 @@
                 document.getElementById('recovery-time').textContent = firstStudent.stats.recoveryTime;
               }
               
-              // Create the visualization
-              createVisualization(processedData);
             } catch (error) {
-              console.error('Error processing data:', error);
+              console.error('Error loading data:', error);
               document.getElementById('chart').innerHTML = `
-                <div style="text-align: center; padding: 2rem;">
-                  <p>Error loading data: ${error.message}</p>
+                <div style="color: white; text-align: center; padding: 2rem;">
+                  Error loading data: ${error.message}
                 </div>
               `;
-              
-              // Reset stats
-              document.getElementById('max-eda').textContent = '-';
-              document.getElementById('avg-eda').textContent = '-';
-              document.getElementById('peak-time').textContent = '-';
-              document.getElementById('recovery-time').textContent = '-';
             }
           })
           .catch(error => {
-            console.error('Error loading data:', error);
+            console.error('Error loading CSV:', error);
             document.getElementById('chart').innerHTML = `
-              <div style="text-align: center; padding: 2rem;">
-                <p>Error loading data: ${error.message}</p>
+              <div style="color: white; text-align: center; padding: 2rem;">
+                Error loading CSV file: ${error.message}
               </div>
             `;
-            
-            // Reset stats
-            document.getElementById('max-eda').textContent = '-';
-            document.getElementById('avg-eda').textContent = '-';
-            document.getElementById('peak-time').textContent = '-';
-            document.getElementById('recovery-time').textContent = '-';
           });
       }
       

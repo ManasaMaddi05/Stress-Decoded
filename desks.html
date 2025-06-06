@@ -37,20 +37,26 @@
     
     .container {
       width: 100%;
-      max-width: 1200px;
-      padding: 2rem;
+      max-width: 1600px;
+      padding: 1rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
     }
     
     h1 {
       text-align: center;
       margin-bottom: 2rem;
-      font-size: 2rem;
+      font-size: 2.5rem;
     }
     
     .classroom {
       position: relative;
       width: 100%;
-      height: 700px;
+      height: 900px;
       background: linear-gradient(to bottom, #1a1035, #0c111d);
       border-radius: 1rem;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
@@ -58,19 +64,7 @@
       transform-style: preserve-3d;
       perspective: 1200px;
       margin-bottom: 2rem;
-    }
-    
-    .classroom::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-image: radial-gradient(rgba(79, 70, 229, 0.1) 1px, transparent 1px);
-      background-size: 20px 20px;
-      opacity: 0.2;
-      z-index: 0;
+      box-sizing: border-box;
     }
     
     .teacher-desk {
@@ -150,10 +144,11 @@
       width: 100%;
       height: calc(100% - 200px);
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 2.5rem;
-      padding: 2rem;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1.5rem;
+      padding: 1.5rem;
       z-index: 5;
+      box-sizing: border-box;
     }
     
     .student-desk {
@@ -168,6 +163,35 @@
     .student-desk:hover {
       transform: rotateX(35deg) translateY(-20px);
       z-index: 20;
+    }
+    
+    .student-desk.selected {
+      border: 2px solid #10b981;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+    }
+    
+    .checkmark {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 24px;
+      height: 24px;
+      background: #10b981;
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+    
+    .student-desk.selected .checkmark {
+      display: flex;
+    }
+    
+    .checkmark svg {
+      width: 16px;
+      height: 16px;
+      fill: white;
     }
     
     .desk-top {
@@ -486,6 +510,133 @@
       stroke-dasharray: 3,3;
     }
     
+    .graph-window {
+      display: none;
+      position: fixed;
+      top: 5vh;
+      left: 5vw;
+      width: 90vw;
+      height: 90vh;
+      background: var(--card-bg);
+      border-radius: 1rem;
+      z-index: 100;
+      padding: 2rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      overflow: hidden;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+    
+    .graph-window.active {
+      display: block;
+      transform: translateY(0);
+      opacity: 1;
+    }
+    
+    .graph-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .graph-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0;
+    }
+    
+    .close-button {
+      background: rgba(0, 0, 0, 0.3);
+      border: none;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .close-button:hover {
+      background: rgba(0, 0, 0, 0.5);
+    }
+    
+    .graph-container {
+      width: 100%;
+      height: calc(100% - 100px);
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 0.5rem;
+      overflow: hidden;
+    }
+    
+    .exam-selector {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    
+    .exam-button {
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.2s ease;
+    }
+    
+    .exam-button:hover {
+      background: rgba(168, 85, 247, 0.2);
+      border-color: var(--stress-color);
+    }
+    
+    .exam-button.active {
+      background: var(--stress-color);
+      border-color: var(--stress-color);
+    }
+    
+    .graph-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    
+    .show-graph-button {
+      background: var(--stress-color);
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 0.5rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 2rem;
+      transition: all 0.2s ease;
+      display: none;
+    }
+    
+    .show-graph-button:hover {
+      background: #9333ea;
+      transform: translateY(-2px);
+    }
+    
+    .show-graph-button:active {
+      transform: translateY(0);
+    }
+    
+    .show-graph-button.visible {
+      display: block;
+    }
+    
     @media (max-width: 768px) {
       .desks-container {
         grid-template-columns: 1fr;
@@ -521,6 +672,8 @@
         <!-- Desks will be generated by JavaScript -->
       </div>
     </div>
+    
+    <button class="show-graph-button" id="show-graph-button">Show Graph</button>
   </div>
   
   <div class="overlay" id="overlay"></div>
@@ -542,13 +695,51 @@
     <div class="stats-container" id="stats-container"></div>
   </div>
   
+  <div class="graph-window" id="graph-window">
+    <div class="graph-header">
+      <h2 class="graph-title">Selected Students EDA Profile</h2>
+      <button class="close-button" id="close-graph">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Close
+      </button>
+    </div>
+    <div class="exam-selector">
+      <button class="exam-button active" data-exam="midterm1">Midterm 1</button>
+      <button class="exam-button" data-exam="midterm2">Midterm 2</button>
+      <button class="exam-button" data-exam="final">Final</button>
+    </div>
+    <div class="graph-container">
+      <div id="chart"></div>
+      <div class="stats-container">
+        <div class="stat-item">
+          <div class="stat-value" id="max-eda">-</div>
+          <div class="stat-label">Max EDA (μS)</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="avg-eda">-</div>
+          <div class="stat-label">Avg EDA (μS)</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="peak-time">-</div>
+          <div class="stat-label">Peak Time (min)</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="recovery-time">-</div>
+          <div class="stat-label">Recovery Time (min)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       // Sample data for three students
       const studentsData = [
         {
           id: 'S1',
-          name: 'Alex Johnson',
+          name: 'Student 1',
           data: generateSampleData(60, 2, 5),
           peakTime: 15,
           recoveryTime: 8.2,
@@ -557,7 +748,7 @@
         },
         {
           id: 'S2',
-          name: 'Jamie Smith',
+          name: 'Student 2',
           data: generateSampleData(60, 1.5, 7),
           peakTime: 22,
           recoveryTime: 12.5,
@@ -566,12 +757,75 @@
         },
         {
           id: 'S3',
-          name: 'Taylor Wong',
+          name: 'Student 3',
           data: generateSampleData(60, 3, 4),
           peakTime: 8,
           recoveryTime: 5.4,
           avgEDA: 3.1,
           maxEDA: 5.5
+        },
+        {
+          id: 'S4',
+          name: 'Student 4',
+          data: generateSampleData(60, 2.2, 6),
+          peakTime: 18,
+          recoveryTime: 9.8,
+          avgEDA: 3.9,
+          maxEDA: 6.8
+        },
+        {
+          id: 'S5',
+          name: 'Student 5',
+          data: generateSampleData(60, 1.8, 5.5),
+          peakTime: 20,
+          recoveryTime: 10.2,
+          avgEDA: 3.5,
+          maxEDA: 6.5
+        },
+        {
+          id: 'S6',
+          name: 'Student 6',
+          data: generateSampleData(60, 2.5, 4.8),
+          peakTime: 12,
+          recoveryTime: 7.5,
+          avgEDA: 3.3,
+          maxEDA: 6.0
+        },
+        {
+          id: 'S7',
+          name: 'Student 7',
+          data: generateSampleData(60, 2.1, 5.2),
+          peakTime: 16,
+          recoveryTime: 8.8,
+          avgEDA: 3.6,
+          maxEDA: 6.3
+        },
+        {
+          id: 'S8',
+          name: 'Student 8',
+          data: generateSampleData(60, 1.9, 6.5),
+          peakTime: 19,
+          recoveryTime: 11.2,
+          avgEDA: 4.0,
+          maxEDA: 7.2
+        },
+        {
+          id: 'S9',
+          name: 'Student 9',
+          data: generateSampleData(60, 2.3, 5.8),
+          peakTime: 14,
+          recoveryTime: 8.5,
+          avgEDA: 3.8,
+          maxEDA: 6.6
+        },
+        {
+          id: 'S10',
+          name: 'Student 10',
+          data: generateSampleData(60, 2.0, 5.0),
+          peakTime: 17,
+          recoveryTime: 9.0,
+          avgEDA: 3.4,
+          maxEDA: 6.1
         }
       ];
       
@@ -582,12 +836,22 @@
       const profileId = document.getElementById('profile-id');
       const statsContainer = document.getElementById('stats-container');
       const backButton = document.getElementById('back-button');
+      const graphWindow = document.getElementById('graph-window');
+      const graphContainer = document.getElementById('graph-container');
+      const closeGraphButton = document.getElementById('close-graph');
+      const showGraphButton = document.getElementById('show-graph-button');
+      let selectedDesks = new Set();
       
       // Generate desks for each student
       studentsData.forEach(student => {
         const desk = document.createElement('div');
         desk.className = 'student-desk';
         desk.innerHTML = `
+          <div class="checkmark">
+            <svg viewBox="0 0 24 24">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+            </svg>
+          </div>
           <div class="desk-nameplate">${student.name}</div>
           <div class="desk-top">
             <div class="student-id">${student.id}</div>
@@ -617,9 +881,22 @@
         // Create sparkline
         createSparkline(student.data, `sparkline-${student.id}`);
         
-        // Add click event to show student profile
+        // Add click event to toggle desk selection
         desk.addEventListener('click', function() {
-          showStudentProfile(student);
+          const studentId = student.id;
+          
+          if (desk.classList.contains('selected')) {
+            desk.classList.remove('selected');
+            selectedDesks.delete(studentId);
+          } else {
+            if (selectedDesks.size < 10) {
+              desk.classList.add('selected');
+              selectedDesks.add(studentId);
+            }
+          }
+
+          // Update show graph button visibility
+          updateShowGraphButton();
         });
       });
       
@@ -904,6 +1181,312 @@
         
         return data;
       }
+
+      // Show graph button click handler
+      showGraphButton.addEventListener('click', function() {
+        showGraphWindow();
+      });
+
+      // Close graph window
+      closeGraphButton.addEventListener('click', function() {
+        graphWindow.classList.remove('active');
+      });
+
+      function updateShowGraphButton() {
+        if (selectedDesks.size > 0) {
+          showGraphButton.classList.add('visible');
+        } else {
+          showGraphButton.classList.remove('visible');
+        }
+      }
+
+      const examButtons = document.querySelectorAll('.exam-button');
+      let currentExam = 'midterm1';
+
+      function showGraphWindow() {
+        graphWindow.classList.add('active');
+        loadAndDisplayData(currentExam);
+      }
+
+      function loadAndDisplayData(exam) {
+        let filePath;
+        switch(exam) {
+          case 'midterm1':
+            filePath = 'Data/Midterm_1_EDA.csv';
+            break;
+          case 'midterm2':
+            filePath = 'Data/Midterm_2_EDA.csv';
+            break;
+          case 'final':
+            filePath = 'Data/Final_EDA.csv';
+            break;
+        }
+
+        // Clear previous chart
+        document.getElementById('chart').innerHTML = '';
+        
+        // Show loading state
+        document.getElementById('max-eda').textContent = 'Loading...';
+        document.getElementById('avg-eda').textContent = 'Loading...';
+        document.getElementById('peak-time').textContent = 'Loading...';
+        document.getElementById('recovery-time').textContent = 'Loading...';
+
+        d3.csv(filePath)
+          .then(data => {
+            try {
+              // Check if data is valid
+              if (!data || data.length === 0) {
+                throw new Error('No data found in CSV file');
+              }
+
+              // Get selected student columns
+              const studentColumns = Array.from(selectedDesks).map(studentId => `${studentId}_EDA`);
+              
+              if (studentColumns.length === 0) {
+                throw new Error('No students selected');
+              }
+
+              // Process the data for each student
+              const processedData = studentColumns.map(studentKey => {
+                const values = data.map(d => parseFloat(d[studentKey]) || 0);
+                const times = data.map(d => parseFloat(d.relative_time) || 0);
+                
+                const maxEDA = d3.max(values);
+                const avgEDA = d3.mean(values);
+                
+                // Find peak index
+                const peakIndex = values.indexOf(maxEDA);
+                
+                // Calculate recovery time (time to reach 50% of peak)
+                let recoveryIndex = peakIndex;
+                const recoveryThreshold = maxEDA * 0.5;
+                
+                while (recoveryIndex < values.length && values[recoveryIndex] > recoveryThreshold) {
+                  recoveryIndex++;
+                }
+                
+                const recoveryTime = recoveryIndex - peakIndex;
+                
+                return {
+                  student: studentKey,
+                  values: values,
+                  times: times,
+                  stats: {
+                    maxEDA,
+                    avgEDA,
+                    peakTime: peakIndex,
+                    recoveryTime
+                  }
+                };
+              });
+
+              // Create the visualization
+              createVisualization(processedData);
+              
+              // Update stats with the first student's data
+              if (processedData.length > 0) {
+                const firstStudent = processedData[0];
+                document.getElementById('max-eda').textContent = firstStudent.stats.maxEDA.toFixed(1);
+                document.getElementById('avg-eda').textContent = firstStudent.stats.avgEDA.toFixed(1);
+                document.getElementById('peak-time').textContent = firstStudent.stats.peakTime;
+                document.getElementById('recovery-time').textContent = firstStudent.stats.recoveryTime;
+              }
+              
+            } catch (error) {
+              console.error('Error loading data:', error);
+              document.getElementById('chart').innerHTML = `
+                <div style="color: white; text-align: center; padding: 2rem;">
+                  Error loading data: ${error.message}
+                </div>
+              `;
+            }
+          })
+          .catch(error => {
+            console.error('Error loading CSV:', error);
+            document.getElementById('chart').innerHTML = `
+              <div style="color: white; text-align: center; padding: 2rem;">
+                Error loading CSV file: ${error.message}
+              </div>
+            `;
+          });
+      }
+
+      function createVisualization(studentsData) {
+        const container = document.getElementById('chart');
+        const width = container.clientWidth;
+        const height = 600;
+        const margin = { top: 30, right: 100, bottom: 50, left: 60 };
+
+        const svg = d3.select('#chart')
+          .append('svg')
+          .attr('width', width)
+          .attr('height', height);
+
+        // Find the maximum EDA value across all students
+        const maxEDA = d3.max(studentsData, d => d3.max(d.values)) || 10;
+
+        // Get the time range from the first student's data
+        const timeRange = studentsData[0].times.length > 0 ? 
+          d3.extent(studentsData[0].times) : [0, 100];
+
+        const x = d3.scaleLinear()
+          .domain(timeRange)
+          .range([margin.left, width - margin.right]);
+
+        const y = d3.scaleLinear()
+          .domain([0, maxEDA * 1.1])
+          .range([height - margin.bottom, margin.top]);
+
+        // Add X axis
+        svg.append('g')
+          .attr('transform', `translate(0,${height - margin.bottom})`)
+          .call(d3.axisBottom(x).ticks(10).tickFormat(d => `${d}m`))
+          .call(g => g.select('.domain').attr('stroke', 'rgba(255, 255, 255, 0.3)'))
+          .call(g => g.selectAll('.tick line').attr('stroke', 'rgba(255, 255, 255, 0.3)'))
+          .call(g => g.selectAll('.tick text').attr('fill', 'rgba(255, 255, 255, 0.7)'));
+
+        // Add Y axis
+        svg.append('g')
+          .attr('transform', `translate(${margin.left},0)`)
+          .call(d3.axisLeft(y).ticks(5))
+          .call(g => g.select('.domain').attr('stroke', 'rgba(255, 255, 255, 0.3)'))
+          .call(g => g.selectAll('.tick line').attr('stroke', 'rgba(255, 255, 255, 0.3)'))
+          .call(g => g.selectAll('.tick text').attr('fill', 'rgba(255, 255, 255, 0.7)'));
+
+        // Add Y axis label
+        svg.append('text')
+          .attr('transform', 'rotate(-90)')
+          .attr('y', margin.left / 3)
+          .attr('x', -height / 2)
+          .attr('text-anchor', 'middle')
+          .attr('fill', 'white')
+          .text('EDA (μS)');
+
+        // Add X axis label
+        svg.append('text')
+          .attr('x', width / 2)
+          .attr('y', height - 10)
+          .attr('text-anchor', 'middle')
+          .attr('fill', 'white')
+          .text('Time (minutes)');
+
+        // Define colors for each student
+        const studentColors = {
+          'S1_EDA': '#ff4560',  // Red
+          'S2_EDA': '#008ffb',  // Blue
+          'S3_EDA': '#00e396',  // Green
+          'S4_EDA': '#feb019',  // Orange
+          'S5_EDA': '#775dd0',  // Purple
+          'S6_EDA': '#3f51b5',  // Indigo
+          'S7_EDA': '#03a9f4',  // Light Blue
+          'S8_EDA': '#4caf50',  // Green
+          'S9_EDA': '#f9ce1d',  // Yellow
+          'S10_EDA': '#ff9800'  // Orange
+        };
+
+        // Create a group for each student's visualization
+        const studentGroups = svg.selectAll('.student-group')
+          .data(studentsData)
+          .enter()
+          .append('g')
+          .attr('class', 'student-group')
+          .attr('data-student', d => d.student);
+
+        // Add the lines
+        studentGroups.each(function(student) {
+          const group = d3.select(this);
+          
+          // Create line generator
+          const lineGen = d3.line()
+            .x((d, i) => x(student.times[i]))
+            .y(d => y(d))
+            .curve(d3.curveMonotoneX);
+
+          // Add the line path
+          group.append('path')
+            .datum(student.values)
+            .attr('fill', 'none')
+            .attr('stroke', studentColors[student.student])
+            .attr('stroke-width', 2.5)
+            .attr('d', lineGen);
+
+          // Add area under the curve
+          const areaGen = d3.area()
+            .x((d, i) => x(student.times[i]))
+            .y0(height - margin.bottom)
+            .y1(d => y(d))
+            .curve(d3.curveMonotoneX);
+
+          group.append('path')
+            .datum(student.values)
+            .attr('fill', studentColors[student.student])
+            .attr('opacity', 0.1)
+            .attr('d', areaGen);
+
+          // Add peak point
+          const peakIndex = student.stats.peakTime;
+          if (peakIndex >= 0 && peakIndex < student.values.length) {
+            group.append('circle')
+              .attr('cx', x(student.times[peakIndex]))
+              .attr('cy', y(student.values[peakIndex]))
+              .attr('r', 4)
+              .attr('fill', studentColors[student.student])
+              .attr('stroke', 'white')
+              .attr('stroke-width', 1);
+          }
+        });
+
+        // Add legend
+        const legend = svg.append('g')
+          .attr('transform', `translate(${width - margin.right + 10}, ${margin.top})`);
+
+        const legendItems = legend.selectAll('.legend-item')
+          .data(studentsData)
+          .enter()
+          .append('g')
+          .attr('class', 'legend-item')
+          .attr('transform', (d, i) => `translate(0, ${i * 20})`)
+          .on('click', function(event, d) {
+            const studentGroup = svg.select(`.student-group[data-student="${d.student}"]`);
+            const isActive = !studentGroup.classed('inactive');
+            
+            // Toggle visibility
+            studentGroup.classed('inactive', isActive);
+            d3.select(this).classed('inactive', isActive);
+            
+            // Update statistics if this is the first student
+            if (d.student === studentsData[0].student) {
+              const stats = !isActive ? d.stats : (studentsData[1] ? studentsData[1].stats : d.stats);
+              document.getElementById('max-eda').textContent = stats.maxEDA.toFixed(1);
+              document.getElementById('avg-eda').textContent = stats.avgEDA.toFixed(1);
+              document.getElementById('peak-time').textContent = stats.peakTime;
+              document.getElementById('recovery-time').textContent = stats.recoveryTime;
+            }
+          });
+
+        // Add legend rectangles
+        legendItems.append('rect')
+          .attr('width', 15)
+          .attr('height', 15)
+          .attr('fill', d => studentColors[d.student]);
+
+        legendItems.append('text')
+          .attr('x', 20)
+          .attr('y', 12)
+          .attr('fill', 'white')
+          .style('font-size', '12px')
+          .text(d => d.student.replace('_EDA', ''));
+      }
+
+      // Add click handlers for exam buttons
+      examButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          examButtons.forEach(btn => btn.classList.remove('active'));
+          this.classList.add('active');
+          currentExam = this.dataset.exam;
+          loadAndDisplayData(currentExam);
+        });
+      });
     });
   </script>
 </body>
