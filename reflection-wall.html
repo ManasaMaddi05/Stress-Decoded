@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>What Would You Change? | Reflection Wall</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --stress-color: #a855f7;
+      --calm-color: #0ea5e9;
+      --bg-dark: #0f172a;
+      --card-bg: rgba(15, 23, 42, 0.8);
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-dark);
+      color: white;
+      min-height: 100vh;
+    }
+    
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(to right, var(--stress-color), var(--calm-color));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    
+    .prompt {
+      font-size: 1.5rem;
+      font-weight: 500;
+      margin-bottom: 2rem;
+      color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .input-container {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin-bottom: 3rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .input-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    textarea {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      color: white;
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      resize: none;
+      height: 100px;
+      transition: border-color 0.3s ease;
+    }
+    
+    textarea:focus {
+      outline: none;
+      border-color: var(--stress-color);
+    }
+    
+    .char-counter {
+      text-align: right;
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .char-counter.limit {
+      color: #ef4444;
+    }
+    
+    .submit-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .submit-button {
+      background: var(--stress-color);
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .submit-button:hover {
+      background: #9333ea;
+      transform: translateY(-2px);
+    }
+    
+    .submit-button:disabled {
+      background: rgba(168, 85, 247, 0.3);
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .reflection-wall {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    
+    .reflection-card {
+      background: var(--card-bg);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transform-origin: center;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    
+    .reflection-card.visible {
+      opacity: 1;
+      transform: translateY(0) rotate(var(--rotation));
+    }
+    
+    .reflection-text {
+      font-size: 1rem;
+      line-height: 1.5;
+      margin-bottom: 1rem;
+    }
+    
+    .reflection-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .reaction-button {
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      transition: all 0.2s ease;
+    }
+    
+    .reaction-button:hover {
+      color: white;
+    }
+    
+    .reaction-button.active {
+      color: var(--stress-color);
+    }
+    
+    .reaction-count {
+      font-size: 0.875rem;
+    }
+    
+    .timestamp {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+    }
+    
+    @keyframes float {
+      0% {
+        transform: translateY(0) rotate(var(--rotation));
+      }
+      50% {
+        transform: translateY(-5px) rotate(var(--rotation));
+      }
+      100% {
+        transform: translateY(0) rotate(var(--rotation));
+      }
+    }
+    
+    .card-color-1 { border-top: 3px solid #3b82f6; }
+    .card-color-2 { border-top: 3px solid #a855f7; }
+    .card-color-3 { border-top: 3px solid #ec4899; }
+    .card-color-4 { border-top: 3px solid #f97316; }
+    .card-color-5 { border-top: 3px solid #10b981; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Reflection Wall</h1>
+      <div class="prompt">If I could do that morning again, I'd...</div>
+    </div>
+    
+    <div class="input-container">
+      <div class="input-wrapper">
+        <textarea id="reflection-input" maxlength="120" placeholder="Share your reflection anonymously..."></textarea>
+        <div class="submit-row">
+          <div class="char-counter"><span id="char-count">0</span>/120</div>
+          <button id="submit-button" class="submit-button" disabled>Share Reflection</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="reflection-wall" id="reflection-wall">
+      <!-- Reflection cards will be added here -->
+    </div>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // DOM elements
+      const reflectionInput = document.getElementById('reflection-input');
+      const charCount = document.getElementById('char-count');
+      const submitButton = document.getElementById('submit-button');
+      const reflectionWall = document.getElementById('reflection-wall');
+      
+      // Max character limit
+      const MAX_CHARS = 120;
+      
+      // Sample reflections for demo
+      const sampleReflections = [
+        "I'd wake up earlier and review my notes one more time instead of scrolling through social media.",
+        "I'd eat a proper breakfast. My stomach was growling the whole time.",
+        "I'd remember to bring my lucky pen. Sounds silly but it helps with my confidence.",
+        "I'd skip the coffee. The caffeine made my anxiety so much worse.",
+        "I'd tell myself that one exam doesn't define my worth or my future.",
+        "I'd take 10 minutes to meditate and clear my head before leaving home.",
+        "I wouldn't cram at the last minute. It just confused me more.",
+        "I'd wear more comfortable clothes. Being physically uncomfortable made it harder to focus."
+      ];
+      
+      // Load reflections from localStorage or use sample data
+      let reflections = JSON.parse(localStorage.getItem('reflections')) || [];
+      
+      // If no stored reflections, use sample data
+      if (reflections.length === 0) {
+        reflections = sampleReflections.map(text => ({
+          text,
+          timestamp: new Date(Date.now() - Math.random() * 86400000).toISOString(),
+          reactions: Math.floor(Math.random() * 10),
+          colorClass: `card-color-${Math.floor(Math.random() * 5) + 1}`,
+          rotation: (Math.random() * 6 - 3).toFixed(1)
+        }));
+        
+        // Save to localStorage
+        localStorage.setItem('reflections', JSON.stringify(reflections));
+      }
+      
+      // Render existing reflections
+      renderReflections();
+      
+      // Character counter
+      reflectionInput.addEventListener('input', function() {
+        const count = this.value.length;
+        charCount.textContent = count;
+        
+        // Update counter color if approaching limit
+        if (count >= MAX_CHARS) {
+          charCount.parentElement.classList.add('limit');
+        } else {
+          charCount.parentElement.classList.remove('limit');
+        }
+        
+        // Enable/disable submit button
+        submitButton.disabled = count === 0 || count > MAX_CHARS;
+      });
+      
+      // Submit reflection
+      submitButton.addEventListener('click', function() {
+        const text = reflectionInput.value.trim();
+        if (!text) return;
+        
+        // Create new reflection object
+        const newReflection = {
+          text,
+          timestamp: new Date().toISOString(),
+          reactions: 0,
+          colorClass: `card-color-${Math.floor(Math.random() * 5) + 1}`,
+          rotation: (Math.random() * 6 - 3).toFixed(1)
+        };
+        
+        // Add to reflections array
+        reflections.unshift(newReflection);
+        
+        // Save to localStorage
+        localStorage.setItem('reflections', JSON.stringify(reflections));
+        
+        // Clear input
+        reflectionInput.value = '';
+        charCount.textContent = '0';
+        submitButton.disabled = true;
+        
+        // Render reflections
+        renderReflections();
+      });
+      
+      // Render reflections
+      function renderReflections() {
+        reflectionWall.innerHTML = '';
+        
+        reflections.forEach((reflection, index) => {
+          const card = document.createElement('div');
+          card.className = `reflection-card ${reflection.colorClass}`;
+          card.style.setProperty('--rotation', `${reflection.rotation}deg`);
+          card.style.animationDelay = `${index * 0.1}s`;
+          
+          const date = new Date(reflection.timestamp);
+          const timeAgo = getTimeAgo(date);
+          
+          card.innerHTML = `
+            <div class="reflection-text">${reflection.text}</div>
+            <div class="reflection-footer">
+              <button class="reaction-button" data-index="${index}">
+                ❤️ <span class="reaction-count">${reflection.reactions}</span>
+              </button>
+              <div class="timestamp">${timeAgo}</div>
+            </div>
+          `;
+          
+          reflectionWall.appendChild(card);
+          
+          // Add floating animation
+          setTimeout(() => {
+            card.style.animation = `float ${3 + Math.random() * 2}s ease-in-out infinite`;
+            card.classList.add('visible');
+          }, 100 + index * 100);
+        });
+        
+        // Add reaction event listeners
+        document.querySelectorAll('.reaction-button').forEach(button => {
+          button.addEventListener('click', function() {
+            const index = parseInt(this.dataset.index);
+            reflections[index].reactions++;
+            this.classList.add('active');
+            this.querySelector('.reaction-count').textContent = reflections[index].reactions;
+            
+            // Save to localStorage
+            localStorage.setItem('reflections', JSON.stringify(reflections));
+            
+            // Disable button after click
+            this.disabled = true;
+          });
+        });
+      }
+      
+      // Helper function to format time ago
+      function getTimeAgo(date) {
+        const seconds = Math.floor((new Date() - date) / 1000);
+        
+        let interval = Math.floor(seconds / 31536000);
+        if (interval >= 1) {
+          return interval + " year" + (interval === 1 ? "" : "s") + " ago";
+        }
+        
+        interval = Math.floor(seconds / 2592000);
+        if (interval >= 1) {
+          return interval + " month" + (interval === 1 ? "" : "s") + " ago";
+        }
+        
+        interval = Math.floor(seconds / 86400);
+        if (interval >= 1) {
+          return interval + " day" + (interval === 1 ? "" : "s") + " ago";
+        }
+        
+        interval = Math.floor(seconds / 3600);
+        if (interval >= 1) {
+          return interval + " hour" + (interval === 1 ? "" : "s") + " ago";
+        }
+        
+        interval = Math.floor(seconds / 60);
+        if (interval >= 1) {
+          return interval + " minute" + (interval === 1 ? "" : "s") + " ago";
+        }
+        
+        return "just now";
+      }
+    });
+  </script>
+</body>
+</html>
