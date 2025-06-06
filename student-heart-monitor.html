@@ -39,21 +39,24 @@
       flex-direction: column;
       justify-content: center;
       box-sizing: border-box;
+      overflow: hidden; /* Prevent container overflow */
     }
     
     .header {
       text-align: center;
       margin-bottom: 0.5rem; /* Reduced margin */
+      height: auto; /* Allow header to adjust to content */
+      min-height: 60px; /* Minimum height for header */
     }
     
     .student-title {
-      font-size: 2.5rem;
+      font-size: 2rem; /* Smaller title */
       font-weight: 700;
       color: var(--glow-green);
       text-shadow: 0 0 10px rgba(92, 255, 92, 0.7),
                    0 0 20px rgba(92, 255, 92, 0.5);
       margin: 0;
-      padding: 0.5rem 0;
+      padding: 0.25rem 0; /* Reduced padding */
     }
     
     .main-content {
@@ -62,20 +65,23 @@
       flex: 1;
       height: 80vh; /* Increased height */
       min-height: 600px;
+      max-height: calc(100vh - 150px); /* Ensure it doesn't exceed viewport */
     }
     
     .heart-rate-display {
-      flex: 0 0 300px; /* Slightly narrower */
+      flex: 0 0 250px; /* Narrower to prevent cutoff */
       background: var(--panel-bg);
       border: 1px solid var(--glow-green);
       border-radius: 8px;
-      padding: 1.5rem;
+      padding: 1rem; /* Reduced padding */
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       box-shadow: 0 0 15px rgba(92, 255, 92, 0.3);
       height: 100%;
+      max-height: 100%; /* Ensure it doesn't exceed parent */
+      overflow: hidden; /* Prevent content from overflowing */
     }
     
     .hr-label {
@@ -91,21 +97,21 @@
     }
     
     .hr-value {
-      font-size: 10rem; /* Larger font size */
+      font-size: 8rem; /* Smaller font size */
       font-weight: 700;
       color: var(--glow-green);
       text-shadow: 0 0 10px rgba(92, 255, 92, 0.7),
                    0 0 20px rgba(92, 255, 92, 0.5);
       line-height: 1;
-      margin: 1rem 0;
+      margin: 0.5rem 0; /* Reduced margin */
     }
     
     .hr-subtitle {
-      font-size: 1.2rem; /* Larger subtitle */
+      font-size: 1rem; /* Smaller subtitle */
       color: var(--glow-green);
       text-align: center;
       font-weight: 600;
-      max-width: 250px;
+      max-width: 220px;
     }
     
     .chart-container {
@@ -130,11 +136,11 @@
       padding: 1rem;
       box-shadow: 0 0 15px rgba(92, 255, 92, 0.3);
       position: relative;
-      overflow-y: auto; /* Enable vertical scrolling */
-      overflow-x: hidden; /* Disable horizontal scrolling */
+      overflow-y: auto;
+      overflow-x: hidden;
       aspect-ratio: 16/9; /* Make chart rectangular (16:9 aspect ratio) */
       height: auto; /* Let height be determined by aspect ratio */
-      max-height: calc(80vh - 120px); /* Maximum height */
+      max-height: calc(80vh - 150px); /* Reduced maximum height */
     }
     
     /* Style the scrollbar for the chart */
@@ -157,20 +163,20 @@
     }
     
     .controls {
-      margin-top: 0.75rem; /* Reduced margin */
-      height: 70px; /* Slightly smaller controls */
+      margin-top: 0.5rem; /* Reduced margin */
+      height: 60px; /* Smaller controls */
     }
     
     .slider-container {
       display: flex;
       flex-direction: column;
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem; /* Reduced margin */
     }
     
     .slider-header {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.25rem; /* Reduced margin */
     }
     
     .progress-label {
@@ -185,10 +191,10 @@
     
     .slider-track {
       position: relative;
-      height: 30px;
+      height: 25px; /* Smaller track */
       background: var(--panel-bg);
       border: 1px solid var(--glow-green);
-      border-radius: 15px;
+      border-radius: 12px; /* Adjusted for smaller height */
       overflow: hidden;
     }
     
@@ -234,10 +240,10 @@
     }
     
     .slider-caption {
-      text-align: center;
+      font-size: 0.8rem; /* Smaller caption */
       color: rgba(255, 255, 255, 0.7);
-      font-size: 0.875rem;
-      margin-top: 0.5rem;
+      text-align: center;
+      margin-top: 0.25rem; /* Reduced margin */
     }
     
     .legend {
@@ -308,20 +314,211 @@
     @media (max-width: 1024px) {
       .main-content {
         flex-direction: column;
+        height: auto;
+        max-height: none;
       }
       
       .heart-rate-display {
         flex: 0 0 auto;
+        height: 200px; /* Fixed height on smaller screens */
+        max-width: 100%;
+        width: 100%;
       }
       
       .hr-value {
         font-size: 6rem;
       }
+      
+      .chart {
+        max-height: 400px; /* Fixed height on smaller screens */
+        aspect-ratio: auto;
+        height: 400px;
+      }
+      
+      .controls {
+        height: auto;
+        margin-bottom: 1rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        width: 100%;
+        padding: 0.5rem;
+      }
+      
+      .student-title {
+        font-size: 1.5rem;
+      }
+      
+      .hr-value {
+        font-size: 5rem;
+      }
+      
+      .chart {
+        max-height: 350px;
+        height: 350px;
+      }
+      
+      .controls {
+        height: auto;
+        margin-bottom: 1rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        width: 100%;
+        padding: 0.5rem;
+      }
+      
+      .student-title {
+        font-size: 1.5rem;
+      }
+      
+      .hr-value {
+        font-size: 5rem;
+      }
+      
+      .chart {
+        max-height: 350px;
+        height: 350px;
+      }
+      
+      .controls {
+        height: auto;
+        margin-bottom: 1rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        width: 100%;
+        padding: 0.5rem;
+      }
+      
+      .student-title {
+        font-size: 1.5rem;
+      }
+      
+      .hr-value {
+        font-size: 5rem;
+      }
+      
+      .chart {
+        max-height: 350px;
+        height: 350px;
+      }
+      
+      .controls {
+        height: auto;
+        margin-bottom: 1rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        width: 100%;
+        padding: 0.5rem;
+      }
+      
+      .student-title {
+        font-size: 1.5rem;
+      }
+      
+      .hr-value {
+        font-size: 5rem;
+      }
+      
+      .chart {
+        max-height: 350px;
+        height: 350px;
+      }
+      
+      .controls {
+        height: auto;
+        margin-bottom: 1rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        width: 100%;
+        padding: 0.5rem;
+      }
+      
+      .student-title {
+        font-size: 1.5rem;
+      }
+      
+      .hr-value {
+        font-size: 5rem;
+      }
+      
+      .chart {
+        max-height: 350px;
+        height: 350px;
+      }
+      
+      .controls {
+        height: auto;
+        margin-bottom: 1rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        width: 100%;
+        padding: 0.5rem;
+      }
+      
+      .student-title {
+        font-size: 1.5rem;
+      }
+      
+      .hr-value {
+        font-size: 5rem;
+      }
+      
+      .chart {
+        max-height: 350px;
+        height: 350px;
+      }
+      
+      .controls {
+        height: auto;
+        margin-bottom: 1rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        width: 100%;
+        padding: 0.5rem;
+      }
+      
+      .student-title {
+        font-size: 1.5rem;
+      }
+      
+      .hr-value {
+        font-size: 5rem;
+      }
+      
+      .chart {
+        max-height: 350px;
+        height: 350px;
+      }
+      
+      .controls {
+        height: auto;
+        margin-bottom: 1rem;
+      }
     }
     
     /* Add styles for the student dropdown */
     .student-selector {
-      margin-top: 0.5rem;
+      margin-top: 0.25rem; /* Reduced margin */
       text-align: center;
       display: flex;
       justify-content: center;
@@ -339,12 +536,12 @@
       color: var(--glow-green);
       border: 1px solid var(--glow-green);
       border-radius: 4px;
-      padding: 0.5rem;
+      padding: 0.25rem 0.5rem; /* Reduced padding */
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.9rem;
+      font-size: 0.8rem; /* Smaller font */
       outline: none;
       cursor: pointer;
-      min-width: 120px;
+      min-width: 100px; /* Reduced min-width */
     }
 
     .student-dropdown:focus {
@@ -624,8 +821,8 @@
         const minHeartRate = Math.max(40, d3.min(heartRateData, d => d.heartRate) - 10);
         const maxHeartRate = Math.min(180, d3.max(heartRateData, d => d.heartRate) + 10);
         
-        // Create a taller SVG to accommodate the full range
-        const svgHeight = 1200;
+        // Create a shorter SVG to fit better in the container
+        const svgHeight = 600; // Reduced from 1200 to 600
         
         const margin = { top: 20, right: 30, bottom: 40, left: 50 };
         const width = chartWidth - margin.left - margin.right;
@@ -634,7 +831,7 @@
         // Clear any existing chart
         d3.select('#heart-rate-chart').selectAll('*').remove();
         
-        // Create SVG with fixed width but taller height
+        // Create SVG with fixed width but shorter height
         const svg = d3.select('#heart-rate-chart')
           .append('svg')
           .attr('width', '100%')
@@ -835,7 +1032,7 @@
           const dotY = y(closestPoint.heartRate) + margin.top;
           
           // Only scroll if the dot is outside the visible area
-          if (dotY < chartElement.scrollTop || dotY > chartElement.scrollTop + chartElement.clientHeight - 100) {
+          if (dotY < chartElement.scrollTop || dotY > chartElement.scrollTop + chartElement.clientHeight - 50) {
             // Calculate scroll position to center the dot
             const scrollPosition = dotY - (chartElement.clientHeight / 2);
             chartElement.scrollTop = Math.max(0, Math.min(svgHeight - chartElement.clientHeight, scrollPosition));
@@ -855,12 +1052,9 @@
           curr.heartRate > prev.heartRate ? curr : prev
         );
         
-        const maxHRY = y(maxHRPoint.heartRate) + margin.top;
-        const initialScrollPosition = maxHRY - (chartElement.clientHeight / 2);
-        
-        // Set initial scroll position after a short delay to ensure rendering is complete
+        // Set initial scroll position to show the beginning of the chart
         setTimeout(() => {
-          chartElement.scrollTop = Math.max(0, Math.min(svgHeight - chartElement.clientHeight, initialScrollPosition));
+          chartElement.scrollTop = 0; // Start at the top of the chart
         }, 100);
       }
       
