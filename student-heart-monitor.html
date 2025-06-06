@@ -24,24 +24,26 @@
       color: white;
       min-height: 100vh;
       display: flex;
-      flex-direction: column;
-      overflow-x: hidden;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
     }
     
     .container {
-      width: 100%;
-      max-width: 1400px;
+      width: 95%; /* Use more screen space */
+      max-width: 1900px; /* Increased max width */
+      height: 95vh; /* Use more vertical space */
       margin: 0 auto;
-      padding: 2rem;
+      padding: 1rem;
       display: flex;
       flex-direction: column;
-      min-height: 100vh;
+      justify-content: center;
       box-sizing: border-box;
     }
     
     .header {
       text-align: center;
-      margin-bottom: 1.5rem;
+      margin-bottom: 0.5rem; /* Reduced margin */
     }
     
     .student-title {
@@ -56,13 +58,14 @@
     
     .main-content {
       display: flex;
-      gap: 2rem;
+      gap: 1.5rem;
       flex: 1;
-      min-height: 0; /* This helps with flexbox sizing */
+      height: 80vh; /* Increased height */
+      min-height: 600px;
     }
     
     .heart-rate-display {
-      flex: 0 0 300px;
+      flex: 0 0 300px; /* Slightly narrower */
       background: var(--panel-bg);
       border: 1px solid var(--glow-green);
       border-radius: 8px;
@@ -72,6 +75,7 @@
       align-items: center;
       justify-content: center;
       box-shadow: 0 0 15px rgba(92, 255, 92, 0.3);
+      height: 100%;
     }
     
     .hr-label {
@@ -87,28 +91,28 @@
     }
     
     .hr-value {
-      font-size: 8rem;
+      font-size: 10rem; /* Larger font size */
       font-weight: 700;
       color: var(--glow-green);
       text-shadow: 0 0 10px rgba(92, 255, 92, 0.7),
                    0 0 20px rgba(92, 255, 92, 0.5);
       line-height: 1;
-      margin-bottom: 2rem;
+      margin: 1rem 0;
     }
     
     .hr-subtitle {
-      font-size: 1rem;
+      font-size: 1.2rem; /* Larger subtitle */
       color: var(--glow-green);
       text-align: center;
       font-weight: 600;
-      max-width: 200px;
+      max-width: 250px;
     }
     
     .chart-container {
       flex: 1;
       display: flex;
       flex-direction: column;
-      min-height: 0; /* This helps with flexbox sizing */
+      height: 100%; /* Full height of parent */
     }
     
     .chart-header {
@@ -122,16 +126,39 @@
       background: var(--panel-bg);
       border: 1px solid var(--glow-green);
       border-radius: 8px;
-      height: 1800px; /* Fixed height for the chart itself */
+      flex: 1;
       padding: 1rem;
       box-shadow: 0 0 15px rgba(92, 255, 92, 0.3);
       position: relative;
-      min-height: 400px; /* Ensure minimum height */
+      overflow-y: auto; /* Enable vertical scrolling */
+      overflow-x: hidden; /* Disable horizontal scrolling */
+      aspect-ratio: 16/9; /* Make chart rectangular (16:9 aspect ratio) */
+      height: auto; /* Let height be determined by aspect ratio */
+      max-height: calc(80vh - 120px); /* Maximum height */
+    }
+    
+    /* Style the scrollbar for the chart */
+    .chart::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .chart::-webkit-scrollbar-track {
+      background: rgba(0, 20, 0, 0.3);
+      border-radius: 4px;
+    }
+
+    .chart::-webkit-scrollbar-thumb {
+      background: var(--glow-green);
+      border-radius: 4px;
+    }
+
+    .chart::-webkit-scrollbar-thumb:hover {
+      background: rgba(92, 255, 92, 0.8);
     }
     
     .controls {
-      margin-top: 1rem;
-      height: 100px; /* Fixed height for controls */
+      margin-top: 0.75rem; /* Reduced margin */
+      height: 70px; /* Slightly smaller controls */
     }
     
     .slider-container {
@@ -294,32 +321,34 @@
     
     /* Add styles for the student dropdown */
     .student-selector {
-      margin-top: 1rem;
+      margin-top: 0.5rem;
       text-align: center;
       display: flex;
       justify-content: center;
       gap: 1rem;
     }
     
-    .student-dropdown, .exam-dropdown {
+    .student-dropdown-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+
+    .student-dropdown {
       background: var(--panel-bg);
       color: var(--glow-green);
       border: 1px solid var(--glow-green);
       border-radius: 4px;
-      padding: 0.5rem 1rem;
+      padding: 0.5rem;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 1rem;
-      cursor: pointer;
-      box-shadow: 0 0 10px rgba(92, 255, 92, 0.3);
+      font-size: 0.9rem;
       outline: none;
+      cursor: pointer;
+      min-width: 120px;
     }
-    
-    .student-dropdown:focus, .exam-dropdown:focus {
-      box-shadow: 0 0 15px rgba(92, 255, 92, 0.5);
-    }
-    
-    .student-dropdown option, .exam-dropdown option {
-      background-color: #001400;
+
+    .student-dropdown:focus {
+      box-shadow: 0 0 10px rgba(92, 255, 92, 0.5);
     }
   </style>
 </head>
@@ -328,11 +357,6 @@
     <div class="header">
       <h1 class="student-title" id="student-title">Student #3</h1>
       <div class="student-selector">
-        <select id="exam-dropdown" class="exam-dropdown">
-          <option value="Midterm_1">Midterm #1</option>
-          <option value="Midterm_2">Midterm #2</option>
-          <option value="Final">Final Exam</option>
-        </select>
         <select id="student-dropdown" class="student-dropdown">
           <option value="1">Student #1</option>
           <option value="2">Student #2</option>
@@ -345,9 +369,9 @@
           <option value="9">Student #9</option>
           <option value="10">Student #10</option>
         </select>
-        <select id="exam-dropdown" class="student-dropdown" style="margin-left: 10px;">
-          <option value="midterm1" selected>Midterm 1</option>
-          <option value="midterm2">Midterm 2</option>
+        <select id="exam-dropdown" class="student-dropdown">
+          <option value="midterm1">Midterm 1</option>
+          <option value="midterm2" selected>Midterm 2</option>
           <option value="final">Final</option>
         </select>
       </div>
@@ -406,12 +430,16 @@
       // Configuration
       const config = {
         studentId: 3, // Default student ID
-        examType: 'Midterm_1', // Default exam type
-        examDuration: 10800, // seconds (3 hours)
+        examType: 'midterm2', // Default exam type
+        examDurations: {
+          'midterm1': 5400, // 1.5 hours in seconds
+          'midterm2': 5400, // 1.5 hours in seconds
+          'final': 10800    // 3 hours in seconds
+        },
         examStartTimes: {
-          'Midterm_1': new Date('2000-01-01T07:55:00'),
-          'Midterm_2': new Date('2000-01-01T08:18:00'),
-          'Final': new Date('2000-01-01T10:29:00')
+          'midterm1': new Date('2000-01-01T07:55:00'),
+          'midterm2': new Date('2000-01-01T08:18:00'),
+          'final': new Date('2000-01-01T10:29:00')
         },
         heartRateZones: {
           low: { min: 40, max: 60, color: '#2563eb' },
@@ -440,7 +468,9 @@
       // Function to load heart rate data from CSV
       async function loadHeartRateData(studentId, examType) {
         try {
-          const filePath = `${config.dataPath}${config.examType}_HR.csv`;
+          // Convert examType to the format used in filenames (e.g., 'midterm1' to 'Midterm_1')
+          const formattedExamType = examType.charAt(0).toUpperCase() + examType.slice(1).replace(/(\d+)/, '_$1');
+          const filePath = `${config.dataPath}${formattedExamType}_HR.csv`;
           const response = await fetch(filePath);
           
           if (!response.ok) {
@@ -495,15 +525,12 @@
             throw new Error('No valid data points found');
           }
           
-          // Update exam duration based on actual data
-          config.examDuration = maxTime;
-          
           console.log(`Loaded ${data.length} data points for Student #${studentId}`);
           return data;
         } catch (error) {
           console.error('Error loading heart rate data:', error);
           alert(`Failed to load data for Student #${studentId}: ${error.message}`);
-          return null;
+          return generateHeartRateData(config.examDurations[examType] || 5400);
         }
       }
       
@@ -574,13 +601,13 @@
       
       // Initialize the visualization
       async function initVisualization(studentId, examType) {
+        // Get the correct exam duration based on exam type
+        const examDuration = config.examDurations[examType] || 5400; // Default to 5400 if not found
+        
         // Update student title and dropdowns
         document.getElementById('student-title').textContent = `Student #${studentId} - ${examType.toUpperCase()}`;
         document.getElementById('student-dropdown').value = studentId;
-        document.getElementById('exam-dropdown').value = examType;
-        
-        // Set exam duration based on exam type
-        const examDuration = config.examDurations[examType];
+        document.getElementById('exam-dropdown').value = examType.toLowerCase();
         
         // Load heart rate data for the selected student and exam
         const heartRateData = await loadHeartRateData(studentId, examType);
@@ -592,42 +619,47 @@
         const chartElement = document.getElementById('heart-rate-chart');
         const chartWidth = chartElement.clientWidth;
         const chartHeight = chartElement.clientHeight;
+        
+        // Calculate the height needed to show the full range of heart rates
+        const minHeartRate = Math.max(40, d3.min(heartRateData, d => d.heartRate) - 10);
+        const maxHeartRate = Math.min(180, d3.max(heartRateData, d => d.heartRate) + 10);
+        
+        // Create a taller SVG to accommodate the full range
+        const svgHeight = 1200;
+        
         const margin = { top: 20, right: 30, bottom: 40, left: 50 };
         const width = chartWidth - margin.left - margin.right;
-        const height = chartHeight - margin.top - margin.bottom;
+        const height = svgHeight - margin.top - margin.bottom;
         
         // Clear any existing chart
         d3.select('#heart-rate-chart').selectAll('*').remove();
         
-        // Create SVG
+        // Create SVG with fixed width but taller height
         const svg = d3.select('#heart-rate-chart')
           .append('svg')
           .attr('width', '100%')
-          .attr('height', '100%')
-          .attr('viewBox', `0 0 ${chartWidth} ${chartHeight}`)
+          .attr('height', svgHeight)
+          .attr('viewBox', `0 0 ${chartWidth} ${svgHeight}`)
           .attr('preserveAspectRatio', 'xMidYMid meet')
           .append('g')
           .attr('transform', `translate(${margin.left},${margin.top})`);
         
         // Create scales
         const x = d3.scaleLinear()
-          .domain([0, examDuration])
+          .domain([0, examDuration]) // Use the correct exam duration
           .range([0, width]);
         
-        // Determine y-axis domain based on actual data with padding
-        const minHR = Math.max(40, d3.min(heartRateData, d => d.heartRate) - 5);
-        const maxHR = Math.min(160, d3.max(heartRateData, d => d.heartRate) + 5);
-        
         const y = d3.scaleLinear()
-          .domain([minHR, maxHR])
+          .domain([minHeartRate, maxHeartRate])
           .range([height, 0]);
         
         // Create axes
         const xAxis = d3.axisBottom(x)
           .tickFormat(d => formatTime(d))
-          .ticks(8); // Show more time points
+          .ticks(12); // More time points
         
-        const yAxis = d3.axisLeft(y);
+        const yAxis = d3.axisLeft(y)
+          .ticks(15);
         
         // Add X axis
         svg.append('g')
@@ -644,7 +676,7 @@
           .attr('x', width / 2)
           .attr('y', height + margin.bottom - 5)
           .attr('text-anchor', 'middle')
-          .text('Time (HH:MM)');
+          .text('Time (HH:MM:SS)');
         
         // Add Y axis label
         svg.append('text')
@@ -666,9 +698,9 @@
         // Add zone backgrounds
         Object.entries(config.heartRateZones).forEach(([zone, { min, max, color }]) => {
           // Only show zones that are within our y-axis domain
-          if (max >= minHR && min <= maxHR) {
-            const zoneMin = Math.max(min, minHR);
-            const zoneMax = Math.min(max, maxHR);
+          if (max >= minHeartRate && min <= maxHeartRate) {
+            const zoneMin = Math.max(min, minHeartRate);
+            const zoneMax = Math.min(max, maxHeartRate);
             
             svg.append('rect')
               .attr('x', 0)
@@ -691,7 +723,7 @@
           .attr('class', 'hr-line')
           .attr('d', line)
           .attr('stroke', 'var(--glow-green)')
-          .attr('stroke-width', 2.5);
+          .attr('stroke-width', 3);
         
         // Add heart rate area
         const area = d3.area()
@@ -714,17 +746,17 @@
           .attr('x2', 0)
           .attr('y2', height)
           .attr('stroke', 'white')
-          .attr('stroke-width', 1)
+          .attr('stroke-width', 2)
           .attr('stroke-dasharray', '5,5')
           .style('opacity', 0);
         
         // Add dot indicator for current heart rate
         const dotIndicator = svg.append('circle')
           .attr('class', 'dot-indicator')
-          .attr('r', 6)
+          .attr('r', 8)
           .attr('fill', 'white')
           .attr('stroke', 'var(--glow-green)')
-          .attr('stroke-width', 2)
+          .attr('stroke-width', 3)
           .style('opacity', 0);
         
         // Add tooltip for heart rate value
@@ -733,17 +765,17 @@
           .style('opacity', 0);
         
         tooltip.append('rect')
-          .attr('width', 80)
-          .attr('height', 30)
-          .attr('fill', 'rgba(0, 0, 0, 0.7)')
+          .attr('width', 90)
+          .attr('height', 35)
+          .attr('fill', 'rgba(0, 0, 0, 0.8)')
           .attr('rx', 5);
         
         tooltip.append('text')
-          .attr('x', 40)
-          .attr('y', 20)
+          .attr('x', 45)
+          .attr('y', 22)
           .attr('text-anchor', 'middle')
           .attr('fill', 'white')
-          .attr('font-size', '12px');
+          .attr('font-size', '14px');
         
         // Set up slider
         const slider = document.getElementById('time-slider');
@@ -759,7 +791,7 @@
         // Function to update display based on slider position
         function updateDisplay(sliderValue) {
           const percent = sliderValue / 100;
-          const currentTime = percent * examDuration;
+          const currentTime = percent * examDuration; // Use the correct exam duration
           
           // Update slider progress bar
           sliderProgress.style.width = `${sliderValue}%`;
@@ -792,11 +824,22 @@
           
           // Update tooltip
           tooltip
-            .attr('transform', `translate(${x(closestPoint.time) - 40}, ${y(closestPoint.heartRate) - 40})`)
+            .attr('transform', `translate(${x(closestPoint.time) - 45}, ${y(closestPoint.heartRate) - 45})`)
             .style('opacity', 1);
           
           tooltip.select('text')
             .text(`${Math.round(closestPoint.heartRate)} bpm`);
+          
+          // Scroll to the dot indicator if it's outside the visible area
+          const chartElement = document.getElementById('heart-rate-chart');
+          const dotY = y(closestPoint.heartRate) + margin.top;
+          
+          // Only scroll if the dot is outside the visible area
+          if (dotY < chartElement.scrollTop || dotY > chartElement.scrollTop + chartElement.clientHeight - 100) {
+            // Calculate scroll position to center the dot
+            const scrollPosition = dotY - (chartElement.clientHeight / 2);
+            chartElement.scrollTop = Math.max(0, Math.min(svgHeight - chartElement.clientHeight, scrollPosition));
+          }
         }
         
         // Initialize with current slider value
@@ -806,6 +849,19 @@
         slider.addEventListener('input', function() {
           updateDisplay(this.value);
         });
+        
+        // Find the maximum heart rate point and scroll to it initially
+        const maxHRPoint = heartRateData.reduce((prev, curr) => 
+          curr.heartRate > prev.heartRate ? curr : prev
+        );
+        
+        const maxHRY = y(maxHRPoint.heartRate) + margin.top;
+        const initialScrollPosition = maxHRY - (chartElement.clientHeight / 2);
+        
+        // Set initial scroll position after a short delay to ensure rendering is complete
+        setTimeout(() => {
+          chartElement.scrollTop = Math.max(0, Math.min(svgHeight - chartElement.clientHeight, initialScrollPosition));
+        }, 100);
       }
       
       // Format time as HH:MM:SS
@@ -847,8 +903,8 @@
       // Add event listener for exam dropdown
       document.getElementById('exam-dropdown').addEventListener('change', function() {
         const selectedExamType = this.value;
-        config.examType = selectedExamType;
-        initVisualization(parseInt(document.getElementById('student-dropdown').value));
+        const selectedStudentId = parseInt(document.getElementById('student-dropdown').value);
+        initVisualization(selectedStudentId, selectedExamType);
         
         // Update URL parameter without refreshing the page
         const url = new URL(window.location);
