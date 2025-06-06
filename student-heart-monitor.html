@@ -106,6 +106,7 @@
       flex: 1;
       display: flex;
       flex-direction: column;
+      height: 800px; /* Fixed height for the entire chart container */
     }
     
     .chart-header {
@@ -119,14 +120,16 @@
       background: var(--panel-bg);
       border: 1px solid var(--glow-green);
       border-radius: 8px;
-      flex: 1;
+      height: 1800px; /* Fixed height for the chart itself */
       padding: 1rem;
       box-shadow: 0 0 15px rgba(92, 255, 92, 0.3);
       position: relative;
+      overflow: hidden; /* Prevent overflow */
     }
     
     .controls {
-      margin-top: 1.5rem;
+      margin-top: 1rem;
+      height: 100px; /* Fixed height for controls */
     }
     
     .slider-container {
@@ -428,10 +431,10 @@
           // Map of possible file naming patterns for each exam type
           const filePatterns = {
             midterm1: [
-              'Midterm 1_HR.csv'
+              'Midterm_1_HR.csv'
             ],
             midterm2: [
-              'Midterm 2_HR.csv'
+              'Midterm_2_HR.csv'
             ],
             final: [
               'Final_HR.csv'
