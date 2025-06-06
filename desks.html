@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student EDA Profiles</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    :root {
+      --stress-color: #a855f7;
+      --calm-color: #0ea5e9;
+      --bg-dark: #0f172a;
+      --card-bg: rgba(15, 23, 42, 0.8);
+      --desk-primary: #1e1654;
+      --desk-secondary: #0c2546;
+      --desk-accent: #4f46e5;
+      --desk-drawer: #0ea5e9;
+      --desk-drawer-dark: #0284c7;
+      --desk-handle: #a855f7;
+      --desk-shadow: rgba(0, 0, 0, 0.5);
+      --desk-glow: rgba(79, 70, 229, 0.4);
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-dark);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      perspective: 1000px;
+    }
+    
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      padding: 2rem;
+    }
+    
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 2rem;
+    }
+    
+    .classroom {
+      position: relative;
+      width: 100%;
+      height: 700px;
+      background: linear-gradient(to bottom, #1a1035, #0c111d);
+      border-radius: 1rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      transform-style: preserve-3d;
+      perspective: 1200px;
+      margin-bottom: 2rem;
+    }
+    
+    .classroom::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: radial-gradient(rgba(79, 70, 229, 0.1) 1px, transparent 1px);
+      background-size: 20px 20px;
+      opacity: 0.2;
+      z-index: 0;
+    }
+    
+    .teacher-desk {
+      position: absolute;
+      top: 50px;
+      left: 50%;
+      transform: translateX(-50%) rotateX(30deg);
+      width: 240px;
+      height: 100px;
+      background: var(--desk-primary);
+      border-radius: 8px 8px 0 0;
+      box-shadow: 0 5px 15px var(--desk-shadow), 0 0 15px var(--desk-glow);
+      z-index: 10;
+      border: 2px solid var(--desk-accent);
+      transform-style: preserve-3d;
+    }
+    
+    .teacher-desk::before {
+      content: 'Teacher';
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.8);
+      text-shadow: 0 0 8px var(--desk-glow);
+    }
+    
+    .teacher-desk-side {
+      position: absolute;
+      height: 100%;
+      width: 30px;
+      background: var(--desk-secondary);
+      right: -30px;
+      top: 0;
+      transform: rotateY(-90deg);
+      transform-origin: left;
+      border: 2px solid var(--desk-accent);
+      border-left: none;
+    }
+    
+    .teacher-desk-front {
+      position: absolute;
+      width: 100%;
+      height: 50px;
+      background: var(--desk-secondary);
+      bottom: -50px;
+      left: 0;
+      transform: rotateX(-90deg);
+      transform-origin: top;
+      border: 2px solid var(--desk-accent);
+      border-top: none;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .teacher-desk-leg {
+      position: absolute;
+      width: 20px;
+      height: 80px;
+      background: var(--desk-secondary);
+      bottom: -130px;
+      border: 1px solid var(--desk-accent);
+    }
+    
+    .teacher-desk-leg:nth-child(3) {
+      left: 30px;
+    }
+    
+    .teacher-desk-leg:nth-child(4) {
+      right: 30px;
+    }
+    
+    .desks-container {
+      position: absolute;
+      top: 200px;
+      left: 0;
+      width: 100%;
+      height: calc(100% - 200px);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2.5rem;
+      padding: 2rem;
+      z-index: 5;
+    }
+    
+    .student-desk {
+      position: relative;
+      height: 250px;
+      transform-style: preserve-3d;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transform: rotateX(30deg);
+    }
+    
+    .student-desk:hover {
+      transform: rotateX(35deg) translateY(-20px);
+      z-index: 20;
+    }
+    
+    .desk-top {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 60%;
+      background: var(--desk-primary);
+      border-radius: 8px 8px 0 0;
+      box-shadow: 0 5px 15px var(--desk-shadow), 0 0 15px var(--desk-glow);
+      border: 2px solid var(--desk-accent);
+      transform-style: preserve-3d;
+      z-index: 2;
+      overflow: visible;
+    }
+    
+    .desk-front {
+      position: absolute;
+      width: 100%;
+      height: 40%;
+      background: var(--desk-secondary);
+      bottom: 0;
+      left: 0;
+      border-radius: 0 0 8px 8px;
+      border: 2px solid var(--desk-accent);
+      border-top: none;
+      transform-style: preserve-3d;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .desk-drawer {
+      position: absolute;
+      background: var(--desk-drawer);
+      border: 2px solid var(--desk-accent);
+      border-radius: 3px;
+      z-index: 3;
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .desk-drawer-handle {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: var(--desk-handle);
+      border-radius: 50%;
+      top: 50%;
+      left: 10px;
+      transform: translateY(-50%);
+      box-shadow: 0 0 8px rgba(168, 85, 247, 0.7);
+    }
+    
+    .desk-drawer-left {
+      top: 15px;
+      left: 15px;
+      width: 45%;
+      height: 30px;
+    }
+    
+    .desk-drawer-right-top {
+      top: 15px;
+      right: 15px;
+      width: 30%;
+      height: 25px;
+    }
+    
+    .desk-drawer-right-middle {
+      top: 50px;
+      right: 15px;
+      width: 30%;
+      height: 25px;
+    }
+    
+    .desk-drawer-right-bottom {
+      top: 85px;
+      right: 15px;
+      width: 30%;
+      height: 25px;
+    }
+    
+    .desk-side {
+      position: absolute;
+      height: 100%;
+      width: 25px;
+      background: var(--desk-secondary);
+      right: -25px;
+      top: 0;
+      transform: rotateY(-90deg);
+      transform-origin: left;
+      border: 2px solid var(--desk-accent);
+      border-left: none;
+    }
+    
+    .desk-nameplate {
+      position: absolute;
+      top: -25px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(79, 70, 229, 0.3);
+      padding: 5px 20px;
+      border-radius: 15px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3), 0 0 15px var(--desk-glow);
+      z-index: 5;
+      white-space: nowrap;
+      border: 1px solid var(--desk-accent);
+      color: white;
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(5px);
+    }
+    
+    .student-id {
+      position: absolute;
+      top: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--stress-color);
+      font-size: 0.9rem;
+      opacity: 0.9;
+      z-index: 5;
+      text-shadow: 0 0 8px rgba(168, 85, 247, 0.5);
+    }
+    
+    .sparkline-container {
+      position: absolute;
+      bottom: 15px;
+      left: 10px;
+      right: 10px;
+      height: 50px;
+      z-index: 5;
+    }
+    
+    /* Desk legs */
+    .desk-leg {
+      position: absolute;
+      width: 15px;
+      height: 70px;
+      background: var(--desk-secondary);
+      border: 1px solid var(--desk-accent);
+      bottom: -70px;
+      z-index: 1;
+    }
+    
+    .desk-leg-left {
+      left: 30px;
+    }
+    
+    .desk-leg-right {
+      right: 30px;
+    }
+    
+    /* Pencil on desk */
+    .desk-pencil {
+      position: absolute;
+      width: 40px;
+      height: 3px;
+      background: #FFD700;
+      top: 30%;
+      right: 15%;
+      transform: rotate(30deg);
+      z-index: 6;
+    }
+    
+    .desk-pencil::before {
+      content: '';
+      position: absolute;
+      right: -5px;
+      top: -1px;
+      width: 5px;
+      height: 5px;
+      background: #FF6B6B;
+      border-radius: 50%;
+    }
+    
+    .desk-pencil::after {
+      content: '';
+      position: absolute;
+      left: -3px;
+      top: 0;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 1.5px 3px 1.5px 0;
+      border-color: transparent #555 transparent transparent;
+    }
+    
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 50;
+      backdrop-filter: blur(5px);
+    }
+    
+    .overlay.active {
+      display: block;
+    }
+    
+    .student-profile {
+      display: none;
+      position: fixed;
+      top: 5vh;
+      left: 5vw;
+      width: 90vw;
+      height: 90vh;
+      background: var(--card-bg);
+      border-radius: 1rem;
+      z-index: 100;
+      padding: 2rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      overflow-y: auto;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+    
+    .student-profile.active {
+      display: flex;
+      flex-direction: column;
+      transform: translateY(0);
+      opacity: 1;
+    }
+    
+    .profile-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .student-name-large {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0;
+    }
+    
+    .student-id-large {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--stress-color);
+      font-size: 1.2rem;
+      margin-top: 0.5rem;
+    }
+    
+    .back-button {
+      background: rgba(0, 0, 0, 0.3);
+      border: none;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .back-button:hover {
+      background: rgba(0, 0, 0, 0.5);
+    }
+    
+    .detailed-chart-container {
+      flex: 1;
+      margin-top: 1.5rem;
+      min-height: 400px;
+    }
+    
+    .stats-container {
+      margin-top: 2rem;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--stress-color);
+      margin-bottom: 0.25rem;
+    }
+    
+    .stat-label {
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .annotation {
+      font-size: 0.75rem;
+      fill: white;
+    }
+    
+    .annotation-line {
+      stroke: rgba(255, 255, 255, 0.5);
+      stroke-width: 1;
+      stroke-dasharray: 3,3;
+    }
+    
+    @media (max-width: 768px) {
+      .desks-container {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+      
+      .student-profile {
+        top: 2vh;
+        left: 2vw;
+        width: 96vw;
+        height: 96vh;
+        padding: 1rem;
+      }
+      
+      .stats-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Student EDA Profiles During Exams</h1>
+    
+    <div class="classroom">
+      <div class="teacher-desk">
+        <div class="teacher-desk-side"></div>
+        <div class="teacher-desk-front"></div>
+        <div class="teacher-desk-leg"></div>
+        <div class="teacher-desk-leg"></div>
+      </div>
+      <div class="desks-container" id="desks-container">
+        <!-- Desks will be generated by JavaScript -->
+      </div>
+    </div>
+  </div>
+  
+  <div class="overlay" id="overlay"></div>
+  
+  <div class="student-profile" id="student-profile">
+    <div class="profile-header">
+      <div>
+        <h2 class="student-name-large" id="profile-name"></h2>
+        <div class="student-id-large" id="profile-id"></div>
+      </div>
+      <button class="back-button" id="back-button">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Close
+      </button>
+    </div>
+    <div class="detailed-chart-container" id="detailed-chart"></div>
+    <div class="stats-container" id="stats-container"></div>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Sample data for three students
+      const studentsData = [
+        {
+          id: 'S1',
+          name: 'Alex Johnson',
+          data: generateSampleData(60, 2, 5),
+          peakTime: 15,
+          recoveryTime: 8.2,
+          avgEDA: 3.7,
+          maxEDA: 6.2
+        },
+        {
+          id: 'S2',
+          name: 'Jamie Smith',
+          data: generateSampleData(60, 1.5, 7),
+          peakTime: 22,
+          recoveryTime: 12.5,
+          avgEDA: 4.2,
+          maxEDA: 7.8
+        },
+        {
+          id: 'S3',
+          name: 'Taylor Wong',
+          data: generateSampleData(60, 3, 4),
+          peakTime: 8,
+          recoveryTime: 5.4,
+          avgEDA: 3.1,
+          maxEDA: 5.5
+        }
+      ];
+      
+      const desksContainer = document.getElementById('desks-container');
+      const overlay = document.getElementById('overlay');
+      const studentProfile = document.getElementById('student-profile');
+      const profileName = document.getElementById('profile-name');
+      const profileId = document.getElementById('profile-id');
+      const statsContainer = document.getElementById('stats-container');
+      const backButton = document.getElementById('back-button');
+      
+      // Generate desks for each student
+      studentsData.forEach(student => {
+        const desk = document.createElement('div');
+        desk.className = 'student-desk';
+        desk.innerHTML = `
+          <div class="desk-nameplate">${student.name}</div>
+          <div class="desk-top">
+            <div class="student-id">${student.id}</div>
+            <div class="desk-drawer desk-drawer-left">
+              <div class="desk-drawer-handle"></div>
+            </div>
+            <div class="desk-drawer desk-drawer-right-top">
+              <div class="desk-drawer-handle"></div>
+            </div>
+            <div class="desk-drawer desk-drawer-right-middle">
+              <div class="desk-drawer-handle"></div>
+            </div>
+            <div class="desk-drawer desk-drawer-right-bottom">
+              <div class="desk-drawer-handle"></div>
+            </div>
+            <div class="desk-side"></div>
+          </div>
+          <div class="desk-front">
+            <div class="sparkline-container" id="sparkline-${student.id}"></div>
+          </div>
+          <div class="desk-leg desk-leg-left"></div>
+          <div class="desk-leg desk-leg-right"></div>
+        `;
+        
+        desksContainer.appendChild(desk);
+        
+        // Create sparkline
+        createSparkline(student.data, `sparkline-${student.id}`);
+        
+        // Add click event to show student profile
+        desk.addEventListener('click', function() {
+          showStudentProfile(student);
+        });
+      });
+      
+      // Function to show student profile
+      function showStudentProfile(student) {
+        profileName.textContent = student.name;
+        profileId.textContent = student.id;
+        
+        // Clear previous stats
+        statsContainer.innerHTML = '';
+        
+        // Add stats
+        const stats = [
+          { label: 'Max EDA (μS)', value: student.maxEDA.toFixed(1) },
+          { label: 'Avg EDA (μS)', value: student.avgEDA.toFixed(1) },
+          { label: 'Peak Time (min)', value: student.peakTime },
+          { label: 'Recovery Time (min)', value: student.recoveryTime }
+        ];
+        
+        stats.forEach(stat => {
+          const statItem = document.createElement('div');
+          statItem.className = 'stat-item';
+          statItem.innerHTML = `
+            <div class="stat-value">${stat.value}</div>
+            <div class="stat-label">${stat.label}</div>
+          `;
+          statsContainer.appendChild(statItem);
+        });
+        
+        // Create detailed chart
+        createDetailedChart(student, 'detailed-chart');
+        
+        // Show overlay and profile
+        overlay.classList.add('active');
+        studentProfile.classList.add('active');
+      }
+      
+      // Close profile when clicking back button
+      backButton.addEventListener('click', function() {
+        overlay.classList.remove('active');
+        studentProfile.classList.remove('active');
+      });
+      
+      // Close profile when clicking overlay
+      overlay.addEventListener('click', function() {
+        overlay.classList.remove('active');
+        studentProfile.classList.remove('active');
+      });
+      
+      // Function to create sparkline
+      function createSparkline(data, containerId) {
+        const container = document.getElementById(containerId);
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        const margin = { top: 5, right: 5, bottom: 5, left: 5 };
+        
+        const svg = d3.select(`#${containerId}`)
+          .append('svg')
+          .attr('width', width)
+          .attr('height', height);
+        
+        const x = d3.scaleLinear()
+          .domain([0, data.length - 1])
+          .range([margin.left, width - margin.right]);
+        
+        const y = d3.scaleLinear()
+          .domain([0, d3.max(data) * 1.1])
+          .range([height - margin.bottom, margin.top]);
+        
+        const line = d3.line()
+          .x((d, i) => x(i))
+          .y(d => y(d))
+          .curve(d3.curveMonotoneX);
+        
+        svg.append('path')
+          .datum(data)
+          .attr('fill', 'none')
+          .attr('stroke', 'var(--stress-color)')
+          .attr('stroke-width', 2)
+          .attr('d', line);
+      }
+      
+      // Function to create detailed chart
+      function createDetailedChart(student, containerId) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = ''; // Clear previous chart
+        
+        const width = container.clientWidth;
+        const height = 400;
+        const margin = { top: 30, right: 30, bottom: 50, left: 60 };
+        
+        const svg = d3.select(`#${containerId}`)
+          .append('svg')
+          .attr('width', width)
+          .attr('height', height);
+        
+        const x = d3.scaleLinear()
+          .domain([0, student.data.length - 1])
+          .range([margin.left, width - margin.right]);
+        
+        const y = d3.scaleLinear()
+          .domain([0, d3.max(student.data) * 1.1])
+          .range([height - margin.bottom, margin.top]);
+        
+        // Add X axis
+        svg.append('g')
+          .attr('transform', `translate(0,${height - margin.bottom})`)
+          .call(d3.axisBottom(x).ticks(10).tickFormat(d => `${d}m`))
+          .call(g => g.select('.domain').attr('stroke', 'rgba(255, 255, 255, 0.3)'))
+          .call(g => g.selectAll('.tick line').attr('stroke', 'rgba(255, 255, 255, 0.3)'))
+          .call(g => g.selectAll('.tick text').attr('fill', 'rgba(255, 255, 255, 0.7)'));
+        
+        // Add Y axis
+        svg.append('g')
+          .attr('transform', `translate(${margin.left},0)`)
+          .call(d3.axisLeft(y).ticks(5))
+          .call(g => g.select('.domain').attr('stroke', 'rgba(255, 255, 255, 0.3)'))
+          .call(g => g.selectAll('.tick line').attr('stroke', 'rgba(255, 255, 255, 0.3)'))
+          .call(g => g.selectAll('.tick text').attr('fill', 'rgba(255, 255, 255, 0.7)'));
+        
+        // Add Y axis label
+        svg.append('text')
+          .attr('transform', 'rotate(-90)')
+          .attr('y', margin.left / 3)
+          .attr('x', -height / 2)
+          .attr('text-anchor', 'middle')
+          .attr('fill', 'white')
+          .text('EDA (μS)');
+        
+        // Add X axis label
+        svg.append('text')
+          .attr('x', width / 2)
+          .attr('y', height - 10)
+          .attr('text-anchor', 'middle')
+          .attr('fill', 'white')
+          .text('Time (minutes)');
+        
+        // Add the line
+        const line = d3.line()
+          .x((d, i) => x(i))
+          .y(d => y(d))
+          .curve(d3.curveMonotoneX);
+        
+        svg.append('path')
+          .datum(student.data)
+          .attr('fill', 'none')
+          .attr('stroke', 'var(--stress-color)')
+          .attr('stroke-width', 2.5)
+          .attr('d', line);
+        
+        // Add area under the curve
+        const area = d3.area()
+          .x((d, i) => x(i))
+          .y0(height - margin.bottom)
+          .y1(d => y(d))
+          .curve(d3.curveMonotoneX);
+        
+        svg.append('path')
+          .datum(student.data)
+          .attr('fill', 'url(#gradient)')
+          .attr('opacity', 0.3)
+          .attr('d', area);
+        
+        // Add gradient
+        const gradient = svg.append('defs')
+          .append('linearGradient')
+          .attr('id', 'gradient')
+          .attr('x1', '0%')
+          .attr('y1', '0%')
+          .attr('x2', '0%')
+          .attr('y2', '100%');
+        
+        gradient.append('stop')
+          .attr('offset', '0%')
+          .attr('stop-color', 'var(--stress-color)')
+          .attr('stop-opacity', 1);
+        
+        gradient.append('stop')
+          .attr('offset', '100%')
+          .attr('stop-color', 'var(--stress-color)')
+          .attr('stop-opacity', 0);
+        
+        // Find peak index
+        const peakIndex = student.data.indexOf(d3.max(student.data));
+        
+        // Add peak annotation
+        svg.append('circle')
+          .attr('cx', x(peakIndex))
+          .attr('cy', y(student.data[peakIndex]))
+          .attr('r', 5)
+          .attr('fill', '#ff4560')
+          .attr('stroke', 'white')
+          .attr('stroke-width', 1);
+        
+        svg.append('line')
+          .attr('class', 'annotation-line')
+          .attr('x1', x(peakIndex))
+          .attr('y1', y(student.data[peakIndex]) + 10)
+          .attr('x2', x(peakIndex))
+          .attr('y2', y(student.data[peakIndex]) + 40);
+        
+        svg.append('text')
+          .attr('class', 'annotation')
+          .attr('x', x(peakIndex))
+          .attr('y', y(student.data[peakIndex]) + 55)
+          .attr('text-anchor', 'middle')
+          .text(`Peak: ${student.data[peakIndex].toFixed(1)} μS`);
+        
+        // Add recovery annotation
+        const recoveryIndex = Math.min(peakIndex + Math.floor(student.recoveryTime), student.data.length - 1);
+        
+        svg.append('circle')
+          .attr('cx', x(recoveryIndex))
+          .attr('cy', y(student.data[recoveryIndex]))
+          .attr('r', 5)
+          .attr('fill', 'var(--calm-color)')
+          .attr('stroke', 'white')
+          .attr('stroke-width', 1);
+        
+        svg.append('line')
+          .attr('class', 'annotation-line')
+          .attr('x1', x(recoveryIndex))
+          .attr('y1', y(student.data[recoveryIndex]) - 10)
+          .attr('x2', x(recoveryIndex))
+          .attr('y2', y(student.data[recoveryIndex]) - 40);
+        
+        svg.append('text')
+          .attr('class', 'annotation')
+          .attr('x', x(recoveryIndex))
+          .attr('y', y(student.data[recoveryIndex]) - 55)
+          .attr('text-anchor', 'middle')
+          .text(`Recovery: ${student.data[recoveryIndex].toFixed(1)} μS`);
+          
+        // Add end-state annotation
+        const endIndex = student.data.length - 1;
+        
+        svg.append('circle')
+          .attr('cx', x(endIndex))
+          .attr('cy', y(student.data[endIndex]))
+          .attr('r', 5)
+          .attr('fill', '#10b981')
+          .attr('stroke', 'white')
+          .attr('stroke-width', 1);
+        
+        svg.append('line')
+          .attr('class', 'annotation-line')
+          .attr('x1', x(endIndex))
+          .attr('y1', y(student.data[endIndex]) + 10)
+          .attr('x2', x(endIndex))
+          .attr('y2', y(student.data[endIndex]) + 40);
+        
+        svg.append('text')
+          .attr('class', 'annotation')
+          .attr('x', x(endIndex))
+          .attr('y', y(student.data[endIndex]) + 55)
+          .attr('text-anchor', 'middle')
+          .text(`End: ${student.data[endIndex].toFixed(1)} μS`);
+      }
+      
+      // Function to generate sample data
+      function generateSampleData(length, baseValue, peakMultiplier) {
+        const data = [];
+        const peakIndex = Math.floor(length * 0.3 + Math.random() * length * 0.4);
+        
+        for (let i = 0; i < length; i++) {
+          let value;
+          const distFromPeak = Math.abs(i - peakIndex);
+          
+          if (i < peakIndex) {
+            // Ramp up to peak
+            value = baseValue + (peakMultiplier - 1) * baseValue * (1 - distFromPeak / peakIndex);
+          } else {
+            // Decay from peak
+            value = baseValue + (peakMultiplier - 1) * baseValue * Math.exp(-distFromPeak / (length * 0.2));
+          }
+          
+          // Add some noise
+          value += (Math.random() - 0.5) * baseValue * 0.4;
+          
+          data.push(Math.max(0, value));
+        }
+        
+        return data;
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+

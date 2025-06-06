@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MindPulse | Exam Stress Visualization</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/landing-page.css">
+</head>
+<body class="font-sans">
+  <!-- Countdown Timer Overlay -->
+  <div id="countdown-overlay" class="fixed inset-0 bg-black z-50 flex items-center justify-center">
+    <div class="alarm-clock">
+      <div class="alarm-clock-face">
+        <div class="clock-markings"></div>
+        <div id="countdown-timer" class="font-mono text-red-500 countdown-glow">00:00:03</div>
+        <div class="alarm-bells">
+          <div class="bell bell-left"></div>
+          <div class="bell bell-right"></div>
+        </div>
+        <div class="clock-details">
+          <div class="clock-button clock-button-left"></div>
+          <div class="clock-button clock-button-right"></div>
+        </div>
+      </div>
+      <div class="alarm-stand"></div>
+    </div>
+    <div id="countdown-pulse" class="absolute w-full h-full pointer-events-none"></div>
+    <div id="pun-message" class="text-center text-white font-bold opacity-0 transition-opacity duration-500">
+      Ticked Off? See Why.
+    </div>
+  </div>
+
+  <!-- Main Content (initially hidden) -->
+  <div id="main-content" class="opacity-0 transition-opacity duration-1000">
+    <!-- Heart Background -->
+    <div class="heart-bg fixed inset-0 flex items-center justify-center">
+      <svg class="heart-svg" viewBox="0 0 32 32" fill="white" xmlns="http://www.w3.org/2000/svg">
+        <path d="M16 28.7c-.7 0-1.4-.3-1.9-.8L4.8 18.6C1.7 15.5 1.7 10.4 4.8 7.3c1.5-1.5 3.5-2.3 5.6-2.3s4.1.8 5.6 2.3L16 7.3l.1-.1c1.5-1.5 3.5-2.3 5.6-2.3s4.1.8 5.6 2.3c3.1 3.1 3.1 8.2 0 11.3L17.9 27.9c-.5.5-1.2.8-1.9.8z"/>
+      </svg>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="min-h-screen relative flex flex-col items-center justify-center px-4 text-white">
+      <div class="text-center z-10 max-w-4xl mx-auto fade-in-element">
+        <h1 class="text-5xl md:text-7xl font-bold mb-4 tracking-tight title-glow">MindPulse</h1>
+        <p class="text-xl md:text-2xl mb-12 text-gray-300 subtitle-fade">Where Exam Stress Meets Data-Driven Insight</p>
+        <div class="flex flex-col sm:flex-row gap-6 justify-center">
+          <a href="index.html" class="cta-button">
+            Start Exploring
+            <span class="cta-glow"></span>
+          </a>
+          <a href="#about" class="secondary-button">
+            Learn More
+          </a>
+        </div>
+      </div>
+      
+      <!-- Scroll Indicator -->
+      <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 scroll-indicator">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+        </svg>
+      </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="min-h-screen flex items-center justify-center px-4 py-20 relative">
+      <div class="max-w-5xl mx-auto z-10">
+        <h2 class="text-3xl md:text-4xl font-bold mb-8 text-white text-center section-title">Understanding Exam Stress</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="bg-black/30 backdrop-blur-md p-6 rounded-xl border border-white/10 transform hover:scale-105 transition-transform duration-300">
+            <h3 class="text-xl font-semibold mb-4 text-white">Physiological Impact</h3>
+            <p class="text-gray-300">Our research captures real-time heart rate, electrodermal activity, and movement data from students during exams, revealing how stress manifests physically. Data was collected using FDA-approved Empatica E4 wristbands during midterm and final exams.</p>
+          </div>
+          <div class="bg-black/30 backdrop-blur-md p-6 rounded-xl border border-white/10 transform hover:scale-105 transition-transform duration-300">
+            <h3 class="text-xl font-semibold mb-4 text-white">Performance Correlation</h3>
+            <p class="text-gray-300">Discover the relationship between stress levels and exam performance. Our dataset bridges the gap between laboratory stress studies and real-world cognitive stressors experienced by college students during high-pressure academic situations.</p>
+          </div>
+          <div class="bg-black/30 backdrop-blur-md p-6 rounded-xl border border-white/10 transform hover:scale-105 transition-transform duration-300">
+            <h3 class="text-xl font-semibold mb-4 text-white">Stress Management</h3>
+            <p class="text-gray-300">Explore how different coping mechanisms affect physiological responses and recovery times. Our dataset includes electrodermal activity, heart rate, blood volume pulse, skin temperature, and accelerometer data from 10 students across three exam sessions.</p>
+          </div>
+          <div class="bg-black/30 backdrop-blur-md p-6 rounded-xl border border-white/10 transform hover:scale-105 transition-transform duration-300">
+            <h3 class="text-xl font-semibold mb-4 text-white">Data Visualization</h3>
+            <p class="text-gray-300">Experience interactive visualizations that bring stress data to life. Our study recorded data during 1.5-hour midterms and 3-hour finals, making complex physiological patterns accessible and meaningful for understanding real-world stress responses.</p>
+          </div>
+        </div>
+        <div class="mt-10 bg-black/40 backdrop-blur-md p-6 rounded-xl border border-white/10">
+          <h3 class="text-xl font-semibold mb-4 text-white text-center">About the Dataset</h3>
+          <p class="text-gray-300 mb-4">This project uses a unique dataset that bridges the gap between laboratory stress studies and real-world cognitive stressors. While many experiments use artificial stimuli like electric shocks or loud noises, our data captures how people's physiological responses fluctuate during actual exam experiences.</p>
+          <p class="text-gray-300">The dataset contains recordings from 10 participants (2 female, 8 male) during three exam sessions (midterm 1, midterm 2, and finals), measuring electrodermal activity, heart rate, blood volume pulse, skin temperature, inter-beat interval, and movement data, along with corresponding grades.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Explore Section -->
+    <section class="min-h-screen flex items-center justify-center px-4 py-20 relative">
+      <div class="max-w-5xl mx-auto z-10 text-center">
+        <h2 class="text-3xl md:text-4xl font-bold mb-8 text-white section-title">Explore Our Visualizations</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <a href="index.html" class="feature-card">
+            <div class="h-40 bg-gradient-to-br from-purple-900 to-indigo-800 rounded-t-xl flex items-center justify-center">
+              <span class="text-4xl">📊</span>
+            </div>
+            <div class="p-6">
+              <h3 class="text-xl font-semibold mb-2">Stress Patterns</h3>
+              <p class="text-gray-300">Explore how stress evolves throughout exam periods</p>
+            </div>
+          </a>
+          <a href="student-heart-monitor.html" class="feature-card">
+            <div class="h-40 bg-gradient-to-br from-blue-900 to-cyan-800 rounded-t-xl flex items-center justify-center">
+              <span class="text-4xl">💓</span>
+            </div>
+            <div class="p-6">
+              <h3 class="text-xl font-semibold mb-2">Heart Monitor</h3>
+              <p class="text-gray-300">Visualize real-time heart rate data during exams</p>
+            </div>
+          </a>
+          <a href="student-timeline.html" class="feature-card">
+            <div class="h-40 bg-gradient-to-br from-indigo-900 to-purple-800 rounded-t-xl flex items-center justify-center">
+              <span class="text-4xl">⏱️</span>
+            </div>
+            <div class="p-6">
+              <h3 class="text-xl font-semibold mb-2">Student Timeline</h3>
+              <p class="text-gray-300">Track stress events throughout the exam experience</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-8 border-t border-white/10 text-center text-gray-400">
+      <div class="max-w-5xl mx-auto px-4">
+        <p>© 2023 MindPulse | Exam Stress Visualization Project</p>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Audio setup
+      const tickSound = new Audio('sounds/tick.mp3');
+      tickSound.volume = 0.2;
+      
+      const finalSound = new Audio('sounds/explosion.mp3');
+      finalSound.volume = 0.4;
+      
+      // Countdown timer functionality
+      const countdownOverlay = document.getElementById('countdown-overlay');
+      const countdownTimer = document.getElementById('countdown-timer');
+      const countdownPulse = document.getElementById('countdown-pulse');
+      const mainContent = document.getElementById('main-content');
+      const punMessage = document.getElementById('pun-message');
+      
+      let timeLeft = 3; // 3 seconds countdown
+      
+      // Set initial time
+      countdownTimer.textContent = `00:00:0${timeLeft}`;
+      
+      const countdown = setInterval(() => {
+        timeLeft--;
+        
+        // Format time as 00:00:XX
+        const formattedTime = `00:00:0${timeLeft}`;
+        countdownTimer.textContent = formattedTime;
+        
+        // Create pulse effect
+        const pulse = document.createElement('div');
+        pulse.classList.add('timer-pulse');
+        countdownPulse.appendChild(pulse);
+        
+        // Play tick sound
+        if (timeLeft > 0) {
+          tickSound.currentTime = 0;
+          tickSound.play().catch(e => console.log('Audio play prevented:', e));
+          
+          // Make timer red and more urgent as we get closer to zero
+          countdownTimer.style.color = timeLeft === 1 ? '#ff0000' : '#ff5555';
+          countdownTimer.style.textShadow = `0 0 10px rgba(255, ${timeLeft * 85}, ${timeLeft * 85}, 0.7), 0 0 20px rgba(255, ${timeLeft * 85}, ${timeLeft * 85}, 0.7)`;
+        }
+        
+        // Remove pulse after animation
+        setTimeout(() => {
+          pulse.remove();
+        }, 2000);
+        
+        if (timeLeft <= 0) {
+          clearInterval(countdown);
+          
+          // Play explosion sound
+          finalSound.play().catch(e => console.log('Audio play prevented:', e));
+          
+          // Explosion effect
+          countdownTimer.classList.add('explosion-effect');
+          countdownOverlay.classList.add('shake-effect');
+          
+          // Create explosion particles
+          for (let i = 0; i < 20; i++) {
+            createExplosionParticle();
+          }
+          
+          // Show pun message
+          setTimeout(() => {
+            punMessage.style.opacity = '1';
+          }, 800);
+          
+          // Fade out overlay and show main content
+          setTimeout(() => {
+            countdownOverlay.classList.add('fade-out');
+            mainContent.classList.remove('opacity-0');
+            
+            setTimeout(() => {
+              countdownOverlay.style.display = 'none';
+            }, 1000);
+          }, 2500); // Increased delay to allow time to read the pun
+        }
+      }, 1000);
+      
+      // Function to create explosion particles
+      function createExplosionParticle() {
+        const particle = document.createElement('div');
+        particle.classList.add('explosion-particle');
+        
+        // Random position, size and color
+        const size = Math.random() * 10 + 5;
+        const xPos = (Math.random() - 0.5) * 100;
+        const yPos = (Math.random() - 0.5) * 100;
+        const rotation = Math.random() * 360;
+        const duration = Math.random() * 1 + 1;
+        
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.background = `hsl(${Math.random() * 30 + 10}, 100%, 50%)`;
+        particle.style.setProperty('--x-pos', `${xPos}vw`);
+        particle.style.setProperty('--y-pos', `${yPos}vh`);
+        particle.style.setProperty('--rotation', `${rotation}deg`);
+        particle.style.setProperty('--duration', `${duration}s`);
+        
+        countdownPulse.appendChild(particle);
+        
+        // Remove particle after animation
+        setTimeout(() => {
+          particle.remove();
+        }, duration * 1000);
+      }
+      
+      // Intersection Observer for fade-in animations
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.1 });
+      
+      // Observe all sections and cards
+      document.querySelectorAll('section, .feature-card').forEach(el => {
+        observer.observe(el);
+        el.classList.add('fade-in-section');
+      });
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+

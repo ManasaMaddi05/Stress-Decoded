@@ -46,6 +46,7 @@
         <div class="controls">
           <div class="timeline-info">Drag and drop morning activities onto the timeline</div>
           <button id="reveal-btn" class="reveal-btn">Show Physiological Patterns</button>
+          <button id="summary-btn" class="summary-btn">🧠 Generate Stress Summary</button>
         </div>
         
         <div class="legend" id="legend" style="display: none;">
@@ -1080,14 +1081,249 @@
           });
         }
       }
+
+      // Function to classify stress state based on physiological data
+      function classifyStressState(heartRate, eda, variability = false) {
+        if (variability || (heartRate > 110 || eda > 0.50)) {
+          return {
+            level: 'panic',
+            label: 'Panic/Spike',
+            color: '#dc2626',
+            icon: '🔴',
+            description: 'sharp physiological spike'
+          };
+        } else if (heartRate >= 86 || eda >= 0.31) {
+          return {
+            level: 'high',
+            label: 'High Stress',
+            color: '#f97316',
+            icon: '🟠',
+            description: 'elevated stress levels'
+          };
+        } else if (heartRate >= 76 || eda >= 0.21) {
+          return {
+            level: 'slight',
+            label: 'Slightly Anxious',
+            color: '#eab308',
+            icon: '🟡',
+            description: 'mild anxiety'
+          };
+        } else if (heartRate < 76 && eda < 0.21) {
+          return {
+            level: 'calm',
+            label: 'Calm',
+            color: '#22c55e',
+            icon: '🟢',
+            description: 'calm physiological state'
+          };
+        } else {
+          return {
+            level: 'erratic',
+            label: 'Erratic/Unstable',
+            color: '#a855f7',
+            icon: '🟣',
+            description: 'unstable physiological patterns'
+          };
+        }
+      }
+
+      // Function to check for heart rate variability
+      function checkVariability(timeMinute, hrData, window = 30) {
+        // Convert minute to seconds for data lookup
+        const startTime = timeMinute * 60 - window/2;
+        const endTime = timeMinute * 60 + window/2;
+        
+        // Get heart rate values within the window
+        const relevantData = hrData.filter(d => d.time >= startTime && d.time <= endTime);
+        
+        if (relevantData.length < 3) return false;
+        
+        const values = relevantData.map(d => d.heartRate);
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+        
+        // Check if variability exceeds threshold
+        return (max - min) > 25;
+      }
+
+      // Function to check for EDA rapid reversals
+      function checkEdaReversals(timeMinute, edaData, window = 60) {
+        // Convert minute to seconds for data lookup
+        const startTime = timeMinute * 60 - window/2;
+        const endTime = timeMinute * 60 + window/2;
+        
+        // Get EDA values within the window
+        const relevantData = edaData.filter(d => d.time >= startTime && d.time <= endTime);
+        
+        if (relevantData.length < 5) return false;
+        
+        // Count direction changes
+        let reversals = 0;
+        let increasing = null;
+        
+        for (let i = 1; i < relevantData.length; i++) {
+          const currentDirection = relevantData[i].eda > relevantData[i-1].eda;
+          
+          if (increasing !== null && currentDirection !== increasing) {
+            reversals++;
+          }
+          
+          increasing = currentDirection;
+        }
+        
+        return reversals >= 2;
+      }
+
+      // Add a stress summary button to the controls div
+      const controlsDiv = document.querySelector('.controls');
+      const summaryButton = document.createElement('button');
+      summaryButton.id = 'summary-btn';
+      summaryButton.className = 'summary-btn';
+      summaryButton.innerHTML = '🧠 Generate Stress Summary';
+      controlsDiv.appendChild(summaryButton);
+
+      // Add a summary panel to display the results
+      const summaryPanel = document.createElement('div');
+      summaryPanel.id = 'summary-panel';
+      summaryPanel.className = 'summary-panel';
+      summaryPanel.style.display = 'none';
+      document.querySelector('.timeline-container').appendChild(summaryPanel);
+
+      // Event listener for the summary button
+      summaryButton.addEventListener('click', generateStressSummary);
+
+      // Function to generate stress summary
+      async function generateStressSummary() {
+        const timelineCards = document.querySelectorAll('.timeline-card');
+        
+        if (timelineCards.length === 0) {
+          summaryPanel.innerHTML = `
+            <div class="summary-header">
+              <h3>Morning Routine Analysis</h3>
+              <button class="close-btn">×</button>
+            </div>
+            <div class="summary-content">
+              <p>Please drag activities to the timeline to analyze morning stress patterns.</p>
+            </div>
+          `;
+          summaryPanel.style.display = 'block';
+          return;
+        }
+        
+        // Load physiological data for the current student
+        const studentId = config.studentId;
+        const hrData = await loadHeartRateData(studentId);
+        const edaData = await loadEDAData(studentId);
+        
+        // Process each activity card
+        const activities = [];
+        
+        timelineCards.forEach(card => {
+          const cardId = card.dataset.id;
+          const cardInfo = config.eventCards.find(c => c.id === cardId);
+          
+          // Get the timeline block that contains this card
+          const parentBlock = card.parentElement;
+          const minute = parseInt(parentBlock.dataset.minute);
+          
+          // Convert minute to time string (8:00 AM + minute)
+          const timeLabel = new Date(config.startTime);
+          timeLabel.setMinutes(timeLabel.getMinutes() + minute);
+          const timeString = timeLabel.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          
+          // Get physiological data for this minute
+          const hr = getHeartRateForMinute(minute);
+          const eda = getEDAForMinute(minute);
+          
+          // Check for variability and reversals
+          const hasVariability = checkVariability(minute, hrData);
+          const hasReversals = checkEdaReversals(minute, edaData);
+          
+          // Classify stress state
+          const stressState = classifyStressState(hr, eda, hasVariability || hasReversals);
+          
+          activities.push({
+            time: timeString,
+            minute: minute,
+            activity: cardInfo.label,
+            heartRate: hr,
+            eda: eda.toFixed(2),
+            stressState: stressState,
+            hasVariability: hasVariability,
+            hasReversals: hasReversals
+          });
+        });
+        
+        // Sort activities by time
+        activities.sort((a, b) => a.minute - b.minute);
+        
+        // Generate summary text
+        let summaryText = `Between ${activities[0].time} and ${activities[activities.length-1].time}, Student #${studentId} engaged in ${activities.length} morning activities before the exam.`;
+        
+        // Add details for each activity
+        activities.forEach((activity, index) => {
+          summaryText += `\n\n${activity.stressState.icon} At ${activity.time}, they ${activity.activity.toLowerCase()} and showed ${activity.stressState.label.toLowerCase()} signals (HR: ${activity.heartRate} bpm, EDA: ${activity.eda} μS).`;
+          
+          if (activity.hasVariability) {
+            summaryText += ` Their heart rate showed significant variability during this activity.`;
+          }
+          
+          if (activity.hasReversals) {
+            summaryText += ` Their electrodermal activity showed rapid fluctuations, suggesting emotional instability.`;
+          }
+        });
+        
+        // Add overall assessment
+        const stressLevels = activities.map(a => a.stressState.level);
+        const hasPanic = stressLevels.includes('panic');
+        const hasHigh = stressLevels.includes('high');
+        const mostlyCalm = stressLevels.filter(l => l === 'calm').length > activities.length / 2;
+        
+        summaryText += `\n\n🧠 Overall Assessment: `;
+        
+        if (hasPanic) {
+          summaryText += `Student #${studentId} experienced significant stress spikes during their morning routine, which may impact exam performance. Consider recommending stress management techniques like deep breathing or brief meditation before exams.`;
+        } else if (hasHigh) {
+          summaryText += `Student #${studentId} showed moderate stress levels during their morning routine. While not extreme, these elevated physiological markers suggest some pre-exam anxiety.`;
+        } else if (mostlyCalm) {
+          summaryText += `Student #${studentId} maintained a relatively calm physiological state throughout their morning routine, suggesting good stress management before the exam.`;
+        } else {
+          summaryText += `Student #${studentId} showed mixed stress signals during their morning routine, with some activities triggering mild anxiety responses.`;
+        }
+        
+        // Display the summary
+        summaryPanel.innerHTML = `
+          <div class="summary-header">
+            <h3>Morning Routine Analysis</h3>
+            <button class="close-btn">×</button>
+          </div>
+          <div class="summary-content">
+            <p>${summaryText.replace(/\n\n/g, '</p><p>')}</p>
+            <div class="activity-timeline">
+              ${activities.map(activity => `
+                <div class="activity-item" style="border-left: 4px solid ${activity.stressState.color}">
+                  <div class="activity-time">${activity.time}</div>
+                  <div class="activity-name">${activity.activity}</div>
+                  <div class="activity-metrics">
+                    <span class="metric">HR: ${activity.heartRate} bpm</span>
+                    <span class="metric">EDA: ${activity.eda} μS</span>
+                  </div>
+                  <div class="activity-state">${activity.stressState.icon} ${activity.stressState.label}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+        
+        summaryPanel.style.display = 'block';
+        
+        // Add close button functionality
+        summaryPanel.querySelector('.close-btn').addEventListener('click', () => {
+          summaryPanel.style.display = 'none';
+        });
+      }
     });
   </script>
 </body>
 </html>
-
-
-
-
-
-
 
