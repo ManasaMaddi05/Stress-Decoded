@@ -48,16 +48,15 @@
       padding: 1.5rem;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       box-sizing: border-box;
       overflow: hidden;
     }
     
     .header {
-      text-align: center;
-      margin-bottom: 1.5rem;
-      height: auto;
-      min-height: 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
       position: relative;
     }
     
@@ -65,8 +64,8 @@
       content: '';
       position: absolute;
       bottom: -10px;
-      left: 25%;
-      width: 50%;
+      left: 0;
+      width: 100%;
       height: 2px;
       background: linear-gradient(90deg, 
         transparent, 
@@ -75,6 +74,10 @@
         var(--primary), 
         transparent
       );
+    }
+    
+    .title-area {
+      flex: 1;
     }
     
     .student-title {
@@ -88,12 +91,15 @@
       padding: 0.25rem 0;
     }
     
-    .student-selector {
-      margin-top: 1rem;
-      text-align: center;
+    .controls-area {
       display: flex;
-      justify-content: center;
-      gap: 1rem;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    
+    .student-selector {
+      display: flex;
+      gap: 0.75rem;
     }
     
     .student-dropdown {
@@ -120,34 +126,21 @@
       box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
     }
     
-    .main-content {
-      display: flex;
-      gap: 1.5rem;
-      flex: 1;
-      height: 70vh;
-      min-height: 500px;
-      max-height: calc(100vh - 200px);
-      margin-top: 2rem;
-    }
-
     .heart-rate-display {
-      flex: 0 0 250px;
       background: var(--panel-bg);
-      border-radius: 16px;
-      padding: 1.5rem;
+      border-radius: 12px;
+      padding: 1rem;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-      height: 100%;
-      max-height: 100%;
-      overflow: hidden;
+      width: 180px;
       position: relative;
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
-
+    
     .heart-rate-display::before {
       content: '';
       position: absolute;
@@ -160,48 +153,48 @@
     }
     
     .hr-label {
-      font-size: 1.2rem;
+      font-size: 0.9rem;
       color: var(--text-secondary);
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.25rem;
       font-weight: 500;
     }
     
     .bpm-label {
-      font-size: 0.9rem;
+      font-size: 0.7rem;
       color: var(--text-secondary);
-      margin-bottom: 2rem;
+      margin-bottom: 0.5rem;
       text-transform: uppercase;
       letter-spacing: 1px;
     }
     
     .hr-value {
-      font-size: 7rem;
+      font-size: 3.5rem;
       font-weight: 700;
-      background: linear-gradient(90deg, var(--primary), var(--accent));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
+      color: #ef4444;
       line-height: 1;
-      margin: 0.5rem 0;
-      text-shadow: 0 0 20px var(--primary-glow);
+      margin: 0.25rem 0;
+      text-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
     }
     
     .hr-subtitle {
-      font-size: 1rem;
+      font-size: 0.75rem;
       color: var(--text-secondary);
       text-align: center;
       font-weight: 500;
-      max-width: 220px;
-      margin-top: 1.5rem;
+      margin-top: 0.5rem;
+    }
+    
+    .main-content {
+      flex: 1;
+      min-height: 0;
     }
     
     .chart-container {
       display: flex;
       flex-direction: column;
-      flex: 1;
-      width: 100%;
+      height: 100%;
     }
-
+    
     .chart-header {
       color: var(--text);
       font-size: 1.25rem;
@@ -209,7 +202,7 @@
       text-align: center;
       font-weight: 600;
     }
-
+    
     .chart {
       background: var(--panel-bg);
       border-radius: 16px;
@@ -219,12 +212,11 @@
       position: relative;
       overflow-y: auto;
       overflow-x: hidden;
-      height: auto;
-      max-height: calc(70vh - 220px);
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.1);
+      min-height: 0;
     }
-
+    
     .chart::before {
       content: '';
       position: absolute;
@@ -240,31 +232,27 @@
     .chart::-webkit-scrollbar {
       width: 8px;
     }
-
+    
     .chart::-webkit-scrollbar-track {
       background: rgba(30, 41, 59, 0.5);
       border-radius: 4px;
     }
-
+    
     .chart::-webkit-scrollbar-thumb {
       background: var(--primary);
       border-radius: 4px;
     }
-
+    
     .chart::-webkit-scrollbar-thumb:hover {
       background: var(--accent);
     }
     
     .controls-container {
-      display: flex;
-      justify-content: flex-end;
-      width: 100%;
       margin-top: 1.5rem;
     }
-
+    
     .controls {
-      width: calc(100% - 250px - 1.5rem);
-      margin-left: auto;
+      width: 100%;
       height: auto;
       min-height: 60px;
     }
@@ -352,8 +340,6 @@
       gap: 1.5rem;
       margin-top: 1rem;
       flex-wrap: wrap;
-      width: calc(100% - 250px - 1.5rem);
-      margin-left: auto;
     }
     
     .legend-item {
@@ -412,44 +398,30 @@
     }
     
     .hr-area {
-      opacity: 0.8;
+      opacity: 0.6;
     }
     
     @media (max-width: 1024px) {
-      .main-content {
+      .header {
         flex-direction: column;
-        height: auto;
-        max-height: none;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      
+      .controls-area {
+        width: 100%;
+        justify-content: space-between;
       }
       
       .heart-rate-display {
-        flex: 0 0 auto;
-        height: 200px;
-        max-width: 100%;
-        width: 100%;
+        width: 160px;
       }
       
       .hr-value {
-        font-size: 6rem;
-      }
-      
-      .chart {
-        max-height: 400px;
-        aspect-ratio: auto;
-        height: 400px;
-      }
-      
-      .controls {
-        width: 100%;
-        margin-left: 0;
-      }
-      
-      .legend {
-        width: 100%;
-        margin-left: 0;
+        font-size: 3rem;
       }
     }
-
+    
     @media (max-width: 768px) {
       .container {
         width: 100%;
@@ -460,13 +432,22 @@
         font-size: 1.8rem;
       }
       
-      .hr-value {
-        font-size: 5rem;
+      .controls-area {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
       }
       
-      .chart {
-        max-height: 350px;
-        height: 350px;
+      .student-selector {
+        width: 100%;
+      }
+      
+      .heart-rate-display {
+        width: 100%;
+      }
+      
+      .hr-value {
+        font-size: 3rem;
       }
       
       .legend {
@@ -487,31 +468,39 @@
 <body>
   <div class="container">
     <div class="header">
-      <h1 class="student-title" id="student-title">Student #3 - MIDTERM2</h1>
-      <div class="student-selector">
-        <select id="student-dropdown" class="student-dropdown">
-          <option value="1">Student #1</option>
-          <option value="2">Student #2</option>
-          <option value="3" selected>Student #3</option>
-          <option value="4">Student #4</option>
-          <option value="5">Student #5</option>
-        </select>
-        <select id="exam-dropdown" class="student-dropdown">
-          <option value="midterm1">Midterm 1</option>
-          <option value="midterm2" selected>Midterm 2</option>
-          <option value="final">Final</option>
-        </select>
+      <div class="title-area">
+        <h1 class="student-title" id="student-title">Student #5 - FINAL</h1>
+      </div>
+      <div class="controls-area">
+        <div class="student-selector">
+          <select id="student-dropdown" class="student-dropdown">
+            <option value="1">Student #1</option>
+            <option value="2">Student #2</option>
+            <option value="3">Student #3</option>
+            <option value="4">Student #4</option>
+            <option value="5" selected>Student #5</option>
+            <option value="6">Student #6</option>
+            <option value="7">Student #7</option>
+            <option value="8">Student #8</option>
+            <option value="9">Student #9</option>
+            <option value="10">Student #10</option>
+          </select>
+          <select id="exam-dropdown" class="student-dropdown">
+            <option value="midterm1">Midterm 1</option>
+            <option value="midterm2">Midterm 2</option>
+            <option value="final" selected>Final</option>
+          </select>
+        </div>
+        <div class="heart-rate-display">
+          <div class="hr-label">Heart Rate</div>
+          <div class="bpm-label">BEATS PER MINUTE</div>
+          <div class="hr-value" id="hr-value">118</div>
+          <div class="hr-subtitle">Heart Rate at Selected Time</div>
+        </div>
       </div>
     </div>
     
     <div class="main-content">
-      <div class="heart-rate-display">
-        <div class="hr-label">Heart Rate</div>
-        <div class="bpm-label">beats per minute</div>
-        <div class="hr-value" id="hr-value">80</div>
-        <div class="hr-subtitle">Heart Rate at Selected Time</div>
-      </div>
-      
       <div class="chart-container">
         <div class="chart-header">Heart Rate Over the Course of the Exam</div>
         <div class="chart" id="heart-rate-chart"></div>
@@ -558,8 +547,8 @@
     document.addEventListener('DOMContentLoaded', function() {
       // Configuration
       const config = {
-        studentId: 3, // Default student ID
-        examType: 'midterm2', // Default exam type
+        studentId: 5, // Default student ID
+        examType: 'final', // Default exam type
         examDurations: {
           'midterm1': 5400, // 1.5 hours in seconds
           'midterm2': 5400, // 1.5 hours in seconds
@@ -724,16 +713,8 @@
       }
       
       // Get color for heart rate
-      function getHeartRateColor(heartRate) {
-        if (heartRate < 60) {
-          return 'var(--low-hr)';
-        } else if (heartRate < 80) {
-          return 'var(--resting-hr)';
-        } else if (heartRate < 100) {
-          return 'var(--moderate-hr)';
-        } else {
-          return 'var(--high-hr)';
-        }
+      function getHeartRateColor(rate) {
+        return config.heartRateZones[getHeartRateZone(rate)].color;
       }
       
       // Initialize the visualization
@@ -1015,16 +996,8 @@
       }
       
       // Get color for heart rate
-      function getHeartRateColor(heartRate) {
-        if (heartRate < 60) {
-          return 'var(--low-hr)';
-        } else if (heartRate < 80) {
-          return 'var(--resting-hr)';
-        } else if (heartRate < 100) {
-          return 'var(--moderate-hr)';
-        } else {
-          return 'var(--high-hr)';
-        }
+      function getHeartRateColor(rate) {
+        return config.heartRateZones[getHeartRateZone(rate)].color;
       }
       
       // Initialize with default student and exam
