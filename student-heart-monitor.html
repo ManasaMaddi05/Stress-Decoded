@@ -5,180 +5,254 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Student Heart Rate Monitor</title>
   <script src="https://d3js.org/d3.v7.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --glow-green: #5cff5c;
-      --dark-bg: #000000;
-      --panel-bg: rgba(0, 20, 0, 0.7);
-      --low-hr: #2563eb;
-      --resting-hr: #22c55e;
-      --moderate-hr: #eab308;
-      --high-hr: #dc2626;
+      --primary: #6366f1;
+      --primary-glow: rgba(99, 102, 241, 0.6);
+      --accent: #a855f7;
+      --accent-glow: rgba(168, 85, 247, 0.6);
+      --dark-bg: #0f172a;
+      --panel-bg: rgba(30, 41, 59, 0.8);
+      --low-hr: #3b82f6;
+      --resting-hr: #10b981;
+      --moderate-hr: #f59e0b;
+      --high-hr: #ef4444;
+      --text: #f8fafc;
+      --text-secondary: rgba(248, 250, 252, 0.7);
     }
     
     body {
       margin: 0;
       padding: 0;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: 'Inter', sans-serif;
       background-color: var(--dark-bg);
-      color: white;
+      color: var(--text);
       min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
       overflow: hidden;
+      background-image: 
+        radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 30%),
+        radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.1) 0%, transparent 30%);
     }
     
     .container {
-      width: 95%; /* Use more screen space */
-      max-width: 1900px; /* Increased max width */
-      height: 95vh; /* Use more vertical space */
+      width: 95%;
+      max-width: 1900px;
+      height: 95vh;
       margin: 0 auto;
-      padding: 1rem;
+      padding: 1.5rem;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       box-sizing: border-box;
-      overflow: hidden; /* Prevent container overflow */
+      overflow: hidden;
     }
     
     .header {
-      text-align: center;
-      margin-bottom: 0.5rem; /* Reduced margin */
-      height: auto; /* Allow header to adjust to content */
-      min-height: 60px; /* Minimum height for header */
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      position: relative;
+    }
+    
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, 
+        transparent, 
+        var(--primary), 
+        var(--accent), 
+        var(--primary), 
+        transparent
+      );
+    }
+    
+    .title-area {
+      flex: 1;
     }
     
     .student-title {
-      font-size: 2rem; /* Smaller title */
+      font-size: 2.5rem;
       font-weight: 700;
-      color: var(--glow-green);
-      text-shadow: 0 0 10px rgba(92, 255, 92, 0.7),
-                   0 0 20px rgba(92, 255, 92, 0.5);
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
       margin: 0;
-      padding: 0.25rem 0; /* Reduced padding */
+      padding: 0.25rem 0;
     }
     
-    .main-content {
+    .controls-area {
       display: flex;
+      align-items: center;
       gap: 1.5rem;
-      flex: 1;
-      height: 80vh;
-      min-height: 600px;
-      max-height: calc(100vh - 150px);
-      margin-top: 1.5rem; /* Add gap between dropdowns and visualizations */
     }
-
-    .content-row {
+    
+    .student-selector {
       display: flex;
-      gap: 1.5rem;
-      width: 100%;
-      flex: 1;
+      gap: 0.75rem;
     }
-
-    .heart-rate-display {
-      flex: 0 0 250px;
+    
+    .student-dropdown {
       background: var(--panel-bg);
-      border: 1px solid var(--glow-green);
+      color: var(--text);
+      border: 1px solid rgba(99, 102, 241, 0.3);
       border-radius: 8px;
+      padding: 0.5rem 1rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      outline: none;
+      cursor: pointer;
+      min-width: 120px;
+      transition: all 0.2s ease;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24' width='16' height='16'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      padding-right: 28px;
+    }
+    
+    .student-dropdown:hover, .student-dropdown:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+    }
+    
+    .heart-rate-display {
+      background: var(--panel-bg);
+      border-radius: 12px;
       padding: 1rem;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0 15px rgba(92, 255, 92, 0.3);
-      height: 100%;
-      max-height: 100%;
-      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      width: 180px;
+      position: relative;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .heart-rate-display::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius: 3px 3px 0 0;
     }
     
     .hr-label {
-      font-size: 1.5rem;
-      color: var(--glow-green);
-      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.25rem;
+      font-weight: 500;
     }
     
     .bpm-label {
-      font-size: 1rem;
-      color: var(--glow-green);
-      margin-bottom: 2rem;
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
     
     .hr-value {
-      font-size: 8rem; /* Smaller font size */
+      font-size: 3.5rem;
       font-weight: 700;
-      color: var(--glow-green);
-      text-shadow: 0 0 10px rgba(92, 255, 92, 0.7),
-                   0 0 20px rgba(92, 255, 92, 0.5);
+      color: #ef4444;
       line-height: 1;
-      margin: 0.5rem 0; /* Reduced margin */
+      margin: 0.25rem 0;
+      text-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
     }
     
     .hr-subtitle {
-      font-size: 1rem; /* Smaller subtitle */
-      color: var(--glow-green);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
       text-align: center;
-      font-weight: 600;
-      max-width: 220px;
+      font-weight: 500;
+      margin-top: 0.5rem;
+    }
+    
+    .main-content {
+      flex: 1;
+      min-height: 0;
     }
     
     .chart-container {
       display: flex;
       flex-direction: column;
-      flex: 1;
-      width: 100%;
+      height: 100%;
     }
     
     .chart-header {
-      color: var(--glow-green);
+      color: var(--text);
       font-size: 1.25rem;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.75rem;
       text-align: center;
+      font-weight: 600;
     }
     
     .chart {
       background: var(--panel-bg);
-      border: 1px solid var(--glow-green);
-      border-radius: 8px;
+      border-radius: 16px;
       flex: 1;
-      padding: 1rem;
-      box-shadow: 0 0 15px rgba(92, 255, 92, 0.3);
+      padding: 1.5rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
       position: relative;
       overflow-y: auto;
       overflow-x: hidden;
-      height: auto;
-      max-height: calc(80vh - 220px);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      min-height: 0;
+    }
+    
+    .chart::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius: 3px 3px 0 0;
     }
     
     /* Style the scrollbar for the chart */
     .chart::-webkit-scrollbar {
       width: 8px;
     }
-
+    
     .chart::-webkit-scrollbar-track {
-      background: rgba(0, 20, 0, 0.3);
+      background: rgba(30, 41, 59, 0.5);
       border-radius: 4px;
     }
-
+    
     .chart::-webkit-scrollbar-thumb {
-      background: var(--glow-green);
+      background: var(--primary);
       border-radius: 4px;
     }
-
+    
     .chart::-webkit-scrollbar-thumb:hover {
-      background: rgba(92, 255, 92, 0.8);
+      background: var(--accent);
     }
     
     .controls-container {
-      display: flex;
-      justify-content: flex-end;
-      width: 100%;
-      margin-top: 1.5rem; /* Add gap between visualization and slider */
+      margin-top: 1.5rem;
     }
-
+    
     .controls {
-      width: calc(100% - 250px - 1.5rem); /* Width of container minus heart-rate-display width and gap */
-      margin-left: auto; /* Push to the right */
+      width: 100%;
       height: auto;
       min-height: 60px;
     }
@@ -186,40 +260,38 @@
     .slider-container {
       display: flex;
       flex-direction: column;
-      margin-bottom: 0.5rem; /* Reduced margin */
+      margin-bottom: 0.5rem;
     }
     
     .slider-header {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 0.25rem; /* Reduced margin */
+      margin-bottom: 0.5rem;
     }
     
     .progress-label {
-      color: var(--glow-green);
-      font-weight: 600;
+      color: var(--text);
+      font-weight: 500;
     }
     
     .time-label {
-      color: var(--glow-green);
-      font-weight: 600;
+      color: var(--text);
+      font-weight: 500;
     }
     
     .slider-track {
       position: relative;
-      height: 25px; /* Smaller track */
-      background: var(--panel-bg);
-      border: 1px solid var(--glow-green);
-      border-radius: 12px; /* Adjusted for smaller height */
+      height: 8px;
+      background: rgba(30, 41, 59, 0.8);
+      border-radius: 4px;
       overflow: hidden;
     }
     
     .slider-progress {
       position: absolute;
       height: 100%;
-      background: rgba(92, 255, 92, 0.2);
-      border-right: 2px solid var(--glow-green);
-      box-shadow: 0 0 10px rgba(92, 255, 92, 0.5);
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius: 4px;
     }
     
     .slider {
@@ -229,7 +301,7 @@
       background: transparent;
       outline: none;
       position: absolute;
-      top: 0;
+      top: -11px;
       left: 0;
       margin: 0;
       z-index: 10;
@@ -239,27 +311,27 @@
       -webkit-appearance: none;
       appearance: none;
       width: 20px;
-      height: 30px;
-      background: var(--glow-green);
+      height: 20px;
+      background: white;
       cursor: pointer;
-      border-radius: 4px;
-      box-shadow: 0 0 10px rgba(92, 255, 92, 0.7);
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.7);
     }
     
     .slider::-moz-range-thumb {
       width: 20px;
-      height: 30px;
-      background: var(--glow-green);
+      height: 20px;
+      background: white;
       cursor: pointer;
-      border-radius: 4px;
-      box-shadow: 0 0 10px rgba(92, 255, 92, 0.7);
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.7);
     }
     
     .slider-caption {
-      font-size: 0.8rem; /* Smaller caption */
-      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.8rem;
+      color: var(--text-secondary);
       text-align: center;
-      margin-top: 0.25rem; /* Reduced margin */
+      margin-top: 1rem;
     }
     
     .legend {
@@ -268,8 +340,6 @@
       gap: 1.5rem;
       margin-top: 1rem;
       flex-wrap: wrap;
-      width: calc(100% - 250px - 1.5rem); /* Same width as controls */
-      margin-left: auto; /* Push to the right */
     }
     
     .legend-item {
@@ -279,14 +349,14 @@
     }
     
     .legend-color {
-      width: 20px;
-      height: 20px;
-      border-radius: 4px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
     }
     
     .legend-label {
       font-size: 0.875rem;
-      color: white;
+      color: var(--text-secondary);
     }
     
     .low-color {
@@ -306,7 +376,7 @@
     }
     
     .axis-label {
-      fill: rgba(255, 255, 255, 0.7);
+      fill: var(--text-secondary);
       font-size: 12px;
     }
     
@@ -315,74 +385,69 @@
     }
     
     .domain, .tick line {
-      stroke: rgba(255, 255, 255, 0.3);
+      stroke: rgba(255, 255, 255, 0.2);
     }
     
     .tick text {
-      fill: rgba(255, 255, 255, 0.7);
+      fill: var(--text-secondary);
     }
     
     .hr-line {
       fill: none;
-      stroke-width: 2.5;
+      stroke-width: 3;
     }
     
     .hr-area {
-      opacity: 0.2;
+      opacity: 0.6;
     }
     
     @media (max-width: 1024px) {
-      .main-content {
+      .header {
         flex-direction: column;
-        height: auto;
-        max-height: none;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      
+      .controls-area {
+        width: 100%;
+        justify-content: space-between;
       }
       
       .heart-rate-display {
-        flex: 0 0 auto;
-        height: 200px;
-        max-width: 100%;
-        width: 100%;
+        width: 160px;
       }
       
       .hr-value {
-        font-size: 6rem;
-      }
-      
-      .chart {
-        max-height: 400px;
-        aspect-ratio: auto;
-        height: 400px;
-      }
-      
-      .controls {
-        width: 100%;
-        margin-left: 0;
-      }
-      
-      .legend {
-        width: 100%;
-        margin-left: 0;
+        font-size: 3rem;
       }
     }
-
+    
     @media (max-width: 768px) {
       .container {
         width: 100%;
-        padding: 0.5rem;
+        padding: 1rem;
       }
       
       .student-title {
-        font-size: 1.5rem;
+        font-size: 1.8rem;
+      }
+      
+      .controls-area {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      
+      .student-selector {
+        width: 100%;
+      }
+      
+      .heart-rate-display {
+        width: 100%;
       }
       
       .hr-value {
-        font-size: 5rem;
-      }
-      
-      .chart {
-        max-height: 350px;
-        height: 350px;
+        font-size: 3rem;
       }
       
       .legend {
@@ -394,232 +459,48 @@
       }
       
       .legend-color {
-        width: 15px;
-        height: 15px;
+        width: 10px;
+        height: 10px;
       }
-      
-      .controls {
-        height: auto;
-        margin-bottom: 1rem;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .container {
-        width: 100%;
-        padding: 0.5rem;
-      }
-      
-      .student-title {
-        font-size: 1.5rem;
-      }
-      
-      .hr-value {
-        font-size: 5rem;
-      }
-      
-      .chart {
-        max-height: 350px;
-        height: 350px;
-      }
-      
-      .controls {
-        height: auto;
-        margin-bottom: 1rem;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .container {
-        width: 100%;
-        padding: 0.5rem;
-      }
-      
-      .student-title {
-        font-size: 1.5rem;
-      }
-      
-      .hr-value {
-        font-size: 5rem;
-      }
-      
-      .chart {
-        max-height: 350px;
-        height: 350px;
-      }
-      
-      .controls {
-        height: auto;
-        margin-bottom: 1rem;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .container {
-        width: 100%;
-        padding: 0.5rem;
-      }
-      
-      .student-title {
-        font-size: 1.5rem;
-      }
-      
-      .hr-value {
-        font-size: 5rem;
-      }
-      
-      .chart {
-        max-height: 350px;
-        height: 350px;
-      }
-      
-      .controls {
-        height: auto;
-        margin-bottom: 1rem;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .container {
-        width: 100%;
-        padding: 0.5rem;
-      }
-      
-      .student-title {
-        font-size: 1.5rem;
-      }
-      
-      .hr-value {
-        font-size: 5rem;
-      }
-      
-      .chart {
-        max-height: 350px;
-        height: 350px;
-      }
-      
-      .controls {
-        height: auto;
-        margin-bottom: 1rem;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .container {
-        width: 100%;
-        padding: 0.5rem;
-      }
-      
-      .student-title {
-        font-size: 1.5rem;
-      }
-      
-      .hr-value {
-        font-size: 5rem;
-      }
-      
-      .chart {
-        max-height: 350px;
-        height: 350px;
-      }
-      
-      .controls {
-        height: auto;
-        margin-bottom: 1rem;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .container {
-        width: 100%;
-        padding: 0.5rem;
-      }
-      
-      .student-title {
-        font-size: 1.5rem;
-      }
-      
-      .hr-value {
-        font-size: 5rem;
-      }
-      
-      .chart {
-        max-height: 350px;
-        height: 350px;
-      }
-      
-      .controls {
-        height: auto;
-        margin-bottom: 1rem;
-      }
-    }
-    
-    /* Add styles for the student dropdown */
-    .student-selector {
-      margin-top: 0.25rem; /* Reduced margin */
-      text-align: center;
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-    }
-    
-    .student-dropdown-container {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 1rem;
-    }
-
-    .student-dropdown {
-      background: var(--panel-bg);
-      color: var(--glow-green);
-      border: 1px solid var(--glow-green);
-      border-radius: 4px;
-      padding: 0.25rem 0.5rem; /* Reduced padding */
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.8rem; /* Smaller font */
-      outline: none;
-      cursor: pointer;
-      min-width: 100px; /* Reduced min-width */
-    }
-
-    .student-dropdown:focus {
-      box-shadow: 0 0 10px rgba(92, 255, 92, 0.5);
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1 class="student-title" id="student-title">Student #3</h1>
-      <div class="student-selector">
-        <select id="student-dropdown" class="student-dropdown">
-          <option value="1">Student #1</option>
-          <option value="2">Student #2</option>
-          <option value="3" selected>Student #3</option>
-          <option value="4">Student #4</option>
-          <option value="5">Student #5</option>
-          <option value="6">Student #6</option>
-          <option value="7">Student #7</option>
-          <option value="8">Student #8</option>
-          <option value="9">Student #9</option>
-          <option value="10">Student #10</option>
-        </select>
-        <select id="exam-dropdown" class="student-dropdown">
-          <option value="midterm1">Midterm 1</option>
-          <option value="midterm2" selected>Midterm 2</option>
-          <option value="final">Final</option>
-        </select>
+      <div class="title-area">
+        <h1 class="student-title" id="student-title">Student #5 - FINAL</h1>
+      </div>
+      <div class="controls-area">
+        <div class="student-selector">
+          <select id="student-dropdown" class="student-dropdown">
+            <option value="1">Student #1</option>
+            <option value="2">Student #2</option>
+            <option value="3">Student #3</option>
+            <option value="4">Student #4</option>
+            <option value="5" selected>Student #5</option>
+            <option value="6">Student #6</option>
+            <option value="7">Student #7</option>
+            <option value="8">Student #8</option>
+            <option value="9">Student #9</option>
+            <option value="10">Student #10</option>
+          </select>
+          <select id="exam-dropdown" class="student-dropdown">
+            <option value="midterm1">Midterm 1</option>
+            <option value="midterm2">Midterm 2</option>
+            <option value="final" selected>Final</option>
+          </select>
+        </div>
+        <div class="heart-rate-display">
+          <div class="hr-label">Heart Rate</div>
+          <div class="bpm-label">BEATS PER MINUTE</div>
+          <div class="hr-value" id="hr-value">118</div>
+          <div class="hr-subtitle">Heart Rate at Selected Time</div>
+        </div>
       </div>
     </div>
     
     <div class="main-content">
-      <div class="heart-rate-display">
-        <div class="hr-label">HR</div>
-        <div class="bpm-label">bpm</div>
-        <div class="hr-value" id="hr-value">80</div>
-        <div class="hr-subtitle">Heart Rate at Selected Time</div>
-      </div>
-      
       <div class="chart-container">
         <div class="chart-header">Heart Rate Over the Course of the Exam</div>
         <div class="chart" id="heart-rate-chart"></div>
@@ -666,8 +547,8 @@
     document.addEventListener('DOMContentLoaded', function() {
       // Configuration
       const config = {
-        studentId: 3, // Default student ID
-        examType: 'midterm2', // Default exam type
+        studentId: 5, // Default student ID
+        examType: 'final', // Default exam type
         examDurations: {
           'midterm1': 5400, // 1.5 hours in seconds
           'midterm2': 5400, // 1.5 hours in seconds
