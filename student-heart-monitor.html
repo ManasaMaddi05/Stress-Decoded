@@ -25,17 +25,18 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      overflow-x: hidden;
     }
     
     .container {
       width: 100%;
       max-width: 1400px;
       margin: 0 auto;
-      padding: 1rem;
+      padding: 2rem;
       display: flex;
       flex-direction: column;
-      height: 100vh;
+      min-height: 100vh;
+      box-sizing: border-box;
     }
     
     .header {
@@ -57,6 +58,7 @@
       display: flex;
       gap: 2rem;
       flex: 1;
+      min-height: 0; /* This helps with flexbox sizing */
     }
     
     .heart-rate-display {
@@ -106,6 +108,7 @@
       flex: 1;
       display: flex;
       flex-direction: column;
+      min-height: 0; /* This helps with flexbox sizing */
     }
     
     .chart-header {
@@ -123,6 +126,7 @@
       padding: 1rem;
       box-shadow: 0 0 15px rgba(92, 255, 92, 0.3);
       position: relative;
+      min-height: 400px; /* Ensure minimum height */
     }
     
     .controls {
@@ -291,9 +295,12 @@
     .student-selector {
       margin-top: 1rem;
       text-align: center;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
     }
     
-    .student-dropdown {
+    .student-dropdown, .exam-dropdown {
       background: var(--panel-bg);
       color: var(--glow-green);
       border: 1px solid var(--glow-green);
@@ -306,11 +313,11 @@
       outline: none;
     }
     
-    .student-dropdown:focus {
+    .student-dropdown:focus, .exam-dropdown:focus {
       box-shadow: 0 0 15px rgba(92, 255, 92, 0.5);
     }
     
-    .student-dropdown option {
+    .student-dropdown option, .exam-dropdown option {
       background-color: #001400;
     }
   </style>
@@ -320,6 +327,11 @@
     <div class="header">
       <h1 class="student-title" id="student-title">Student #3</h1>
       <div class="student-selector">
+        <select id="exam-dropdown" class="exam-dropdown">
+          <option value="Midterm_1">Midterm #1</option>
+          <option value="Midterm_2">Midterm #2</option>
+          <option value="Final">Final Exam</option>
+        </select>
         <select id="student-dropdown" class="student-dropdown">
           <option value="1">Student #1</option>
           <option value="2">Student #2</option>
@@ -388,15 +400,20 @@
       // Configuration
       const config = {
         studentId: 3, // Default student ID
-        examType: 'midterm1', // Using midterm1 data
-        examDuration: 3600, // seconds (1 hour for midterm)
+        examType: 'Midterm_1', // Default exam type
+        examDuration: 10800, // seconds (3 hours)
+        examStartTimes: {
+          'Midterm_1': new Date('2000-01-01T07:55:00'),
+          'Midterm_2': new Date('2000-01-01T08:18:00'),
+          'Final': new Date('2000-01-01T10:29:00')
+        },
         heartRateZones: {
           low: { min: 40, max: 60, color: '#2563eb' },
           resting: { min: 60, max: 80, color: '#22c55e' },
           moderate: { min: 80, max: 100, color: '#eab308' },
           high: { min: 100, max: 160, color: '#dc2626' }
         },
-        dataPath: './data/' // Path to data files
+        dataPath: 'Data/' // Path to data files
       };
       
       // Update config based on URL parameters
@@ -406,6 +423,11 @@
         // Update dropdown to match URL parameter
         document.getElementById('student-dropdown').value = config.studentId;
       }
+      if (urlParams.has('exam')) {
+        config.examType = urlParams.get('exam');
+        // Update dropdown to match URL parameter
+        document.getElementById('exam-dropdown').value = config.examType;
+      }
       
       // Update student title
       document.getElementById('student-title').textContent = `Student #${config.studentId}`;
@@ -413,94 +435,46 @@
       // Function to load heart rate data from CSV
       async function loadHeartRateData(studentId) {
         try {
-          // Try multiple possible file paths and formats
-          const possiblePaths = [
-            `${config.dataPath}midterm1_HR.csv`,
-            `${config.dataPath}midterm1_hr.csv`,
-            `${config.dataPath}Midterm1_HR.csv`,
-            `${config.dataPath}Midterm_1_HR.csv`,
-            `${config.dataPath}midterm_1_hr.csv`,
-            `./Finished_Data/midterm1_HR.csv`,
-            `../data/midterm1_HR.csv`
-          ];
+          const filePath = `${config.dataPath}${config.examType}_HR.csv`;
+          const response = await fetch(filePath);
           
-          let response = null;
-          let csvText = null;
-          
-          // Try each path until one works
-          for (const path of possiblePaths) {
-            try {
-              const tempResponse = await fetch(path);
-              if (tempResponse.ok) {
-                response = tempResponse;
-                csvText = await response.text();
-                console.log(`Successfully loaded data from ${path}`);
-                break;
-              }
-            } catch (e) {
-              console.warn(`Failed to load from ${path}`);
-            }
+          if (!response.ok) {
+            throw new Error(`Failed to load data from ${filePath}`);
           }
           
-          if (!csvText) {
-            throw new Error('Data file not found in any of the expected locations');
-          }
-          
+          const csvText = await response.text();
           const rows = csvText.trim().split('\n');
           const headers = rows[0].split(',');
           
           console.log("CSV Headers:", headers);
           
-          // Find the column index for the selected student
-          // Try multiple possible column naming patterns
-          const possibleColumnNames = [
-            `S${studentId}_HR`,
-            `S${studentId}_hr`,
-            `s${studentId}_HR`,
-            `s${studentId}_hr`,
-            `S${studentId}`,
-            `s${studentId}`,
-            `Student${studentId}`,
-            `student${studentId}`,
-            `Student${studentId}_HR`,
-            `student${studentId}_hr`
-          ];
+          // Find the column indices
+          const timeColumnIndex = headers.findIndex(header => 
+            header.trim().toLowerCase() === 'relative_time'
+          );
           
-          let studentColumnIndex = -1;
-          for (const columnName of possibleColumnNames) {
-            const index = headers.findIndex(header => 
-              header.trim().toLowerCase() === columnName.toLowerCase()
-            );
-            if (index !== -1) {
-              studentColumnIndex = index;
-              console.log(`Found student data in column: ${headers[index]}`);
-              break;
-            }
-          }
+          const studentColumnName = `S${studentId}_HR`;
+          const studentColumnIndex = headers.findIndex(header => 
+            header.trim() === studentColumnName
+          );
           
-          // If still not found, try a more flexible approach
-          if (studentColumnIndex === -1) {
-            studentColumnIndex = headers.findIndex(header => 
-              header.trim().toLowerCase().includes(`s${studentId}`) || 
-              header.trim().toLowerCase().includes(`student${studentId}`)
-            );
-            if (studentColumnIndex !== -1) {
-              console.log(`Found student data using partial match in column: ${headers[studentColumnIndex]}`);
-            }
+          if (timeColumnIndex === -1) {
+            throw new Error('Time column "relative_time" not found in CSV');
           }
           
           if (studentColumnIndex === -1) {
-            throw new Error(`Data for Student #${studentId} not found in CSV`);
+            throw new Error(`Data for Student #${studentId} (${studentColumnName}) not found in CSV`);
           }
           
           // Parse the data for the selected student
           const data = [];
+          let maxTime = 0;
+          
           for (let i = 1; i < rows.length; i++) {
             const values = rows[i].split(',');
-            if (values.length <= studentColumnIndex) continue;
+            if (values.length <= Math.max(timeColumnIndex, studentColumnIndex)) continue;
             
-            // Assuming the first column is time in seconds
-            const time = parseFloat(values[0]);
+            const time = parseFloat(values[timeColumnIndex]);
             const heartRate = parseFloat(values[studentColumnIndex]);
             
             if (!isNaN(time) && !isNaN(heartRate)) {
@@ -508,12 +482,16 @@
                 time: time,
                 heartRate: heartRate
               });
+              maxTime = Math.max(maxTime, time);
             }
           }
           
           if (data.length === 0) {
             throw new Error('No valid data points found');
           }
+          
+          // Update exam duration based on actual data
+          config.examDuration = maxTime;
           
           console.log(`Loaded ${data.length} data points for Student #${studentId}`);
           return data;
@@ -568,10 +546,13 @@
       
       // Format time as HH:MM:SS
       function formatTime(seconds) {
-        const hours = Math.floor(seconds / 3600);
-        const minutes = Math.floor((seconds % 3600) / 60);
-        const secs = Math.floor(seconds % 60);
-        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        const startTime = config.examStartTimes[config.examType];
+        const date = new Date(startTime.getTime() + seconds * 1000);
+        return date.toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false
+        });
       }
       
       // Get heart rate zone
@@ -610,8 +591,10 @@
         // Create SVG
         const svg = d3.select('#heart-rate-chart')
           .append('svg')
-          .attr('width', chartWidth)
-          .attr('height', chartHeight)
+          .attr('width', '100%')
+          .attr('height', '100%')
+          .attr('viewBox', `0 0 ${chartWidth} ${chartHeight}`)
+          .attr('preserveAspectRatio', 'xMidYMid meet')
           .append('g')
           .attr('transform', `translate(${margin.left},${margin.top})`);
         
@@ -620,9 +603,9 @@
           .domain([0, config.examDuration])
           .range([0, width]);
         
-        // Determine y-axis domain based on actual data
-        const minHR = Math.max(40, d3.min(heartRateData, d => d.heartRate) - 10);
-        const maxHR = Math.min(160, d3.max(heartRateData, d => d.heartRate) + 10);
+        // Determine y-axis domain based on actual data with padding
+        const minHR = Math.max(40, d3.min(heartRateData, d => d.heartRate) - 5);
+        const maxHR = Math.min(160, d3.max(heartRateData, d => d.heartRate) + 5);
         
         const y = d3.scaleLinear()
           .domain([minHR, maxHR])
@@ -631,7 +614,7 @@
         // Create axes
         const xAxis = d3.axisBottom(x)
           .tickFormat(d => formatTime(d))
-          .ticks(6);
+          .ticks(8); // Show more time points
         
         const yAxis = d3.axisLeft(y)
           .ticks(6);
@@ -653,7 +636,7 @@
           .attr('x', width / 2)
           .attr('y', height + margin.bottom - 5)
           .attr('text-anchor', 'middle')
-          .text('Time Since Exam Started (HH:MM:SS)');
+          .text('Time (HH:MM)');
         
         // Add Y axis label
         svg.append('text')
@@ -828,6 +811,18 @@
         // Update URL parameter without refreshing the page
         const url = new URL(window.location);
         url.searchParams.set('student', selectedStudentId);
+        window.history.pushState({}, '', url);
+      });
+      
+      // Add event listener for exam dropdown
+      document.getElementById('exam-dropdown').addEventListener('change', function() {
+        const selectedExamType = this.value;
+        config.examType = selectedExamType;
+        initVisualization(parseInt(document.getElementById('student-dropdown').value));
+        
+        // Update URL parameter without refreshing the page
+        const url = new URL(window.location);
+        url.searchParams.set('exam', selectedExamType);
         window.history.pushState({}, '', url);
       });
       
