@@ -291,9 +291,12 @@
     .student-selector {
       margin-top: 1rem;
       text-align: center;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
     }
     
-    .student-dropdown {
+    .student-dropdown, .exam-dropdown {
       background: var(--panel-bg);
       color: var(--glow-green);
       border: 1px solid var(--glow-green);
@@ -306,11 +309,11 @@
       outline: none;
     }
     
-    .student-dropdown:focus {
+    .student-dropdown:focus, .exam-dropdown:focus {
       box-shadow: 0 0 15px rgba(92, 255, 92, 0.5);
     }
     
-    .student-dropdown option {
+    .student-dropdown option, .exam-dropdown option {
       background-color: #001400;
     }
   </style>
@@ -331,6 +334,11 @@
           <option value="8">Student #8</option>
           <option value="9">Student #9</option>
           <option value="10">Student #10</option>
+        </select>
+        <select id="exam-dropdown" class="exam-dropdown">
+          <option value="midterm1">Midterm #1</option>
+          <option value="midterm2">Midterm #2</option>
+          <option value="final">Final Exam</option>
         </select>
       </div>
     </div>
@@ -388,7 +396,7 @@
       // Configuration
       const config = {
         studentId: 3, // Default student ID
-        examType: 'midterm1', // Using midterm1 data
+        examType: 'midterm1', // Default exam type
         examDuration: 3600, // seconds (1 hour for midterm)
         heartRateZones: {
           low: { min: 40, max: 60, color: '#2563eb' },
@@ -406,6 +414,11 @@
         // Update dropdown to match URL parameter
         document.getElementById('student-dropdown').value = config.studentId;
       }
+      if (urlParams.has('exam')) {
+        config.examType = urlParams.get('exam');
+        // Update dropdown to match URL parameter
+        document.getElementById('exam-dropdown').value = config.examType;
+      }
       
       // Update student title
       document.getElementById('student-title').textContent = `Student #${config.studentId}`;
@@ -415,13 +428,12 @@
         try {
           // Try multiple possible file paths and formats
           const possiblePaths = [
-            `${config.dataPath}midterm1_HR.csv`,
-            `${config.dataPath}midterm1_hr.csv`,
-            `${config.dataPath}Midterm1_HR.csv`,
-            `${config.dataPath}Midterm_1_HR.csv`,
-            `${config.dataPath}midterm_1_hr.csv`,
-            `./Finished_Data/midterm1_HR.csv`,
-            `../data/midterm1_HR.csv`
+            `${config.dataPath}${config.examType}_HR.csv`,
+            `${config.dataPath}${config.examType}_hr.csv`,
+            `${config.dataPath}${config.examType.charAt(0).toUpperCase() + config.examType.slice(1)}_HR.csv`,
+            `${config.dataPath}${config.examType.replace(/([A-Z])/g, '_$1').toLowerCase()}_HR.csv`,
+            `./Finished_Data/${config.examType}_HR.csv`,
+            `../data/${config.examType}_HR.csv`
           ];
           
           let response = null;
@@ -828,6 +840,18 @@
         // Update URL parameter without refreshing the page
         const url = new URL(window.location);
         url.searchParams.set('student', selectedStudentId);
+        window.history.pushState({}, '', url);
+      });
+      
+      // Add event listener for exam dropdown
+      document.getElementById('exam-dropdown').addEventListener('change', function() {
+        const selectedExamType = this.value;
+        config.examType = selectedExamType;
+        initVisualization(parseInt(document.getElementById('student-dropdown').value));
+        
+        // Update URL parameter without refreshing the page
+        const url = new URL(window.location);
+        url.searchParams.set('exam', selectedExamType);
         window.history.pushState({}, '', url);
       });
       
