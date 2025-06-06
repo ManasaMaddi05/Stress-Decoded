@@ -61,13 +61,21 @@
     
     .main-content {
       display: flex;
+      flex-direction: column;
       gap: 1.5rem;
       flex: 1;
-      height: 80vh; /* Increased height */
+      height: 80vh;
       min-height: 600px;
-      max-height: calc(100vh - 150px); /* Ensure it doesn't exceed viewport */
+      max-height: calc(100vh - 150px);
     }
-    
+
+    .content-row {
+      display: flex;
+      gap: 1.5rem;
+      width: 100%;
+      flex: 1;
+    }
+
     .heart-rate-display {
       flex: 0 0 250px; /* Narrower to prevent cutoff */
       background: var(--panel-bg);
@@ -115,10 +123,10 @@
     }
     
     .chart-container {
-      flex: 1;
       display: flex;
       flex-direction: column;
-      height: 100%; /* Full height of parent */
+      flex: 1;
+      width: 100%;
     }
     
     .chart-header {
@@ -138,9 +146,8 @@
       position: relative;
       overflow-y: auto;
       overflow-x: hidden;
-      aspect-ratio: 16/9; /* Make chart rectangular (16:9 aspect ratio) */
-      height: auto; /* Let height be determined by aspect ratio */
-      max-height: calc(80vh - 150px); /* Reduced maximum height */
+      height: auto;
+      max-height: calc(80vh - 220px); /* Reduced to make room for controls */
     }
     
     /* Style the scrollbar for the chart */
@@ -163,8 +170,10 @@
     }
     
     .controls {
-      margin-top: 0.5rem; /* Reduced margin */
-      height: 60px; /* Smaller controls */
+      margin-top: 0.5rem;
+      width: 100%;
+      height: auto;
+      min-height: 60px;
     }
     
     .slider-container {
@@ -248,8 +257,10 @@
     
     .legend {
       display: flex;
-      justify-content: space-between;
-      margin-top: 1rem;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-top: 0.5rem;
+      flex-wrap: wrap;
     }
     
     .legend-item {
@@ -318,9 +329,13 @@
         max-height: none;
       }
       
+      .content-row {
+        flex-direction: column;
+      }
+      
       .heart-rate-display {
         flex: 0 0 auto;
-        height: 200px; /* Fixed height on smaller screens */
+        height: 200px;
         max-width: 100%;
         width: 100%;
       }
@@ -330,7 +345,7 @@
       }
       
       .chart {
-        max-height: 400px; /* Fixed height on smaller screens */
+        max-height: 400px;
         aspect-ratio: auto;
         height: 400px;
       }
@@ -358,6 +373,19 @@
       .chart {
         max-height: 350px;
         height: 350px;
+      }
+      
+      .legend {
+        gap: 0.75rem;
+      }
+      
+      .legend-label {
+        font-size: 0.75rem;
+      }
+      
+      .legend-color {
+        width: 15px;
+        height: 15px;
       }
       
       .controls {
@@ -575,47 +603,49 @@
     </div>
     
     <div class="main-content">
-      <div class="heart-rate-display">
-        <div class="hr-label">HR</div>
-        <div class="bpm-label">bpm</div>
-        <div class="hr-value" id="hr-value">80</div>
-        <div class="hr-subtitle">Heart Rate at Selected Time</div>
+      <div class="content-row">
+        <div class="heart-rate-display">
+          <div class="hr-label">HR</div>
+          <div class="bpm-label">bpm</div>
+          <div class="hr-value" id="hr-value">80</div>
+          <div class="hr-subtitle">Heart Rate at Selected Time</div>
+        </div>
+        
+        <div class="chart-container">
+          <div class="chart-header">Heart Rate Over the Course of the Exam</div>
+          <div class="chart" id="heart-rate-chart"></div>
+        </div>
       </div>
       
-      <div class="chart-container">
-        <div class="chart-header">Heart Rate Over the Course of the Exam</div>
-        <div class="chart" id="heart-rate-chart"></div>
-        
-        <div class="controls">
-          <div class="slider-container">
-            <div class="slider-header">
-              <div class="progress-label" id="progress-label">0% through the exam</div>
-              <div class="time-label" id="time-label">00:00:00</div>
-            </div>
-            <div class="slider-track">
-              <div class="slider-progress" id="slider-progress" style="width: 0%"></div>
-              <input type="range" min="0" max="100" value="0" class="slider" id="time-slider">
-            </div>
-            <div class="slider-caption">Move the slider to explore heart rate changes during the exam</div>
+      <div class="controls">
+        <div class="slider-container">
+          <div class="slider-header">
+            <div class="progress-label" id="progress-label">0% through the exam</div>
+            <div class="time-label" id="time-label">00:00:00</div>
           </div>
-          
-          <div class="legend">
-            <div class="legend-item">
-              <div class="legend-color low-color"></div>
-              <div class="legend-label">Low</div>
-            </div>
-            <div class="legend-item">
-              <div class="legend-color resting-color"></div>
-              <div class="legend-label">Resting</div>
-            </div>
-            <div class="legend-item">
-              <div class="legend-color moderate-color"></div>
-              <div class="legend-label">Moderate</div>
-            </div>
-            <div class="legend-item">
-              <div class="legend-color high-color"></div>
-              <div class="legend-label">High</div>
-            </div>
+          <div class="slider-track">
+            <div class="slider-progress" id="slider-progress" style="width: 0%"></div>
+            <input type="range" min="0" max="100" value="0" class="slider" id="time-slider">
+          </div>
+          <div class="slider-caption">Move the slider to explore heart rate changes during the exam</div>
+        </div>
+        
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-color low-color"></div>
+            <div class="legend-label">Low</div>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color resting-color"></div>
+            <div class="legend-label">Resting</div>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color moderate-color"></div>
+            <div class="legend-label">Moderate</div>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color high-color"></div>
+            <div class="legend-label">High</div>
           </div>
         </div>
       </div>
@@ -822,7 +852,7 @@
         const maxHeartRate = Math.min(180, d3.max(heartRateData, d => d.heartRate) + 10);
         
         // Create a shorter SVG to fit better in the container
-        const svgHeight = 600; // Reduced from 1200 to 600
+        const svgHeight = 500; // Reduced from 600 to 500
         
         const margin = { top: 20, right: 30, bottom: 40, left: 50 };
         const width = chartWidth - margin.left - margin.right;
