@@ -56,7 +56,7 @@
     .classroom {
       position: relative;
       width: 100%;
-      height: 700px;
+      height: 900px; /* Increased from 700px to 800px */
       background: linear-gradient(to bottom, #1a1035, #0c111d);
       border-radius: 1rem;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
@@ -145,6 +145,7 @@
       height: calc(100% - 200px);
       display: grid;
       grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: repeat(2, 1fr);
       gap: 1.5rem;
       padding: 1.5rem;
       z-index: 5;
@@ -153,21 +154,22 @@
     
     .student-desk {
       position: relative;
-      height: 250px;
+      height: 230px;
       transform-style: preserve-3d;
       cursor: pointer;
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); /* Faster, smoother transition */
       transform: rotateX(30deg);
     }
     
     .student-desk:hover {
-      transform: rotateX(35deg) translateY(-20px) rotate(var(--rotation, 0deg));
+      transform: rotateX(35deg) translateY(-15px) rotate(var(--rotation, 0deg)); /* Reduced movement */
       z-index: 20;
-      box-shadow: 0 20px 25px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 15px 20px rgba(0, 0, 0, 0.3);
     }
     
     .student-desk.selected {
-      box-shadow: 0 0 20px var(--desk-accent, #4f46e5);
+      box-shadow: 0 0 15px var(--desk-accent, #4f46e5);
+      transition: box-shadow 0.2s ease; /* Added specific transition for selection */
     }
     
     .checkmark {
@@ -528,25 +530,24 @@
     .student-profile {
       display: none;
       position: fixed;
-      top: 5vh;
-      left: 5vw;
-      width: 90vw;
-      height: 90vh;
+      top: 10vh;
+      left: 10vw;
+      width: 80vw;
+      height: 80vh;
       background: var(--card-bg);
       border-radius: 1rem;
       z-index: 100;
       padding: 2rem;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
       border: 1px solid rgba(255, 255, 255, 0.1);
-      overflow-y: auto;
+      overflow: auto;
       transform: translateY(20px);
       opacity: 0;
-      transition: all 0.3s ease;
+      transition: all 0.2s ease-out; /* Faster transition */
     }
     
     .student-profile.active {
-      display: flex;
-      flex-direction: column;
+      display: block;
       transform: translateY(0);
       opacity: 1;
     }
@@ -574,21 +575,23 @@
     }
     
     .back-button {
-      background: rgba(0, 0, 0, 0.3);
-      border: none;
+      background: rgba(255, 255, 255, 0.1);
       color: white;
+      border: none;
       padding: 0.5rem 1rem;
       border-radius: 0.5rem;
+      font-size: 0.9rem;
+      font-weight: 500;
       cursor: pointer;
-      font-family: 'Inter', sans-serif;
-      transition: all 0.2s ease;
       display: flex;
       align-items: center;
       gap: 0.5rem;
+      transition: all 0.15s ease; /* Faster transition */
+      margin-top: 1rem;
     }
     
     .back-button:hover {
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(255, 255, 255, 0.2);
     }
     
     .detailed-chart-container {
@@ -655,7 +658,7 @@
       overflow: hidden;
       transform: translateY(20px);
       opacity: 0;
-      transition: all 0.3s ease;
+      transition: all 0.2s ease-out; /* Faster transition */
     }
     
     .graph-window.active {
@@ -680,21 +683,22 @@
     }
     
     .close-button {
-      background: rgba(0, 0, 0, 0.3);
-      border: none;
+      background: rgba(255, 255, 255, 0.1);
       color: white;
+      border: none;
       padding: 0.5rem 1rem;
       border-radius: 0.5rem;
+      font-size: 0.9rem;
+      font-weight: 500;
       cursor: pointer;
-      font-family: 'Inter', sans-serif;
-      transition: all 0.2s ease;
       display: flex;
       align-items: center;
       gap: 0.5rem;
+      transition: all 0.15s ease; /* Faster transition */
     }
     
     .close-button:hover {
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(255, 255, 255, 0.2);
     }
     
     .graph-container {
@@ -713,14 +717,15 @@
     }
     
     .exam-button {
-      background: var(--card-bg);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: transparent;
       color: white;
-      padding: 0.75rem 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 0.5rem 1rem;
       border-radius: 0.5rem;
+      font-size: 0.9rem;
+      font-weight: 500;
       cursor: pointer;
-      font-family: 'Inter', sans-serif;
-      transition: all 0.2s ease;
+      transition: all 0.15s ease; /* Faster transition */
     }
     
     .exam-button:hover {
@@ -748,17 +753,19 @@
       font-size: 1.1rem;
       font-weight: 600;
       cursor: pointer;
-      margin-top: 1rem;
-      margin-bottom: 2rem;
-      transition: all 0.2s ease;
+      transition: all 0.15s ease; /* Faster transition */
       display: none;
-      position: relative;
+      position: absolute;
+      top: 20px;
+      right: 20px;
       z-index: 20;
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
     }
     
     .show-graph-button:hover {
       background: #9333ea;
       transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(168, 85, 247, 0.6);
     }
     
     .show-graph-button:active {
@@ -772,7 +779,12 @@
     @media (max-width: 768px) {
       .desks-container {
         grid-template-columns: 1fr;
+        grid-template-rows: repeat(10, 1fr);
         gap: 1.5rem;
+      }
+      
+      .classroom {
+        height: 1200px; /* Increased for mobile view */
       }
       
       .student-profile {
@@ -794,6 +806,7 @@
     <h1>Student EDA Profiles During Exams</h1>
     
     <div class="classroom">
+      <button class="show-graph-button" id="show-graph-button">Show Graph</button>
       <div class="teacher-desk">
         <div class="teacher-desk-side"></div>
         <div class="teacher-desk-front"></div>
@@ -804,8 +817,6 @@
         <!-- Desks will be generated by JavaScript -->
       </div>
     </div>
-    
-    <button class="show-graph-button" id="show-graph-button">Show Graph</button>
   </div>
   
   <div class="overlay" id="overlay"></div>
@@ -1623,6 +1634,10 @@
   </script>
 </body>
 </html>
+
+
+
+
 
 
 
