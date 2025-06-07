@@ -100,13 +100,19 @@
         studentSelector.remove();
       }
       
-      // Add heart rate input
+      // Add heart rate input with enhanced styling
       const controlsDiv = document.querySelector('.controls');
       const hrInputContainer = document.createElement('div');
       hrInputContainer.className = 'hr-input-container';
       hrInputContainer.innerHTML = `
-        <label for="baseline-hr">Your Heart Rate at 8:00 AM (BPM):</label>
-        <input type="number" id="baseline-hr" min="40" max="200" value="70" class="hr-input">
+        <div class="hr-input-label">
+          <span class="heart-icon">❤️</span>
+          <label for="baseline-hr">Your Heart Rate at 8:00 AM (BPM):</label>
+        </div>
+        <div class="hr-input-field">
+          <input type="number" id="baseline-hr" min="40" max="200" value="70" class="hr-input">
+          <div class="hr-input-hint">Normal resting: 60-100</div>
+        </div>
       `;
       controlsDiv.insertBefore(hrInputContainer, controlsDiv.firstChild);
       
@@ -493,4 +499,7 @@
   </script>
 </body>
 </html>
+
+
+
 
