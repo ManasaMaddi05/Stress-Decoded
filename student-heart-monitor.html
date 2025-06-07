@@ -765,6 +765,12 @@
         document.getElementById('student-dropdown').value = studentId;
         document.getElementById('exam-dropdown').value = examType.toLowerCase();
         
+        // Clear any existing audio toggle button before creating a new one
+        const existingAudioToggle = document.querySelector('.audio-toggle');
+        if (existingAudioToggle) {
+          existingAudioToggle.remove();
+        }
+        
         // Load heart rate data for the selected student and exam
         const heartRateData = await loadHeartRateData(studentId, examType);
         
@@ -1051,73 +1057,78 @@
           }, 1000);
         });
         
-        // Add a toggle button for audio
-        const controlsContainer = document.querySelector('.controls');
-        const audioToggle = document.createElement('div');
-        audioToggle.className = 'audio-toggle';
-        audioToggle.innerHTML = `
-          <button id="audio-toggle-btn" class="audio-toggle-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
-            </svg>
-            <span>Mute Heartbeat</span>
-          </button>
-        `;
-        controlsContainer.appendChild(audioToggle);
-        
-        // Add styles for the audio toggle button
-        const style = document.createElement('style');
-        style.textContent = `
-          .audio-toggle {
-            margin-top: 1rem;
-            text-align: right;
+        // Add a toggle button for audio (only if it doesn't already exist)
+        if (!document.querySelector('.audio-toggle')) {
+          const controlsContainer = document.querySelector('.controls');
+          const audioToggle = document.createElement('div');
+          audioToggle.className = 'audio-toggle';
+          audioToggle.innerHTML = `
+            <button id="audio-toggle-btn" class="audio-toggle-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+              </svg>
+              <span>Mute Heartbeat</span>
+            </button>
+          `;
+          controlsContainer.appendChild(audioToggle);
+          
+          // Add styles for the audio toggle button (only once)
+          if (!document.getElementById('audio-toggle-styles')) {
+            const style = document.createElement('style');
+            style.id = 'audio-toggle-styles';
+            style.textContent = `
+              .audio-toggle {
+                margin-top: 1rem;
+                text-align: left;
+              }
+              
+              .audio-toggle-btn {
+                background: rgba(30, 41, 59, 0.8);
+                color: var(--text);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 4px;
+                padding: 0.5rem 1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                cursor: pointer;
+                transition: all 0.2s ease;
+              }
+              
+              .audio-toggle-btn:hover {
+                background: rgba(30, 41, 59, 1);
+              }
+              
+              .audio-toggle-btn.muted svg {
+                color: #ef4444;
+              }
+              
+              .audio-toggle-btn.muted span {
+                content: "Unmute Heartbeat";
+              }
+            `;
+            document.head.appendChild(style);
           }
           
-          .audio-toggle-btn {
-            background: rgba(30, 41, 59, 0.8);
-            color: var(--text);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-            padding: 0.5rem 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-          }
-          
-          .audio-toggle-btn:hover {
-            background: rgba(30, 41, 59, 1);
-          }
-          
-          .audio-toggle-btn.muted svg {
-            color: #ef4444;
-          }
-          
-          .audio-toggle-btn.muted span {
-            content: "Unmute Heartbeat";
-          }
-        `;
-        document.head.appendChild(style);
-        
-        // Add event listener for audio toggle
-        const audioToggleBtn = document.getElementById('audio-toggle-btn');
-        audioToggleBtn.addEventListener('click', function() {
-          if (heartbeatSound.paused) {
-            // Unmute
-            updateHeartbeatSound(currentHeartRate);
-            this.classList.remove('muted');
-            this.querySelector('span').textContent = 'Mute Heartbeat';
-          } else {
-            // Mute
-            heartbeatSound.pause();
-            isAudioPlaying = false;
-            this.classList.add('muted');
-            this.querySelector('span').textContent = 'Unmute Heartbeat';
-          }
-        });
+          // Add event listener for audio toggle
+          const audioToggleBtn = document.getElementById('audio-toggle-btn');
+          audioToggleBtn.addEventListener('click', function() {
+            if (heartbeatSound.paused) {
+              // Unmute
+              updateHeartbeatSound(currentHeartRate);
+              this.classList.remove('muted');
+              this.querySelector('span').textContent = 'Mute Heartbeat';
+            } else {
+              // Mute
+              heartbeatSound.pause();
+              isAudioPlaying = false;
+              this.classList.add('muted');
+              this.querySelector('span').textContent = 'Unmute Heartbeat';
+            }
+          });
+        }
         
         // Find the maximum heart rate point and scroll to it initially
         const maxHRPoint = heartRateData.reduce((prev, curr) => 
@@ -1188,6 +1199,8 @@
   </script>
 </body>
 </html>
+
+
 
 
 
