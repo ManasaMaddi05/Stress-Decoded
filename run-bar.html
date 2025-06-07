@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BVP Bar Chart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        .bg-stress-pattern {
+            background-color: #1a103c;
+            background-image: radial-gradient(rgba(168, 85, 247, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        .metric {
+            font-family: 'JetBrains Mono', monospace;
+            text-shadow: 0 0 10px rgba(168, 85, 247, 0.7);
+        }
+    </style>
+</head>
+<body class="bg-stress-pattern min-h-screen text-white">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-6 text-center">Blood Volume Pulse (BVP) Analysis</h1>
+        <div id="bvp-chart" class="w-full h-[800px] bg-black/40 backdrop-blur-sm rounded-lg shadow-lg border border-stress-700/30"></div>
+        <div class="mt-6 text-center">
+            <p class="text-lg mb-4">Blood Volume Pulse (BVP) measurements show changes in blood flow and vascular activity during exam periods.</p>
+            <p class="text-lg">Higher BVP values indicate increased blood flow, often associated with stress and anxiety responses.</p>
+            <p id="time-display" class="text-xl font-bold mt-4 metric"></p>
+        </div>
+    </div>
+
+    <script>
+        // BVP Chart Configuration
+        const chartConfig = {
+            margin: { top: 40, right: 60, bottom: 60, left: 150 },
+            colors: {
+                bars: '#a855f7', // stress-500
+                background: 'rgba(0, 0, 0, 0.4)',
+                text: '#ffffff',
+                grid: 'rgba(255, 255, 255, 0.1)'
+            }
+        };
+
+        // Initialize the chart
+        function initBVPChart() {
+            const container = d3.select('#bvp-chart');
+            const width = container.node().getBoundingClientRect().width;
+            const height = container.node().getBoundingClientRect().height;
+
+            const svg = container.append('svg')
+                .attr('width', width)
+                .attr('height', height);
+
+            const chartGroup = svg.append('g')
+                .attr('transform', `translate(${chartConfig.margin.left}, ${chartConfig.margin.top})`);
+
+            const chartWidth = width - chartConfig.margin.left - chartConfig.margin.right;
+            const chartHeight = height - chartConfig.margin.top - chartConfig.margin.bottom;
+
+            // Add scales
+            const xScale = d3.scaleLinear()
+                .range([0, chartWidth]);
+
+            const yScale = d3.scaleBand()
+                .range([0, chartHeight])
+                .padding(0.1);
+
+            // Add axes
+            const xAxis = chartGroup.append('g')
+                .attr('class', 'x-axis')
+                .attr('transform', `translate(0, ${chartHeight})`);
+
+            const yAxis = chartGroup.append('g')
+                .attr('class', 'y-axis');
+
+            // Add axis labels
+            chartGroup.append('text')
+                .attr('class', 'axis-label')
+                .attr('transform', `translate(-${chartConfig.margin.left - 20}, ${chartHeight / 2}) rotate(-90)`)
+                .style('text-anchor', 'middle')
+                .style('fill', chartConfig.colors.text)
+                .style('font-size', '1.2rem')
+                .text('Students');
+
+            chartGroup.append('text')
+                .attr('class', 'axis-label')
+                .attr('transform', `translate(${chartWidth / 2}, ${chartHeight + chartConfig.margin.bottom - 10})`)
+                .style('text-anchor', 'middle')
+                .style('fill', chartConfig.colors.text)
+                .style('font-size', '1.2rem')
+                .text('BVP Value');
+
+            // Add grid lines
+            const xGrid = chartGroup.append('g')
+                .attr('class', 'grid')
+                .style('stroke', chartConfig.colors.grid)
+                .style('stroke-dasharray', '3,3');
+
+            // Function to update the chart
+            function updateChart(data, timeIndex) {
+                const currentData = data[timeIndex];
+                const nextData = data[(timeIndex + 1) % data.length];
+                
+                // Update time display
+                const timeDisplay = document.getElementById('time-display');
+                timeDisplay.textContent = `Time: ${currentData[0].time} Minutes`;
+                
+                // Update scales
+                const maxValue = d3.max([...currentData, ...nextData], d => d.value);
+                xScale.domain([0, maxValue]);
+                yScale.domain(currentData.map(d => d.student));
+
+                // Update axes
+                xAxis.call(d3.axisBottom(xScale))
+                    .selectAll('text')
+                    .style('fill', chartConfig.colors.text)
+                    .style('font-size', '1rem');
+
+                yAxis.call(d3.axisLeft(yScale))
+                    .selectAll('text')
+                    .style('fill', chartConfig.colors.text)
+                    .style('font-size', '1rem');
+
+                // Update grid lines
+                xGrid.call(d3.axisBottom(xScale)
+                    .tickSize(-chartHeight)
+                    .tickFormat('')
+                );
+
+                // Update bars
+                const bars = chartGroup.selectAll('.bar')
+                    .data(currentData, d => d.student);
+
+                bars.enter()
+                    .append('rect')
+                    .attr('class', 'bar')
+                    .attr('x', 0)
+                    .attr('y', d => yScale(d.student))
+                    .attr('height', yScale.bandwidth())
+                    .attr('width', 0)
+                    .merge(bars)
+                    .transition()
+                    .duration(1000)
+                    .ease(d3.easeLinear)
+                    .attr('width', d => xScale(d.value))
+                    .style('fill', chartConfig.colors.bars)
+                    .style('opacity', 0.8);
+
+                bars.exit().remove();
+            }
+
+            // Load and process the data
+            d3.csv('Data/filtered_BVP.csv').then(data => {
+                const timeColumn = 'relative_time';
+                const bvpColumns = Object.keys(data[0]).filter(col => col.startsWith('S') && col.endsWith('_BVP'));
+                
+                // Process all time points
+                const processedData = data.map(row => {
+                    return bvpColumns.map(col => ({
+                        time: row[timeColumn],
+                        student: col,
+                        value: +row[col]
+                    }));
+                });
+
+                let currentTimeIndex = 0;
+                
+                // Initial chart render
+                updateChart(processedData, currentTimeIndex);
+
+                // Set up animation interval
+                setInterval(() => {
+                    currentTimeIndex = (currentTimeIndex + 1) % processedData.length;
+                    updateChart(processedData, currentTimeIndex);
+                }, 500); // Update every 300ms
+            });
+        }
+
+        // Initialize the chart when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', initBVPChart);
+    </script>
+</body>
+</html>
