@@ -213,7 +213,7 @@
   <div class="container">
     <div class="header">
       <h1>Reflection Wall</h1>
-      <div class="prompt">If I could do that morning again, I'd...</div>
+      <div class="prompt">After seeing what stress looked like across the exam experience, what's one thing you'd do differently next time to take better care of yourself? (You can reflect on your morning routine, mindset, habits, exam prep, or anything else that affected your well-being.)</div>
     </div>
     
     <div class="input-container">
@@ -244,14 +244,14 @@
       
       // Sample reflections for demo
       const sampleReflections = [
-        "I'd wake up earlier and review my notes one more time instead of scrolling through social media.",
-        "I'd eat a proper breakfast. My stomach was growling the whole time.",
-        "I'd remember to bring my lucky pen. Sounds silly but it helps with my confidence.",
-        "I'd skip the coffee. The caffeine made my anxiety so much worse.",
-        "I'd tell myself that one exam doesn't define my worth or my future.",
-        "I'd take 10 minutes to meditate and clear my head before leaving home.",
-        "I wouldn't cram at the last minute. It just confused me more.",
-        "I'd wear more comfortable clothes. Being physically uncomfortable made it harder to focus."
+        "I'd actually sleep the night before. I thought cramming would help, but I was running on fumes by the time I got to the test.",
+        "I'd skip the energy drink. It made me jittery and my hands were shaking during the first question.",
+        "Next time, I'll stop comparing myself to everyone around me. That pressure didn't help.",
+        "I'd take 5 minutes to breathe and reset before walking into the exam. My body was already in panic mode.",
+        "I wouldn't reread my notes at the last second. It just made me doubt what I already knew.",
+        "I'd be kinder to myself the whole week leading up to it. I turned the exam into a monster in my head.",
+        "I'd make a real breakfast. I didn't realize how much hunger messes with focus.",
+        "I'd focus less on the grade and more on doing my best. The anxiety was worse than the test."
       ];
       
       // Load reflections from localStorage or use sample data
@@ -323,7 +323,12 @@
       function renderReflections() {
         reflectionWall.innerHTML = '';
         
-        reflections.forEach((reflection, index) => {
+        // Sort reflections by timestamp, newest first
+        const sortedReflections = [...reflections].sort((a, b) => {
+          return new Date(b.timestamp) - new Date(a.timestamp);
+        });
+        
+        sortedReflections.forEach((reflection, index) => {
           const card = document.createElement('div');
           card.className = `reflection-card ${reflection.colorClass}`;
           card.style.setProperty('--rotation', `${reflection.rotation}deg`);
@@ -335,7 +340,7 @@
           card.innerHTML = `
             <div class="reflection-text">${reflection.text}</div>
             <div class="reflection-footer">
-              <button class="reaction-button" data-index="${index}">
+              <button class="reaction-button" data-index="${reflections.indexOf(reflection)}">
                 ❤️ <span class="reaction-count">${reflection.reactions}</span>
               </button>
               <div class="timestamp">${timeAgo}</div>
@@ -403,3 +408,6 @@
   </script>
 </body>
 </html>
+
+
+

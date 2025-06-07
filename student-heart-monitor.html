@@ -568,6 +568,44 @@
         dataPath: 'Data/' // Path to data files
       };
       
+      // Audio setup for heartbeat
+      const heartbeatSound = new Audio('sounds/heartbeat.mp3');
+      heartbeatSound.volume = 1; // Increased from 0.3 to 0.6
+      heartbeatSound.loop = true;
+      
+      // Variables to track slider movement
+      let isSliderMoving = false;
+      let sliderTimeout;
+      let currentHeartRate = 0;
+      let isAudioPlaying = false;
+      
+      // Function to adjust heartbeat sound based on heart rate
+      function updateHeartbeatSound(heartRate) {
+        // Adjust playback rate based on heart rate
+        // Normal heart rate (~70 bpm) = normal speed (1.0)
+        // Higher heart rates = faster playback
+        // Lower heart rates = slower playback
+        const playbackRate = heartRate / 70;
+        heartbeatSound.playbackRate = Math.max(0.6, Math.min(2.5, playbackRate));
+        
+        // Adjust volume based on heart rate zone
+        if (heartRate < 60) {
+          heartbeatSound.volume = 0.6; // Increased from 0.2 to 0.4
+        } else if (heartRate < 80) {
+          heartbeatSound.volume = 0.7; // Increased from 0.3 to 0.5
+        } else if (heartRate < 100) {
+          heartbeatSound.volume = 0.8; // Increased from 0.4 to 0.6
+        } else {
+          heartbeatSound.volume = 0.9; // Increased from 0.5 to 0.7
+        }
+        
+        // Play sound if not already playing
+        if (heartbeatSound.paused) {
+          heartbeatSound.play().catch(e => console.log('Audio play prevented:', e));
+          isAudioPlaying = true;
+        }
+      }
+      
       // Update config based on URL parameters
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.has('student')) {
@@ -924,8 +962,12 @@
           });
           
           // Update heart rate display
-          hrValue.textContent = Math.round(closestPoint.heartRate);
-          hrValue.style.color = getHeartRateColor(closestPoint.heartRate);
+          currentHeartRate = Math.round(closestPoint.heartRate);
+          hrValue.textContent = currentHeartRate;
+          hrValue.style.color = getHeartRateColor(currentHeartRate);
+          
+          // Update heartbeat sound based on current heart rate
+          updateHeartbeatSound(currentHeartRate);
           
           // Update vertical line position
           timeIndicator
@@ -963,9 +1005,118 @@
         // Initialize with current slider value
         updateDisplay(slider.value);
         
-        // Add event listener for slider
+        // Add event listeners for slider
         slider.addEventListener('input', function() {
           updateDisplay(this.value);
+          
+          // Set flag that slider is moving
+          isSliderMoving = true;
+          
+          // Clear any existing timeout
+          clearTimeout(sliderTimeout);
+          
+          // Set timeout to detect when slider stops moving
+          sliderTimeout = setTimeout(() => {
+            isSliderMoving = false;
+            // Don't pause the sound when slider stops moving
+            // Just update the flag
+          }, 1000);
+        });
+        
+        // Add event listener for slider mousedown/touchstart
+        slider.addEventListener('mousedown', function() {
+          isSliderMoving = true;
+        });
+        
+        slider.addEventListener('touchstart', function() {
+          isSliderMoving = true;
+        });
+        
+        // Add event listener for slider mouseup/touchend
+        document.addEventListener('mouseup', function() {
+          // Set timeout to detect when slider stops moving
+          clearTimeout(sliderTimeout);
+          sliderTimeout = setTimeout(() => {
+            isSliderMoving = false;
+            // Don't pause the sound when slider stops moving
+          }, 1000);
+        });
+        
+        document.addEventListener('touchend', function() {
+          // Set timeout to detect when slider stops moving
+          clearTimeout(sliderTimeout);
+          sliderTimeout = setTimeout(() => {
+            isSliderMoving = false;
+            // Don't pause the sound when slider stops moving
+          }, 1000);
+        });
+        
+        // Add a toggle button for audio
+        const controlsContainer = document.querySelector('.controls');
+        const audioToggle = document.createElement('div');
+        audioToggle.className = 'audio-toggle';
+        audioToggle.innerHTML = `
+          <button id="audio-toggle-btn" class="audio-toggle-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+            </svg>
+            <span>Mute Heartbeat</span>
+          </button>
+        `;
+        controlsContainer.appendChild(audioToggle);
+        
+        // Add styles for the audio toggle button
+        const style = document.createElement('style');
+        style.textContent = `
+          .audio-toggle {
+            margin-top: 1rem;
+            text-align: right;
+          }
+          
+          .audio-toggle-btn {
+            background: rgba(30, 41, 59, 0.8);
+            color: var(--text);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+          }
+          
+          .audio-toggle-btn:hover {
+            background: rgba(30, 41, 59, 1);
+          }
+          
+          .audio-toggle-btn.muted svg {
+            color: #ef4444;
+          }
+          
+          .audio-toggle-btn.muted span {
+            content: "Unmute Heartbeat";
+          }
+        `;
+        document.head.appendChild(style);
+        
+        // Add event listener for audio toggle
+        const audioToggleBtn = document.getElementById('audio-toggle-btn');
+        audioToggleBtn.addEventListener('click', function() {
+          if (heartbeatSound.paused) {
+            // Unmute
+            updateHeartbeatSound(currentHeartRate);
+            this.classList.remove('muted');
+            this.querySelector('span').textContent = 'Mute Heartbeat';
+          } else {
+            // Mute
+            heartbeatSound.pause();
+            isAudioPlaying = false;
+            this.classList.add('muted');
+            this.querySelector('span').textContent = 'Unmute Heartbeat';
+          }
         });
         
         // Find the maximum heart rate point and scroll to it initially
@@ -1037,3 +1188,7 @@
   </script>
 </body>
 </html>
+
+
+
+

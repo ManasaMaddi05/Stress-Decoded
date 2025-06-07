@@ -31,7 +31,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       perspective: 1000px;
     }
     
@@ -43,27 +43,27 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       box-sizing: border-box;
     }
     
     h1 {
       text-align: center;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
       font-size: 2.5rem;
     }
     
     .classroom {
       position: relative;
       width: 100%;
-      height: 900px;
+      height: 700px;
       background: linear-gradient(to bottom, #1a1035, #0c111d);
       border-radius: 1rem;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
       overflow: hidden;
       transform-style: preserve-3d;
       perspective: 1200px;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
       box-sizing: border-box;
     }
     
@@ -161,13 +161,13 @@
     }
     
     .student-desk:hover {
-      transform: rotateX(35deg) translateY(-20px);
+      transform: rotateX(35deg) translateY(-20px) rotate(var(--rotation, 0deg));
       z-index: 20;
+      box-shadow: 0 20px 25px rgba(0, 0, 0, 0.3);
     }
     
     .student-desk.selected {
-      border: 2px solid #10b981;
-      box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+      box-shadow: 0 0 20px var(--desk-accent, #4f46e5);
     }
     
     .checkmark {
@@ -378,6 +378,135 @@
       border-style: solid;
       border-width: 1.5px 3px 1.5px 0;
       border-color: transparent #555 transparent transparent;
+    }
+    
+    /* Additional desk items */
+    .desk-notebook {
+      position: absolute;
+      width: 30px;
+      height: 40px;
+      background: #f8fafc;
+      top: 20%;
+      left: 20%;
+      transform: rotate(15deg);
+      z-index: 6;
+      border: 1px solid #94a3b8;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .desk-notebook::before {
+      content: '';
+      position: absolute;
+      left: 5px;
+      top: 5px;
+      width: 20px;
+      height: 2px;
+      background: #94a3b8;
+      box-shadow: 0 5px 0 #94a3b8, 0 10px 0 #94a3b8, 0 15px 0 #94a3b8, 0 20px 0 #94a3b8;
+    }
+    
+    .desk-calculator {
+      position: absolute;
+      width: 25px;
+      height: 35px;
+      background: #1e293b;
+      top: 25%;
+      right: 25%;
+      z-index: 6;
+      border-radius: 3px;
+      border: 1px solid #475569;
+    }
+    
+    .desk-calculator::before {
+      content: '';
+      position: absolute;
+      left: 3px;
+      top: 3px;
+      width: 19px;
+      height: 8px;
+      background: #94a3b8;
+      border-radius: 2px;
+    }
+    
+    .desk-calculator::after {
+      content: '';
+      position: absolute;
+      left: 3px;
+      top: 14px;
+      width: 4px;
+      height: 4px;
+      background: #f8fafc;
+      border-radius: 50%;
+      box-shadow: 6px 0 0 #f8fafc, 12px 0 0 #f8fafc, 
+                  0 6px 0 #f8fafc, 6px 6px 0 #f8fafc, 12px 6px 0 #f8fafc,
+                  0 12px 0 #f8fafc, 6px 12px 0 #f8fafc, 12px 12px 0 #f8fafc;
+    }
+    
+    .desk-coffee {
+      position: absolute;
+      width: 20px;
+      height: 25px;
+      background: #f97316;
+      top: 15%;
+      left: 60%;
+      border-radius: 0 0 10px 10px;
+      z-index: 6;
+    }
+    
+    .desk-coffee::before {
+      content: '';
+      position: absolute;
+      width: 5px;
+      height: 8px;
+      background: #f97316;
+      right: -5px;
+      top: 5px;
+      border-radius: 0 5px 5px 0;
+    }
+    
+    .desk-coffee::after {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 4px;
+      background: #7c2d12;
+      left: 2px;
+      top: 3px;
+      border-radius: 2px;
+    }
+    
+    .desk-highlighter {
+      position: absolute;
+      width: 35px;
+      height: 8px;
+      background: #fbbf24;
+      top: 35%;
+      right: 20%;
+      transform: rotate(-15deg);
+      z-index: 6;
+      border-radius: 2px;
+    }
+    
+    .desk-highlighter::before {
+      content: '';
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: #fbbf24;
+      left: -4px;
+      top: 0;
+      border-radius: 2px 0 0 2px;
+    }
+    
+    .desk-highlighter::after {
+      content: '';
+      position: absolute;
+      width: 6px;
+      height: 8px;
+      background: #f59e0b;
+      right: -3px;
+      top: 0;
+      border-radius: 0 4px 4px 0;
     }
     
     .overlay {
@@ -619,9 +748,12 @@
       font-size: 1.1rem;
       font-weight: 600;
       cursor: pointer;
-      margin-top: 2rem;
+      margin-top: 1rem;
+      margin-bottom: 2rem;
       transition: all 0.2s ease;
       display: none;
+      position: relative;
+      z-index: 20;
     }
     
     .show-graph-button:hover {
@@ -1491,6 +1623,8 @@
   </script>
 </body>
 </html>
+
+
 
 
 

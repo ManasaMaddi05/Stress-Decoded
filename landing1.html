@@ -144,11 +144,11 @@
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       // Audio setup
-      const tickSound = new Audio('sounds/tick.mp3');
-      tickSound.volume = 0.2;
+      const tickSound = new Audio('sounds/alarm1.mp3');
+      tickSound.volume = 0.1;
       
-      const finalSound = new Audio('sounds/explosion.mp3');
-      finalSound.volume = 0.4;
+      const finalSound = new Audio('sounds/alarm1.mp3');
+      finalSound.volume = 0.1;
       
       // Countdown timer functionality
       const countdownOverlay = document.getElementById('countdown-overlay');
@@ -214,6 +214,12 @@
             countdownOverlay.classList.add('fade-out');
             mainContent.classList.remove('opacity-0');
             
+            // Stop all audio when countdown overlay is hidden
+            tickSound.pause();
+            tickSound.currentTime = 0;
+            finalSound.pause();
+            finalSound.currentTime = 0;
+            
             setTimeout(() => {
               countdownOverlay.style.display = 'none';
             }, 1000);
@@ -267,10 +273,4 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
 
