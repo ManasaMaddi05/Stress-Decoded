@@ -805,3 +805,169 @@ select:focus {
   }
 }
 
+/* Stress profile styles */
+.metrics-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(15, 23, 42, 0.95);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+  z-index: 100;
+  display: none;
+}
+
+.metrics-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.metrics-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: white;
+}
+
+.close-btn {
+  cursor: pointer;
+  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.close-btn:hover {
+  color: white;
+}
+
+.metrics-section {
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.metrics-section:last-child {
+  border-bottom: none;
+}
+
+.stress-profile {
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.low-stress {
+  background-color: rgba(34, 197, 94, 0.2);
+  border-left: 4px solid #22c55e;
+}
+
+.moderate-stress {
+  background-color: rgba(234, 179, 8, 0.2);
+  border-left: 4px solid #eab308;
+}
+
+.high-stress {
+  background-color: rgba(220, 38, 38, 0.2);
+  border-left: 4px solid #dc2626;
+}
+
+.stress-level {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.stress-icon {
+  font-size: 1.5rem;
+  margin-right: 10px;
+}
+
+.stress-label {
+  font-weight: bold;
+  color: white;
+}
+
+.stress-description {
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.5;
+}
+
+.hr-metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.metric-label {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.metric-value {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: white;
+}
+
+.section-title {
+  font-weight: bold;
+  color: white;
+  margin-bottom: 10px;
+}
+
+.activity-effects {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.activity-effect {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.activity-name {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.activity-change {
+  font-weight: bold;
+}
+
+.activity-change.increase {
+  color: #ef4444;
+}
+
+.activity-change.decrease {
+  color: #22c55e;
+}
+
+.recommendations-list {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.recommendations-list li {
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+/* Improve drag and drop visual feedback */
+.timeline-block.dragover {
+  background-color: rgba(255, 255, 255, 0.15);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+.event-card.dragging, .timeline-card.dragging {
+  opacity: 0.5;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}

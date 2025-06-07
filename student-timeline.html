@@ -81,25 +81,46 @@
   
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+      // Get DOM elements
+      const timeline = document.getElementById('timeline');
+      const cardsArea = document.getElementById('cards-area');
+      const revealBtn = document.getElementById('reveal-btn');
+      const summaryBtn = document.getElementById('summary-btn');
+      const metricsPanel = document.getElementById('metrics-panel') || document.createElement('div');
+      
+      // Add metrics panel if it doesn't exist
+      if (!document.getElementById('metrics-panel')) {
+        metricsPanel.id = 'metrics-panel';
+        metricsPanel.className = 'metrics-panel';
+        document.body.appendChild(metricsPanel);
+      }
+      
+      // Add heart rate input
+      const controlsDiv = document.querySelector('.controls');
+      const hrInputContainer = document.createElement('div');
+      hrInputContainer.className = 'hr-input-container';
+      hrInputContainer.innerHTML = `
+        <label for="baseline-hr">Your Heart Rate at 8:00 AM (BPM):</label>
+        <input type="number" id="baseline-hr" min="40" max="200" value="70" class="hr-input">
+      `;
+      controlsDiv.insertBefore(hrInputContainer, controlsDiv.firstChild);
+      
       // Configuration
       const config = {
-        studentId: 3, // Default student ID
-        examType: 'midterm1', // Default exam type
         examDuration: 60, // minutes
         startTime: new Date(2023, 0, 1, 8, 0, 0), // 8:00 AM
         dataPath: './data/', // Path to data files
         eventCards: [
-          { id: 'woke-late', label: 'Woke up late / rushed out', color: '#dc2626' },
-          { id: 'had-breakfast', label: 'Had breakfast', color: '#22c55e' },
-          { id: 'skipped-breakfast', label: 'Skipped breakfast', color: '#f97316' },
-          { id: 'last-minute', label: 'Studied last-minute notes', color: '#a855f7' },
-          { id: 'music', label: 'Listened to music to calm down', color: '#0ea5e9' },
-          { id: 'meditated', label: 'Meditated', color: '#22c55e' },
-          { id: 'argued', label: 'Argued with roommate', color: '#dc2626' },
-          { id: 'walk', label: 'Took a walk', color: '#0ea5e9' },
-          { id: 'flashcards', label: 'Reviewed flashcards', color: '#a855f7' },
-          { id: 'confident', label: 'Felt confident', color: '#22c55e' },
-          { id: 'forgot', label: 'Forgot calculator', color: '#f97316' }
+          { id: 'woke-late', label: 'Woke up late / rushed out', color: '#dc2626', hrChange: 9.5 },
+          { id: 'had-breakfast', label: 'Had breakfast', color: '#22c55e', hrChange: 8 },
+          { id: 'skipped-breakfast', label: 'Skipped breakfast', color: '#f97316', hrChange: 3.6 },
+          { id: 'last-minute', label: 'Studied last-minute notes', color: '#a855f7', hrChange: 3 },
+          { id: 'music', label: 'Listened to music to calm down', color: '#0ea5e9', hrChange: -5.8 },
+          { id: 'meditated', label: 'Meditated', color: '#22c55e', hrChange: -7 },
+          { id: 'argued', label: 'Argued with roommate', color: '#dc2626', hrChange: 15 },
+          { id: 'exercise', label: 'Exercise', color: '#0ea5e9', hrChange: 9 },
+          { id: 'flashcards', label: 'Reviewed flashcards', color: '#a855f7', hrChange: 4 },
+          { id: 'forgot', label: 'Forgot calculator', color: '#f97316', hrChange: 9 }
         ],
         // Physiological pattern zones (start minute, end minute, type)
         zones: [
@@ -107,23 +128,25 @@
           { start: 20, end: 30, type: 'calm' },   // 8:20-8:30
           { start: 35, end: 45, type: 'erratic' }, // 8:35-8:45
           { start: 50, end: 58, type: 'stress' }   // 8:50-8:58
+        ],
+        // Student data for comparison
+        studentData: [
+          { id: 1, baseHR: 72, avgEDA: 0.25, stressProfile: 'calm' },
+          { id: 2, baseHR: 68, avgEDA: 0.22, stressProfile: 'calm' },
+          { id: 3, baseHR: 95, avgEDA: 0.38, stressProfile: 'moderate' },
+          { id: 4, baseHR: 88, avgEDA: 0.35, stressProfile: 'moderate' },
+          { id: 5, baseHR: 110, avgEDA: 0.48, stressProfile: 'high' },
+          { id: 6, baseHR: 105, avgEDA: 0.52, stressProfile: 'high' },
+          { id: 7, baseHR: 78, avgEDA: 0.28, stressProfile: 'calm' },
+          { id: 8, baseHR: 92, avgEDA: 0.42, stressProfile: 'moderate' },
+          { id: 9, baseHR: 115, avgEDA: 0.55, stressProfile: 'high' },
+          { id: 10, baseHR: 82, avgEDA: 0.32, stressProfile: 'moderate' }
         ]
       };
       
-      // Update config based on URL parameters
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.has('student')) {
-        config.studentId = parseInt(urlParams.get('student'));
-        document.getElementById('student-dropdown').value = config.studentId;
-      }
-      
-      // DOM elements
-      const cardsArea = document.getElementById('cards-area');
-      const timeline = document.getElementById('timeline');
-      const trash = document.getElementById('trash');
-      const tooltip = document.getElementById('tooltip');
-      const revealBtn = document.getElementById('reveal-btn');
-      const legend = document.getElementById('legend');
+      // Clear existing content
+      timeline.innerHTML = '';
+      cardsArea.innerHTML = '';
       
       // Generate event cards
       config.eventCards.forEach(card => {
@@ -135,108 +158,55 @@
         cardElement.draggable = true;
         
         // Drag events for cards
-        cardElement.addEventListener('dragstart', handleDragStart);
-        cardElement.addEventListener('dragend', handleDragEnd);
+        cardElement.addEventListener('dragstart', function(e) {
+          e.dataTransfer.setData('text/plain', card.id);
+          e.dataTransfer.effectAllowed = 'copy';
+          this.classList.add('dragging');
+        });
+        
+        cardElement.addEventListener('dragend', function() {
+          this.classList.remove('dragging');
+        });
         
         cardsArea.appendChild(cardElement);
       });
       
       // Generate timeline blocks
       for (let i = 0; i < config.examDuration; i++) {
-        const block = document.createElement('div');
-        block.className = 'timeline-block';
-        block.dataset.minute = i;
+        const timeBlock = document.createElement('div');
+        timeBlock.className = 'timeline-block';
+        timeBlock.dataset.minute = i;
         
-        // Add time labels every 5 minutes
+        // Calculate time label (8:00 AM + i minutes)
+        const blockTime = new Date(config.startTime);
+        blockTime.setMinutes(blockTime.getMinutes() + i);
+        const timeLabel = blockTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        // Add time label every 5 minutes
         if (i % 5 === 0) {
-          const timeLabel = new Date(config.startTime);
-          timeLabel.setMinutes(timeLabel.getMinutes() + i);
-          
           const label = document.createElement('div');
-          label.className = 'timeline-label';
-          label.textContent = timeLabel.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-          block.appendChild(label);
+          label.className = 'time-label';
+          label.textContent = timeLabel;
+          timeBlock.appendChild(label);
         }
         
-        timeline.appendChild(block);
-      }
-      
-      // Add physiological pattern zones (hidden initially)
-      config.zones.forEach(zone => {
-        const zoneElement = document.createElement('div');
-        zoneElement.className = `zone-marker ${zone.type}`;
-        
-        // Calculate position and width
-        const startBlock = timeline.childNodes[zone.start];
-        const endBlock = timeline.childNodes[zone.end];
-        
-        if (startBlock && endBlock) {
-          const startRect = startBlock.getBoundingClientRect();
-          const endRect = endBlock.getBoundingClientRect();
-          const timelineRect = timeline.getBoundingClientRect();
-          
-          const left = (startBlock.offsetLeft / timeline.scrollWidth) * 100;
-          const width = ((endBlock.offsetLeft + endBlock.offsetWidth - startBlock.offsetLeft) / timeline.scrollWidth) * 100;
-          
-          zoneElement.style.left = `${left}%`;
-          zoneElement.style.width = `${width}%`;
-          
-          timeline.appendChild(zoneElement);
-        }
-      });
-      
-      // Load heart rate data and color timeline blocks
-      loadHeartRateData(config.studentId).then(data => {
-        colorTimelineBlocks(data);
-      });
-      
-      // Drag and drop functionality
-      let draggingElement = null;
-      
-      function handleDragStart(e) {
-        draggingElement = this;
-        this.classList.add('dragging');
-        
-        // Set data for drag operation
-        e.dataTransfer.setData('text/plain', this.dataset.id);
-        e.dataTransfer.effectAllowed = 'move';
-        
-        // Create a custom drag image (optional)
-        const dragImage = this.cloneNode(true);
-        dragImage.style.width = '100px';
-        dragImage.style.height = '30px';
-        dragImage.style.opacity = '0.7';
-        document.body.appendChild(dragImage);
-        e.dataTransfer.setDragImage(dragImage, 50, 15);
-        setTimeout(() => {
-          document.body.removeChild(dragImage);
-        }, 0);
-      }
-      
-      function handleDragEnd() {
-        this.classList.remove('dragging');
-        draggingElement = null;
-        trash.classList.remove('active');
-      }
-      
-      // Make timeline blocks droppable
-      timeline.childNodes.forEach(block => {
-        block.addEventListener('dragover', function(e) {
+        // Add drop event handlers
+        timeBlock.addEventListener('dragover', function(e) {
           e.preventDefault();
-          e.dataTransfer.dropEffect = 'move';
-          this.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+          e.dataTransfer.dropEffect = 'copy';
+          this.classList.add('dragover');
         });
         
-        block.addEventListener('dragleave', function() {
-          this.style.backgroundColor = '';
+        timeBlock.addEventListener('dragleave', function() {
+          this.classList.remove('dragover');
         });
         
-        block.addEventListener('drop', function(e) {
+        timeBlock.addEventListener('drop', function(e) {
           e.preventDefault();
-          this.style.backgroundColor = '';
+          this.classList.remove('dragover');
           
           const cardId = e.dataTransfer.getData('text/plain');
-          const cardInfo = config.eventCards.find(card => card.id === cardId);
+          const cardInfo = config.eventCards.find(c => c.id === cardId);
           
           if (cardInfo) {
             // Check if there's already a card at this position
@@ -250,43 +220,33 @@
             timelineCard.className = 'timeline-card';
             timelineCard.textContent = cardInfo.label;
             timelineCard.dataset.id = cardId;
+            timelineCard.dataset.hrChange = cardInfo.hrChange;
             timelineCard.style.borderLeft = `4px solid ${cardInfo.color}`;
-            timelineCard.style.left = '50%';
-            timelineCard.draggable = true;
             
-            // Add drag functionality to timeline card
-            timelineCard.addEventListener('dragstart', handleDragStart);
-            timelineCard.addEventListener('dragend', handleDragEnd);
+            // Make timeline cards draggable for repositioning
+            timelineCard.draggable = true;
+            timelineCard.addEventListener('dragstart', function(e) {
+              e.stopPropagation();
+              e.dataTransfer.setData('text/plain', cardId);
+              this.classList.add('dragging');
+            });
+            
+            timelineCard.addEventListener('dragend', function() {
+              this.classList.remove('dragging');
+            });
             
             this.appendChild(timelineCard);
           }
         });
         
-        // Hover effect for timeline blocks
-        block.addEventListener('mousemove', function(e) {
-          const minute = parseInt(this.dataset.minute);
-          const timeLabel = new Date(config.startTime);
-          timeLabel.setMinutes(timeLabel.getMinutes() + minute);
-          
-          tooltip.style.display = 'block';
-          tooltip.style.left = `${e.pageX + 10}px`;
-          tooltip.style.top = `${e.pageY - 40}px`;
-          
-          // Get heart rate data for this minute
-          const hr = getHeartRateForMinute(minute);
-          const eda = getEDAForMinute(minute);
-          
-          tooltip.innerHTML = `
-            <div>Time: ${timeLabel.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-            <div>Heart Rate: ${hr} bpm</div>
-            <div>EDA: ${eda.toFixed(2)} μS</div>
-          `;
-        });
-        
-        block.addEventListener('mouseleave', function() {
-          tooltip.style.display = 'none';
-        });
-      });
+        timeline.appendChild(timeBlock);
+      }
+      
+      // Add trash area for removing cards
+      const trash = document.createElement('div');
+      trash.className = 'trash-area';
+      trash.innerHTML = '<i class="fas fa-trash"></i> Drop here to remove';
+      document.querySelector('.timeline-container').appendChild(trash);
       
       // Make trash droppable
       trash.addEventListener('dragover', function(e) {
@@ -302,1026 +262,260 @@
         e.preventDefault();
         this.classList.remove('active');
         
-        if (draggingElement && draggingElement.classList.contains('timeline-card')) {
+        const cardId = e.dataTransfer.getData('text/plain');
+        const draggingElement = document.querySelector(`.timeline-card[data-id="${cardId}"].dragging`);
+        
+        if (draggingElement) {
           draggingElement.remove();
         }
       });
       
-      // Reveal physiological patterns button
-      revealBtn.addEventListener('click', function() {
-        document.querySelectorAll('.zone-marker').forEach(marker => {
-          marker.classList.toggle('visible');
-        });
-        
-        legend.style.display = legend.style.display === 'none' ? 'flex' : 'none';
-        
-        this.textContent = this.textContent === 'Show Physiological Patterns' ? 
-          'Hide Physiological Patterns' : 'Show Physiological Patterns';
-      });
-      
-      // Student dropdown change event
-      document.getElementById('student-dropdown').addEventListener('change', function() {
-        const selectedStudentId = parseInt(this.value);
-        
-        // Update URL parameter without refreshing the page
-        const url = new URL(window.location);
-        url.searchParams.set('student', selectedStudentId);
-        window.history.pushState({}, '', url);
-        
-        // Load new student data
-        loadHeartRateData(selectedStudentId).then(data => {
-          colorTimelineBlocks(data);
-          
-          // Update physiological zones based on the new student
-          updatePhysiologicalZones(selectedStudentId);
-        });
-      });
-      
-      // Helper functions
-      function formatTime(minutes) {
-        const timeLabel = new Date(config.startTime);
-        timeLabel.setMinutes(timeLabel.getMinutes() + minutes);
-        return timeLabel.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      }
-      
-      function getHeartRateForMinute(minute) {
-        // This would be replaced with actual data lookup
-        // For now, generate a plausible value
-        const baseHR = 70 + (config.studentId % 5) * 2;
-        
-        // Define stress patterns based on zones
-        let stressMultiplier = 1.0;
-        
-        for (const zone of config.zones) {
-          if (minute >= zone.start && minute <= zone.end) {
-            if (zone.type === 'stress') {
-              stressMultiplier = 1.3;
-            } else if (zone.type === 'calm') {
-              stressMultiplier = 0.9;
-            } else if (zone.type === 'erratic') {
-              // For erratic, we'll use sine wave to create fluctuations
-              stressMultiplier = 1.0 + 0.3 * Math.sin((minute - zone.start) * 0.8);
-            }
-            break;
-          }
-        }
-        
-        let hr = baseHR * stressMultiplier;
-        
-        // Add some randomness
-        hr += Math.random() * 8 - 4;
-        
-        return Math.round(hr);
-      }
-      
-      function getEDAForMinute(minute) {
-        // Generate plausible EDA value
-        const baseEDA = 2 + (config.studentId % 3);
-        
-        // Define stress patterns based on zones
-        let stressMultiplier = 1.0;
-        
-        for (const zone of config.zones) {
-          if (minute >= zone.start && minute <= zone.end) {
-            if (zone.type === 'stress') {
-              stressMultiplier = 1.8;
-            } else if (zone.type === 'calm') {
-              stressMultiplier = 0.7;
-            } else if (zone.type === 'erratic') {
-              // For erratic, we'll use sine wave to create fluctuations
-              stressMultiplier = 1.0 + 0.5 * Math.sin((minute - zone.start) * 1.2);
-            }
-            break;
-          }
-        }
-        
-        let eda = baseEDA * stressMultiplier;
-        
-        // Add some randomness
-        eda += Math.random() * 0.8 - 0.4;
-        
-        return Math.max(0.5, eda);
-      }
-      
-      // Function to load heart rate data from CSV
-      async function loadHeartRateData(studentId) {
-        try {
-          // Use the actual Final_HR.csv file
-          const hrFilePath = './Data/Final_HR.csv';
-          
-          let response = null;
-          let csvText = null;
-          
-          try {
-            response = await fetch(hrFilePath);
-            if (response.ok) {
-              csvText = await response.text();
-              console.log(`Successfully loaded HR data from ${hrFilePath}`);
-            } else {
-              throw new Error(`Failed to load from ${hrFilePath}`);
-            }
-          } catch (e) {
-            console.warn(`Failed to load from ${hrFilePath}: ${e.message}`);
-            throw e;
-          }
-          
-          if (!csvText) {
-            throw new Error('HR data file not found');
-          }
-          
-          const rows = csvText.trim().split('\n');
-          const headers = rows[0].split(',');
-          
-          // Find the column index for the selected student
-          const studentColumn = `S${studentId}_HR`;
-          const studentColumnIndex = headers.findIndex(header => 
-            header.trim() === studentColumn
-          );
-          
-          if (studentColumnIndex === -1) {
-            throw new Error(`Could not find data column for Student #${studentId}`);
-          }
-          
-          // Parse the data for the selected student
-          const data = [];
-          for (let i = 1; i < rows.length; i++) {
-            const values = rows[i].split(',');
-            if (values.length <= studentColumnIndex) continue;
-            
-            // Assuming the first column is time in seconds
-            const time = parseFloat(values[0]);
-            const heartRate = parseFloat(values[studentColumnIndex]);
-            
-            if (!isNaN(time) && !isNaN(heartRate)) {
-              data.push({
-                time: time,
-                heartRate: heartRate
-              });
-            }
-          }
-          
-          if (data.length === 0) {
-            throw new Error('No valid HR data points found');
-          }
-          
-          console.log(`Loaded ${data.length} HR data points for Student #${studentId}`);
-          return data;
-        } catch (error) {
-          console.error('Error loading heart rate data:', error);
-          alert(`Failed to load HR data: ${error.message}`);
-          return [];
-        }
-      }
-
-      // Function to load EDA data from CSV
-      async function loadEDAData(studentId) {
-        try {
-          // Use the actual Final_EDA.csv file
-          const edaFilePath = './Data/Final_EDA.csv';
-          
-          let response = null;
-          let csvText = null;
-          
-          try {
-            response = await fetch(edaFilePath);
-            if (response.ok) {
-              csvText = await response.text();
-              console.log(`Successfully loaded EDA data from ${edaFilePath}`);
-            } else {
-              throw new Error(`Failed to load from ${edaFilePath}`);
-            }
-          } catch (e) {
-            console.warn(`Failed to load from ${edaFilePath}: ${e.message}`);
-            throw e;
-          }
-          
-          if (!csvText) {
-            throw new Error('EDA data file not found');
-          }
-          
-          const rows = csvText.trim().split('\n');
-          const headers = rows[0].split(',');
-          
-          // Find the column index for the selected student
-          const studentColumn = `S${studentId}_EDA`;
-          const studentColumnIndex = headers.findIndex(header => 
-            header.trim() === studentColumn
-          );
-          
-          if (studentColumnIndex === -1) {
-            throw new Error(`Could not find EDA data column for Student #${studentId}`);
-          }
-          
-          // Parse the data for the selected student
-          const data = [];
-          for (let i = 1; i < rows.length; i++) {
-            const values = rows[i].split(',');
-            if (values.length <= studentColumnIndex) continue;
-            
-            // Assuming the first column is time in seconds
-            const time = parseFloat(values[0]);
-            const eda = parseFloat(values[studentColumnIndex]);
-            
-            if (!isNaN(time) && !isNaN(eda)) {
-              data.push({
-                time: time,
-                eda: eda
-              });
-            }
-          }
-          
-          if (data.length === 0) {
-            throw new Error('No valid EDA data points found');
-          }
-          
-          console.log(`Loaded ${data.length} EDA data points for Student #${studentId}`);
-          return data;
-        } catch (error) {
-          console.error('Error loading EDA data:', error);
-          alert(`Failed to load EDA data: ${error.message}`);
-          return [];
-        }
-      }
-
-      // Function to load ACC data from CSV
-      async function loadACCData(studentId) {
-        try {
-          // Use the actual Final_ACC.csv file
-          const accFilePath = './Data/Final_ACC.csv';
-          
-          let response = null;
-          let csvText = null;
-          
-          try {
-            response = await fetch(accFilePath);
-            if (response.ok) {
-              csvText = await response.text();
-              console.log(`Successfully loaded ACC data from ${accFilePath}`);
-            } else {
-              throw new Error(`Failed to load from ${accFilePath}`);
-            }
-          } catch (e) {
-            console.warn(`Failed to load from ${accFilePath}: ${e.message}`);
-            throw e;
-          }
-          
-          if (!csvText) {
-            throw new Error('ACC data file not found');
-          }
-          
-          const rows = csvText.trim().split('\n');
-          const headers = rows[0].split(',');
-          
-          // Find the column indices for the selected student (x, y, z)
-          const studentColumnX = `S${studentId}_ACC_x`;
-          const studentColumnY = `S${studentId}_ACC_y`;
-          const studentColumnZ = `S${studentId}_ACC_z`;
-          
-          const xIndex = headers.findIndex(header => header.trim() === studentColumnX);
-          const yIndex = headers.findIndex(header => header.trim() === studentColumnY);
-          const zIndex = headers.findIndex(header => header.trim() === studentColumnZ);
-          
-          if (xIndex === -1 || yIndex === -1 || zIndex === -1) {
-            throw new Error(`Could not find ACC data columns for Student #${studentId}`);
-          }
-          
-          // Parse the data for the selected student
-          const data = [];
-          for (let i = 1; i < rows.length; i++) {
-            const values = rows[i].split(',');
-            if (values.length <= Math.max(xIndex, yIndex, zIndex)) continue;
-            
-            // Assuming the first column is time in seconds
-            const time = parseFloat(values[0]);
-            const accX = parseFloat(values[xIndex]);
-            const accY = parseFloat(values[yIndex]);
-            const accZ = parseFloat(values[zIndex]);
-            
-            if (!isNaN(time) && !isNaN(accX) && !isNaN(accY) && !isNaN(accZ)) {
-              data.push({
-                time: time,
-                x: accX,
-                y: accY,
-                z: accZ,
-                // Calculate magnitude of acceleration
-                magnitude: Math.sqrt(accX*accX + accY*accY + accZ*accZ)
-              });
-            }
-          }
-          
-          if (data.length === 0) {
-            throw new Error('No valid ACC data points found');
-          }
-          
-          console.log(`Loaded ${data.length} ACC data points for Student #${studentId}`);
-          return data;
-        } catch (error) {
-          console.error('Error loading ACC data:', error);
-          alert(`Failed to load ACC data: ${error.message}`);
-          return [];
-        }
-      }
-
-      // Function to load BVP data from CSV
-      async function loadBVPData(studentId) {
-        try {
-          // Use the actual Final_BVP.csv file
-          const bvpFilePath = './Data/Final_BVP.csv';
-          
-          let response = null;
-          let csvText = null;
-          
-          try {
-            response = await fetch(bvpFilePath);
-            if (response.ok) {
-              csvText = await response.text();
-              console.log(`Successfully loaded BVP data from ${bvpFilePath}`);
-            } else {
-              throw new Error(`Failed to load from ${bvpFilePath}`);
-            }
-          } catch (e) {
-            console.warn(`Failed to load from ${bvpFilePath}: ${e.message}`);
-            throw e;
-          }
-          
-          if (!csvText) {
-            throw new Error('BVP data file not found');
-          }
-          
-          const rows = csvText.trim().split('\n');
-          const headers = rows[0].split(',');
-          
-          // Find the column index for the selected student
-          const studentColumn = `S${studentId}_BVP`;
-          const studentColumnIndex = headers.findIndex(header => 
-            header.trim() === studentColumn
-          );
-          
-          if (studentColumnIndex === -1) {
-            throw new Error(`Could not find BVP data column for Student #${studentId}`);
-          }
-          
-          // Parse the data for the selected student
-          const data = [];
-          for (let i = 1; i < rows.length; i++) {
-            const values = rows[i].split(',');
-            if (values.length <= studentColumnIndex) continue;
-            
-            // Assuming the first column is time in seconds
-            const time = parseFloat(values[0]);
-            const bvp = parseFloat(values[studentColumnIndex]);
-            
-            if (!isNaN(time) && !isNaN(bvp)) {
-              data.push({
-                time: time,
-                bvp: bvp
-              });
-            }
-          }
-          
-          if (data.length === 0) {
-            throw new Error('No valid BVP data points found');
-          }
-          
-          console.log(`Loaded ${data.length} BVP data points for Student #${studentId}`);
-          return data;
-        } catch (error) {
-          console.error('Error loading BVP data:', error);
-          alert(`Failed to load BVP data: ${error.message}`);
-          return [];
-        }
-      }
-
-      // Function to load IBI data from CSV
-      async function loadIBIData(studentId) {
-        try {
-          // Use the actual Final_IBI_pairs.csv file
-          const ibiFilePath = './Data/Final_IBI_pairs.csv';
-          
-          let response = null;
-          let csvText = null;
-          
-          try {
-            response = await fetch(ibiFilePath);
-            if (response.ok) {
-              csvText = await response.text();
-              console.log(`Successfully loaded IBI data from ${ibiFilePath}`);
-            } else {
-              throw new Error(`Failed to load from ${ibiFilePath}`);
-            }
-          } catch (e) {
-            console.warn(`Failed to load from ${ibiFilePath}: ${e.message}`);
-            throw e;
-          }
-          
-          if (!csvText) {
-            throw new Error('IBI data file not found');
-          }
-          
-          const rows = csvText.trim().split('\n');
-          const headers = rows[0].split(',');
-          
-          // Find the column indices for the selected student (time and IBI)
-          const studentTimeColumn = `S${studentId}_time`;
-          const studentIBIColumn = `S${studentId}_IBI`;
-          
-          const timeIndex = headers.findIndex(header => header.trim() === studentTimeColumn);
-          const ibiIndex = headers.findIndex(header => header.trim() === studentIBIColumn);
-          
-          if (timeIndex === -1 || ibiIndex === -1) {
-            throw new Error(`Could not find IBI data columns for Student #${studentId}`);
-          }
-          
-          // Parse the data for the selected student
-          const data = [];
-          for (let i = 1; i < rows.length; i++) {
-            const values = rows[i].split(',');
-            if (values.length <= Math.max(timeIndex, ibiIndex)) continue;
-            
-            const time = parseFloat(values[timeIndex]);
-            const ibi = parseFloat(values[ibiIndex]);
-            
-            if (!isNaN(time) && !isNaN(ibi)) {
-              data.push({
-                time: time,
-                ibi: ibi
-              });
-            }
-          }
-          
-          if (data.length === 0) {
-            throw new Error('No valid IBI data points found');
-          }
-          
-          console.log(`Loaded ${data.length} IBI data points for Student #${studentId}`);
-          return data;
-        } catch (error) {
-          console.error('Error loading IBI data:', error);
-          alert(`Failed to load IBI data: ${error.message}`);
-          return [];
-        }
-      }
-
-      // Function to load test scores
-      async function loadTestScores() {
-        try {
-          const scoresFilePath = './Data/test_scores.csv';
-          
-          let response = null;
-          let csvText = null;
-          
-          try {
-            response = await fetch(scoresFilePath);
-            if (response.ok) {
-              csvText = await response.text();
-              console.log(`Successfully loaded test scores from ${scoresFilePath}`);
-            } else {
-              throw new Error(`Failed to load from ${scoresFilePath}`);
-            }
-          } catch (e) {
-            console.warn(`Failed to load from ${scoresFilePath}: ${e.message}`);
-            throw e;
-          }
-          
-          if (!csvText) {
-            throw new Error('Test scores file not found');
-          }
-          
-          const rows = csvText.trim().split('\n');
-          const headers = rows[0].split(',');
-          
-          // Find the column indices for the scores
-          const studentIndex = headers.findIndex(header => header.trim() === 'Student');
-          const midterm1Index = headers.findIndex(header => header.trim() === 'Midterm1');
-          const midterm2Index = headers.findIndex(header => header.trim() === 'Midterm2');
-          const finalIndex = headers.findIndex(header => header.trim() === 'Final');
-          
-          if (studentIndex === -1 || midterm1Index === -1 || midterm2Index === -1 || finalIndex === -1) {
-            throw new Error('Could not find score columns in test_scores.csv');
-          }
-          
-          // Parse the scores for all students
-          const scores = {};
-          for (let i = 1; i < rows.length; i++) {
-            const values = rows[i].split(',');
-            if (values.length <= Math.max(studentIndex, midterm1Index, midterm2Index, finalIndex)) continue;
-            
-            const student = values[studentIndex].trim();
-            const midterm1 = parseFloat(values[midterm1Index]);
-            const midterm2 = parseFloat(values[midterm2Index]);
-            const final = parseFloat(values[finalIndex]);
-            
-            if (student && !isNaN(midterm1) && !isNaN(midterm2) && !isNaN(final)) {
-              // Extract student number from format like "S01"
-              const studentNum = parseInt(student.replace(/\D/g, ''));
-              
-              scores[studentNum] = {
-                midterm1: midterm1,
-                midterm2: midterm2,
-                final: final
-              };
-            }
-          }
-          
-          console.log('Loaded test scores for students:', Object.keys(scores).length);
-          return scores;
-        } catch (error) {
-          console.error('Error loading test scores:', error);
-          alert(`Failed to load test scores: ${error.message}`);
-          return {};
-        }
-      }
-
-      // Function to analyze physiological data and calculate stress metrics
-      async function analyzeStudentData(studentId) {
-        try {
-          // Load all data types
-          const hrData = await loadHeartRateData(studentId);
-          const edaData = await loadEDAData(studentId);
-          const accData = await loadACCData(studentId);
-          const bvpData = await loadBVPData(studentId);
-          const ibiData = await loadIBIData(studentId);
-          const scores = await loadTestScores();
-          
-          // Calculate HR metrics
-          const avgHR = hrData.reduce((sum, point) => sum + point.heartRate, 0) / hrData.length;
-          const maxHR = Math.max(...hrData.map(point => point.heartRate));
-          const minHR = Math.min(...hrData.map(point => point.heartRate));
-          const hrVariability = maxHR - minHR;
-          
-          // Calculate EDA metrics
-          const avgEDA = edaData.reduce((sum, point) => sum + point.eda, 0) / edaData.length;
-          const maxEDA = Math.max(...edaData.map(point => point.eda));
-          const edaChanges = edaData.map((point, i, arr) => 
-            i > 0 ? Math.abs(point.eda - arr[i-1].eda) : 0
-          ).filter(change => change > 0);
-          const avgEDAChange = edaChanges.reduce((sum, change) => sum + change, 0) / edaChanges.length;
-          
-          // Calculate movement metrics from ACC data
-          const avgMovement = accData.reduce((sum, point) => sum + point.magnitude, 0) / accData.length;
-          const maxMovement = Math.max(...accData.map(point => point.magnitude));
-          
-          // Calculate heart rhythm metrics from IBI data
-          const avgIBI = ibiData.reduce((sum, point) => sum + point.ibi, 0) / ibiData.length;
-          const ibiVariability = ibiData.map((point, i, arr) => 
-            i > 0 ? Math.abs(point.ibi - arr[i-1].ibi) : 0
-          ).filter(change => change > 0);
-          const avgIBIVariability = ibiVariability.reduce((sum, change) => sum + change, 0) / ibiVariability.length;
-          
-          // Calculate stress index (composite score)
-          // Higher values indicate more stress
-          const hrStressComponent = (avgHR - 60) / 60; // Normalize around resting HR of 60
-          const edaStressComponent = avgEDA / 10; // Normalize EDA
-          const movementStressComponent = avgMovement / 10; // Normalize movement
-          const ibiStressComponent = (1 - avgIBI) * 2; // Lower IBI = higher stress
-          
-          const stressIndex = Math.min(100, Math.max(0, 
-            (hrStressComponent * 40) + 
-            (edaStressComponent * 30) + 
-            (movementStressComponent * 10) + 
-            (ibiStressComponent * 20)
-          ));
-          
-          // Calculate recovery time (time to return to baseline after peak)
-          // For simplicity, we'll estimate this based on HR data
-          let recoveryTime = 0;
-          const peakIndex = hrData.findIndex(point => point.heartRate === maxHR);
-          if (peakIndex > 0) {
-            const baseline = avgHR * 1.1; // 10% above average as "recovered"
-            for (let i = peakIndex; i < hrData.length; i++) {
-              if (hrData[i].heartRate <= baseline) {
-                recoveryTime = (hrData[i].time - hrData[peakIndex].time) / 60; // Convert to minutes
-                break;
-              }
-            }
-          }
-          
-          // Get test score for this student
-          const studentScore = scores[studentId] || { final: 0 };
-          
-          // Determine stress level interpretation
-          let stressInterpretation = '';
-          if (stressIndex < 40) {
-            stressInterpretation = `Student #${studentId} showed low stress levels during the final exam. Their average heart rate of ${avgHR.toFixed(1)} bpm and EDA of ${avgEDA.toFixed(2)} μS indicate a calm physiological state. The low movement (${avgMovement.toFixed(2)}) suggests they remained composed throughout the exam. Their final exam score of ${studentScore.final} may reflect their relaxed approach.`;
-          } else if (stressIndex < 70) {
-            stressInterpretation = `Student #${studentId} exhibited moderate stress during the final exam. With an average heart rate of ${avgHR.toFixed(1)} bpm and peaks reaching ${maxHR} bpm, they showed typical exam anxiety. Their EDA readings (avg: ${avgEDA.toFixed(2)} μS) indicate some emotional arousal. They recovered from stress peaks in approximately ${recoveryTime.toFixed(1)} minutes, suggesting good stress management. Their final exam score was ${studentScore.final}.`;
-          } else {
-            stressInterpretation = `Student #${studentId} demonstrated high stress levels during the final exam. Their elevated heart rate (avg: ${avgHR.toFixed(1)} bpm, max: ${maxHR} bpm) and high EDA readings (avg: ${avgEDA.toFixed(2)} μS, max: ${maxEDA.toFixed(2)} μS) indicate significant anxiety. The irregular heart rhythm variability (${avgIBIVariability.toFixed(4)}) suggests potential distress. Their recovery time of ${recoveryTime.toFixed(1)} minutes indicates difficulty returning to baseline after stress peaks. Their final exam score was ${studentScore.final}, which may have been impacted by their stress levels.`;
-          }
-          
-          return {
-            avgHR,
-            maxHR,
-            hrVariability,
-            avgEDA,
-            maxEDA,
-            avgEDAChange,
-            avgMovement,
-            maxMovement,
-            avgIBI,
-            avgIBIVariability,
-            stressIndex,
-            recoveryTime,
-            examScore: studentScore.final,
-            stressInterpretation
-          };
-        } catch (error) {
-          console.error('Error analyzing student data:', error);
-          return null;
-        }
-      }
-
-      // Update metrics panel with actual data analysis
-      async function updateMetricsPanel() {
-        // Clear existing metrics
-        metricsPanel.innerHTML = '';
-        
-        // Show loading indicator
-        const loadingIndicator = document.createElement('div');
-        loadingIndicator.className = 'metric-card';
-        loadingIndicator.innerHTML = `
-          <div class="metric-title">Loading data...</div>
-          <div class="metric-value">⏳</div>
-        `;
-        metricsPanel.appendChild(loadingIndicator);
-        
-        // Analyze student data
-        const studentId = config.studentId;
-        const analysis = await analyzeStudentData(studentId);
-        
-        // Clear loading indicator
-        metricsPanel.innerHTML = '';
-        
-        if (!analysis) {
-          const errorCard = document.createElement('div');
-          errorCard.className = 'metric-card';
-          errorCard.innerHTML = `
-            <div class="metric-title">Error</div>
-            <div class="metric-value metric-high">Failed to analyze data</div>
-          `;
-          metricsPanel.appendChild(errorCard);
-          return;
-        }
-        
-        // Create metrics cards
-        const metrics = [
-          {
-            title: 'Average Heart Rate',
-            value: Math.round(analysis.avgHR),
-            unit: 'bpm',
-            type: analysis.avgHR < 80 ? 'low' : 
-                 analysis.avgHR < 100 ? 'moderate' : 'high'
-          },
-          {
-            title: 'Peak Heart Rate',
-            value: Math.round(analysis.maxHR),
-            unit: 'bpm',
-            type: analysis.maxHR < 100 ? 'low' : 
-                 analysis.maxHR < 120 ? 'moderate' : 'high'
-          },
-          {
-            title: 'Average EDA',
-            value: analysis.avgEDA.toFixed(2),
-            unit: 'μS',
-            type: analysis.avgEDA < 3 ? 'low' : 
-                 analysis.avgEDA < 6 ? 'moderate' : 'high'
-          },
-          {
-            title: 'Recovery Time',
-            value: analysis.recoveryTime.toFixed(1),
-            unit: 'min',
-            type: analysis.recoveryTime < 7 ? 'low' : 
-                 analysis.recoveryTime < 10 ? 'moderate' : 'high'
-          },
-          {
-            title: 'Stress Index',
-            value: Math.round(analysis.stressIndex),
-            unit: '/100',
-            type: analysis.stressIndex < 40 ? 'low' : 
-                 analysis.stressIndex < 70 ? 'moderate' : 'high'
-          },
-          {
-            title: 'Final Exam Score',
-            value: analysis.examScore,
-            unit: 'points',
-            type: analysis.examScore < 150 ? 'high' : 
-                 analysis.examScore < 175 ? 'moderate' : 'low'
-          }
-        ];
-        
-        metrics.forEach(metric => {
-          const metricCard = document.createElement('div');
-          metricCard.className = 'metric-card';
-          metricCard.innerHTML = `
-            <div class="metric-title">${metric.title}</div>
-            <div class="metric-value metric-${metric.type}">${metric.value}</div>
-            <div class="metric-unit">${metric.unit}</div>
-          `;
-          
-          metricsPanel.appendChild(metricCard);
-        });
-        
-        // Add stress interpretation
-        const interpretationCard = document.createElement('div');
-        interpretationCard.className = 'metric-card';
-        interpretationCard.style.gridColumn = '1 / -1';
-        interpretationCard.innerHTML = `
-          <div class="metric-title">Stress Analysis</div>
-          <div style="text-align: left; margin-top: 0.5rem; font-size: 0.9rem;">${analysis.stressInterpretation}</div>
-        `;
-        
-        metricsPanel.appendChild(interpretationCard);
-      }
-      
-      // Update physiological zones based on student
-      function updatePhysiologicalZones(studentId) {
-        // In a real application, this would use clustering algorithms
-        // or pre-computed data to determine zones for each student
-        
-        // For this demo, we'll just shift the zones slightly for each student
-        const zoneElements = document.querySelectorAll('.zone-marker');
-        
-        // Remove existing zones
-        zoneElements.forEach(el => el.remove());
-        
-        // Create new zones with slight variations based on student ID
-        const studentOffset = (studentId - 1) * 2;
-        const newZones = config.zones.map(zone => {
-          return {
-            start: Math.max(0, (zone.start + studentOffset) % 55),
-            end: Math.min(59, (zone.end + studentOffset) % 55),
-            type: zone.type
-          };
-        });
-        
-        // Add new zone markers
-        newZones.forEach(zone => {
-          const zoneElement = document.createElement('div');
-          zoneElement.className = `zone-marker ${zone.type}`;
-          
-          // Calculate position and width
-          const startBlock = timeline.childNodes[zone.start];
-          const endBlock = timeline.childNodes[zone.end];
-          
-          if (startBlock && endBlock) {
-            const left = (startBlock.offsetLeft / timeline.scrollWidth) * 100;
-            const width = ((endBlock.offsetLeft + endBlock.offsetWidth - startBlock.offsetLeft) / timeline.scrollWidth) * 100;
-            
-            zoneElement.style.left = `${left}%`;
-            zoneElement.style.width = `${width}%`;
-            
-            timeline.appendChild(zoneElement);
-          }
-        });
-        
-        // If patterns were visible, keep them visible
-        if (revealBtn.textContent === 'Hide Physiological Patterns') {
-          document.querySelectorAll('.zone-marker').forEach(marker => {
-            marker.classList.add('visible');
-          });
-        }
-      }
-
-      // Function to classify stress state based on physiological data
-      function classifyStressState(heartRate, eda, variability = false) {
-        if (variability || (heartRate > 110 || eda > 0.50)) {
-          return {
-            level: 'panic',
-            label: 'Panic/Spike',
-            color: '#dc2626',
-            icon: '🔴',
-            description: 'sharp physiological spike'
-          };
-        } else if (heartRate >= 86 || eda >= 0.31) {
-          return {
-            level: 'high',
-            label: 'High Stress',
-            color: '#f97316',
-            icon: '🟠',
-            description: 'elevated stress levels'
-          };
-        } else if (heartRate >= 76 || eda >= 0.21) {
-          return {
-            level: 'slight',
-            label: 'Slightly Anxious',
-            color: '#eab308',
-            icon: '🟡',
-            description: 'mild anxiety'
-          };
-        } else if (heartRate < 76 && eda < 0.21) {
-          return {
-            level: 'calm',
-            label: 'Calm',
-            color: '#22c55e',
-            icon: '🟢',
-            description: 'calm physiological state'
-          };
-        } else {
-          return {
-            level: 'erratic',
-            label: 'Erratic/Unstable',
-            color: '#a855f7',
-            icon: '🟣',
-            description: 'unstable physiological patterns'
-          };
-        }
-      }
-
-      // Function to check for heart rate variability
-      function checkVariability(timeMinute, hrData, window = 30) {
-        // Convert minute to seconds for data lookup
-        const startTime = timeMinute * 60 - window/2;
-        const endTime = timeMinute * 60 + window/2;
-        
-        // Get heart rate values within the window
-        const relevantData = hrData.filter(d => d.time >= startTime && d.time <= endTime);
-        
-        if (relevantData.length < 3) return false;
-        
-        const values = relevantData.map(d => d.heartRate);
-        const min = Math.min(...values);
-        const max = Math.max(...values);
-        
-        // Check if variability exceeds threshold
-        return (max - min) > 25;
-      }
-
-      // Function to check for EDA rapid reversals
-      function checkEdaReversals(timeMinute, edaData, window = 60) {
-        // Convert minute to seconds for data lookup
-        const startTime = timeMinute * 60 - window/2;
-        const endTime = timeMinute * 60 + window/2;
-        
-        // Get EDA values within the window
-        const relevantData = edaData.filter(d => d.time >= startTime && d.time <= endTime);
-        
-        if (relevantData.length < 5) return false;
-        
-        // Count direction changes
-        let reversals = 0;
-        let increasing = null;
-        
-        for (let i = 1; i < relevantData.length; i++) {
-          const currentDirection = relevantData[i].eda > relevantData[i-1].eda;
-          
-          if (increasing !== null && currentDirection !== increasing) {
-            reversals++;
-          }
-          
-          increasing = currentDirection;
-        }
-        
-        return reversals >= 2;
-      }
-
-      // Add a stress summary button to the controls div
-      const controlsDiv = document.querySelector('.controls');
-      const summaryButton = document.createElement('button');
-      summaryButton.id = 'summary-btn';
-      summaryButton.className = 'summary-btn';
-      summaryButton.innerHTML = '🧠 Generate Stress Summary';
-      controlsDiv.appendChild(summaryButton);
-
-      // Add a summary panel to display the results
-      const summaryPanel = document.createElement('div');
-      summaryPanel.id = 'summary-panel';
-      summaryPanel.className = 'summary-panel';
-      summaryPanel.style.display = 'none';
-      document.querySelector('.timeline-container').appendChild(summaryPanel);
-
-      // Event listener for the summary button
-      summaryButton.addEventListener('click', generateStressSummary);
-
-      // Function to generate stress summary
-      async function generateStressSummary() {
+      // Function to analyze user's stress profile based on activities
+      function analyzeStressProfile() {
         const timelineCards = document.querySelectorAll('.timeline-card');
-        
         if (timelineCards.length === 0) {
-          summaryPanel.innerHTML = `
-            <div class="summary-header">
-              <h3>Morning Routine Analysis</h3>
-              <button class="close-btn">×</button>
-            </div>
-            <div class="summary-content">
-              <p>Please drag activities to the timeline to analyze morning stress patterns.</p>
-            </div>
-          `;
-          summaryPanel.style.display = 'block';
+          alert('Please add at least one activity to the timeline.');
           return;
         }
         
-        // Load physiological data for the current student
-        const studentId = config.studentId;
-        const hrData = await loadHeartRateData(studentId);
-        const edaData = await loadEDAData(studentId);
+        // Get user's baseline heart rate
+        const baselineHRInput = document.getElementById('baseline-hr');
+        let baselineHR = parseInt(baselineHRInput.value) || 70;
         
-        // Process each activity card
-        const activities = [];
+        // Ensure baseline HR is within reasonable limits
+        baselineHR = Math.max(40, Math.min(200, baselineHR));
         
-        timelineCards.forEach(card => {
+        // Calculate current heart rate and EDA based on activities
+        let currentHR = baselineHR;
+        // Estimate EDA based on heart rate (simplified model)
+        let currentEDA = 0.2 + (baselineHR - 60) * 0.005;
+        
+        let activityEffects = [];
+        
+        // Sort timeline cards by time
+        const sortedCards = Array.from(timelineCards).sort((a, b) => {
+          const timeA = parseInt(a.parentElement.dataset.minute) || 0;
+          const timeB = parseInt(b.parentElement.dataset.minute) || 0;
+          return timeA - timeB;
+        });
+        
+        sortedCards.forEach(card => {
+          const hrChange = parseFloat(card.dataset.hrChange);
           const cardId = card.dataset.id;
           const cardInfo = config.eventCards.find(c => c.id === cardId);
+          const minute = parseInt(card.parentElement.dataset.minute) || 0;
           
-          // Get the timeline block that contains this card
-          const parentBlock = card.parentElement;
-          const minute = parseInt(parentBlock.dataset.minute);
+          // Calculate time label
+          const blockTime = new Date(config.startTime);
+          blockTime.setMinutes(blockTime.getMinutes() + minute);
+          const timeLabel = blockTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
           
-          // Convert minute to time string (8:00 AM + minute)
-          const timeLabel = new Date(config.startTime);
-          timeLabel.setMinutes(timeLabel.getMinutes() + minute);
-          const timeString = timeLabel.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          // Update heart rate
+          currentHR += hrChange;
           
-          // Get physiological data for this minute
-          const hr = getHeartRateForMinute(minute);
-          const eda = getEDAForMinute(minute);
+          // Update EDA (simplified model: EDA changes proportionally to HR)
+          const edaChange = hrChange * 0.005;
+          currentEDA += edaChange;
           
-          // Check for variability and reversals
-          const hasVariability = checkVariability(minute, hrData);
-          const hasReversals = checkEdaReversals(minute, edaData);
+          // Ensure values are within reasonable limits
+          currentHR = Math.max(40, Math.min(200, currentHR));
+          currentEDA = Math.max(0.1, Math.min(1.0, currentEDA));
           
-          // Classify stress state
-          const stressState = classifyStressState(hr, eda, hasVariability || hasReversals);
-          
-          activities.push({
-            time: timeString,
-            minute: minute,
+          activityEffects.push({
+            time: timeLabel,
             activity: cardInfo.label,
-            heartRate: hr,
-            eda: eda.toFixed(2),
-            stressState: stressState,
-            hasVariability: hasVariability,
-            hasReversals: hasReversals
+            hrChange: hrChange,
+            resultingHR: currentHR,
+            resultingEDA: currentEDA
           });
         });
         
-        // Sort activities by time
-        activities.sort((a, b) => a.minute - b.minute);
+        // Find which student's profile is closest to the user's
+        let closestStudent = 1;
+        let minDifference = Infinity;
         
-        // Generate summary text
-        let summaryText = `Between ${activities[0].time} and ${activities[activities.length-1].time}, Student #${studentId} engaged in ${activities.length} morning activities before the exam.`;
-        
-        // Add details for each activity
-        activities.forEach((activity, index) => {
-          summaryText += `\n\n${activity.stressState.icon} At ${activity.time}, they ${activity.activity.toLowerCase()} and showed ${activity.stressState.label.toLowerCase()} signals (HR: ${activity.heartRate} bpm, EDA: ${activity.eda} μS).`;
+        for (const student of config.studentData) {
+          // Calculate a weighted difference score
+          const hrDiff = Math.abs(currentHR - student.baseHR);
+          const edaDiff = Math.abs(currentEDA - student.avgEDA) * 100; // Scale EDA difference
+          const totalDiff = hrDiff + edaDiff;
           
-          if (activity.hasVariability) {
-            summaryText += ` Their heart rate showed significant variability during this activity.`;
+          if (totalDiff < minDifference) {
+            minDifference = totalDiff;
+            closestStudent = student.id;
           }
-          
-          if (activity.hasReversals) {
-            summaryText += ` Their electrodermal activity showed rapid fluctuations, suggesting emotional instability.`;
-          }
-        });
-        
-        // Add overall assessment
-        const stressLevels = activities.map(a => a.stressState.level);
-        const hasPanic = stressLevels.includes('panic');
-        const hasHigh = stressLevels.includes('high');
-        const mostlyCalm = stressLevels.filter(l => l === 'calm').length > activities.length / 2;
-        
-        summaryText += `\n\n🧠 Overall Assessment: `;
-        
-        if (hasPanic) {
-          summaryText += `Student #${studentId} experienced significant stress spikes during their morning routine, which may impact exam performance. Consider recommending stress management techniques like deep breathing or brief meditation before exams.`;
-        } else if (hasHigh) {
-          summaryText += `Student #${studentId} showed moderate stress levels during their morning routine. While not extreme, these elevated physiological markers suggest some pre-exam anxiety.`;
-        } else if (mostlyCalm) {
-          summaryText += `Student #${studentId} maintained a relatively calm physiological state throughout their morning routine, suggesting good stress management before the exam.`;
-        } else {
-          summaryText += `Student #${studentId} showed mixed stress signals during their morning routine, with some activities triggering mild anxiety responses.`;
         }
         
-        // Display the summary
-        summaryPanel.innerHTML = `
-          <div class="summary-header">
-            <h3>Morning Routine Analysis</h3>
-            <button class="close-btn">×</button>
-          </div>
-          <div class="summary-content">
-            <p>${summaryText.replace(/\n\n/g, '</p><p>')}</p>
-            <div class="activity-timeline">
-              ${activities.map(activity => `
-                <div class="activity-item" style="border-left: 4px solid ${activity.stressState.color}">
-                  <div class="activity-time">${activity.time}</div>
-                  <div class="activity-name">${activity.activity}</div>
-                  <div class="activity-metrics">
-                    <span class="metric">HR: ${activity.heartRate} bpm</span>
-                    <span class="metric">EDA: ${activity.eda} μS</span>
-                  </div>
-                  <div class="activity-state">${activity.stressState.icon} ${activity.stressState.label}</div>
-                </div>
-              `).join('')}
+        // Classify stress level based on heart rate and EDA
+        let stressLevel;
+        if (currentHR >= 105 || currentEDA >= 0.45) {
+          stressLevel = 'high';
+        } else if (currentHR >= 85 || currentEDA >= 0.3) {
+          stressLevel = 'moderate';
+        } else {
+          stressLevel = 'calm';
+        }
+        
+        // Update the metrics panel with the results
+        metricsPanel.innerHTML = '';
+        metricsPanel.style.display = 'block';
+        
+        // Create header
+        const header = document.createElement('div');
+        header.className = 'metrics-header';
+        header.innerHTML = `
+          <h3>Your Stress Profile</h3>
+          <div class="close-btn">×</div>
+        `;
+        metricsPanel.appendChild(header);
+        
+        // Add close button functionality
+        header.querySelector('.close-btn').addEventListener('click', function() {
+          metricsPanel.style.display = 'none';
+        });
+        
+        // Create stress profile section
+        const profileSection = document.createElement('div');
+        profileSection.className = 'metrics-section';
+        profileSection.innerHTML = `
+          <div class="stress-profile ${stressLevel}-stress">
+            <div class="stress-level">
+              <span class="stress-icon">${stressLevel === 'calm' ? '😌' : stressLevel === 'moderate' ? '😐' : '😰'}</span>
+              <span class="stress-label">${stressLevel.charAt(0).toUpperCase() + stressLevel.slice(1)} Stress</span>
+            </div>
+            <div class="stress-description">
+              Your morning routine indicates a ${stressLevel} stress level.
+              Your physiological response is most similar to Student #${closestStudent}.
             </div>
           </div>
         `;
+        metricsPanel.appendChild(profileSection);
         
-        summaryPanel.style.display = 'block';
+        // Create physiological metrics section
+        const metricsSection = document.createElement('div');
+        metricsSection.className = 'metrics-section';
+        metricsSection.innerHTML = `
+          <div class="metrics-grid">
+            <div class="metric">
+              <div class="metric-label">Heart Rate</div>
+              <div class="metric-value">${Math.round(currentHR)} BPM</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">EDA Level</div>
+              <div class="metric-value">${currentEDA.toFixed(2)} μS</div>
+            </div>
+          </div>
+        `;
+        metricsPanel.appendChild(metricsSection);
         
-        // Add close button functionality
-        summaryPanel.querySelector('.close-btn').addEventListener('click', () => {
-          summaryPanel.style.display = 'none';
-        });
+        // Create activity timeline section
+        const timelineSection = document.createElement('div');
+        timelineSection.className = 'metrics-section';
+        timelineSection.innerHTML = `
+          <div class="section-title">Morning Timeline</div>
+          <div class="activity-timeline">
+            ${activityEffects.map((effect, index) => `
+              <div class="timeline-item">
+                <div class="timeline-time">${effect.time}</div>
+                <div class="timeline-connector ${index === activityEffects.length - 1 ? 'last' : ''}"></div>
+                <div class="timeline-content">
+                  <div class="timeline-activity">${effect.activity}</div>
+                  <div class="timeline-effect ${effect.hrChange >= 0 ? 'increase' : 'decrease'}">
+                    ${effect.hrChange >= 0 ? '+' : ''}${effect.hrChange} BPM
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        metricsPanel.appendChild(timelineSection);
+        
+        // Create recommendations section based on stress level
+        const recommendationsSection = document.createElement('div');
+        recommendationsSection.className = 'metrics-section';
+        
+        let recommendations = [];
+        if (stressLevel === 'high') {
+          recommendations = [
+            'Try deep breathing exercises before the exam',
+            'Consider meditation to lower your heart rate',
+            'Avoid last-minute studying',
+            'Listen to calming music to reduce physiological arousal'
+          ];
+        } else if (stressLevel === 'moderate') {
+          recommendations = [
+            'Listen to calming music before the exam',
+            'Ensure you eat a balanced breakfast',
+            'Review your notes calmly',
+            'Arrive early to the exam to settle in'
+          ];
+        } else {
+          recommendations = [
+            'Maintain your current routine',
+            'Get adequate sleep the night before',
+            'Stay hydrated before and during the exam',
+            'Use your calm state to focus on complex problems'
+          ];
+        }
+        
+        recommendationsSection.innerHTML = `
+          <div class="section-title">Recommendations</div>
+          <ul class="recommendations-list">
+            ${recommendations.map(rec => `<li>${rec}</li>`).join('')}
+          </ul>
+        `;
+        metricsPanel.appendChild(recommendationsSection);
       }
+      
+      // Add event listener for the summary button
+      summaryBtn.addEventListener('click', function() {
+        analyzeStressProfile();
+      });
+      
+      // Add event listener for the reveal button
+      revealBtn.addEventListener('click', function() {
+        const zoneMarkers = document.querySelectorAll('.zone-marker');
+        
+        if (zoneMarkers.length > 0) {
+          // Toggle visibility of existing markers
+          zoneMarkers.forEach(marker => {
+            marker.style.display = marker.style.display === 'none' ? 'block' : 'none';
+          });
+        } else {
+          // Create zone markers
+          config.zones.forEach(zone => {
+            const zoneElement = document.createElement('div');
+            zoneElement.className = `zone-marker ${zone.type}`;
+            
+            // Calculate position and width
+            const startBlock = timeline.children[zone.start];
+            const endBlock = timeline.children[zone.end];
+            
+            if (startBlock && endBlock) {
+              const startRect = startBlock.getBoundingClientRect();
+              const endRect = endBlock.getBoundingClientRect();
+              const timelineRect = timeline.getBoundingClientRect();
+              
+              const left = startBlock.offsetLeft;
+              const width = endBlock.offsetLeft + endBlock.offsetWidth - startBlock.offsetLeft;
+              
+              zoneElement.style.left = `${left}px`;
+              zoneElement.style.width = `${width}px`;
+              
+              // Add label
+              const label = document.createElement('div');
+              label.className = 'zone-label';
+              label.textContent = zone.type.charAt(0).toUpperCase() + zone.type.slice(1);
+              zoneElement.appendChild(label);
+              
+              timeline.appendChild(zoneElement);
+            }
+          });
+          
+          // Update button text
+          revealBtn.textContent = 'Hide Physiological Patterns';
+        }
+      });
     });
   </script>
 </body>
