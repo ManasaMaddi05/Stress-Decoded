@@ -229,17 +229,20 @@ body {
   font-family: 'JetBrains Mono', monospace;
   letter-spacing: 0.05em;
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  color: #a855f7;
-  font-size: 4rem;
+  color: #ff0000;
+  font-size: 3rem; /* Reduced from 4rem to fit better */
   line-height: 1;
   text-align: center;
   width: 100%;
-  max-width: 260px;
+  max-width: 280px; /* Increased from 260px */
   margin: 0 auto;
+  transform: scale(0.9); /* Slightly scale down to fit */
+  position: relative;
+  z-index: 5;
 }
 
 .countdown-glow {
-  text-shadow: 0 0 10px rgba(79, 70, 229, 0.7), 0 0 20px rgba(79, 70, 229, 0.7);
+  text-shadow: 0 0 10px rgba(255, 0, 0, 0.8), 0 0 20px rgba(255, 0, 0, 0.7);
 }
 
 /* Alarm Effect */
@@ -475,6 +478,28 @@ body {
     font-size: 1.8rem;
   }
 }
+
+#pun-message {
+  position: fixed;
+  top: 85%;
+  left: 50%;
+  transform: translateX(-50%);
+  text-shadow: 0 0 10px rgba(255, 0, 0, 0.8), 0 0 20px rgba(255, 0, 0, 0.7);
+  z-index: 60;
+  font-size: 2.8rem; /* Increased from 2.5rem */
+  letter-spacing: 1px;
+  font-weight: 800; /* Increased from bold */
+  background: linear-gradient(90deg, #ff3d00, #ff0000);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: pulse-text 2s infinite alternate;
+}
+
+@keyframes pulse-text {
+  0% { transform: translateX(-50%) scale(1); }
+  100% { transform: translateX(-50%) scale(1.05); }
+}
+
 
 
 

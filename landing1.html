@@ -204,9 +204,10 @@
             createExplosionParticle();
           }
           
-          // Show pun message
+          // Show pun message with enhanced animation
           setTimeout(() => {
             punMessage.style.opacity = '1';
+            punMessage.classList.add('pun-animate');
           }, 800);
           
           // Fade out overlay and show main content
@@ -273,4 +274,6 @@
   </script>
 </body>
 </html>
+
+
 
