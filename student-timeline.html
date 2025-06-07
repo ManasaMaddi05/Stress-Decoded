@@ -84,7 +84,6 @@
       // Get DOM elements
       const timeline = document.getElementById('timeline');
       const cardsArea = document.getElementById('cards-area');
-      const revealBtn = document.getElementById('reveal-btn');
       const summaryBtn = document.getElementById('summary-btn');
       const metricsPanel = document.getElementById('metrics-panel') || document.createElement('div');
       
@@ -93,6 +92,12 @@
         metricsPanel.id = 'metrics-panel';
         metricsPanel.className = 'metrics-panel';
         document.body.appendChild(metricsPanel);
+      }
+      
+      // Remove student dropdown
+      const studentSelector = document.querySelector('.selector:first-child');
+      if (studentSelector) {
+        studentSelector.remove();
       }
       
       // Add heart rate input
@@ -122,13 +127,6 @@
           { id: 'flashcards', label: 'Reviewed flashcards', color: '#a855f7', hrChange: 4 },
           { id: 'forgot', label: 'Forgot calculator', color: '#f97316', hrChange: 9 }
         ],
-        // Physiological pattern zones (start minute, end minute, type)
-        zones: [
-          { start: 5, end: 15, type: 'stress' },  // 8:05-8:15
-          { start: 20, end: 30, type: 'calm' },   // 8:20-8:30
-          { start: 35, end: 45, type: 'erratic' }, // 8:35-8:45
-          { start: 50, end: 58, type: 'stress' }   // 8:50-8:58
-        ],
         // Student data for comparison
         studentData: [
           { id: 1, baseHR: 72, avgEDA: 0.25, stressProfile: 'calm' },
@@ -147,6 +145,12 @@
       // Clear existing content
       timeline.innerHTML = '';
       cardsArea.innerHTML = '';
+      
+      // Remove the reveal button
+      const revealBtn = document.getElementById('reveal-btn');
+      if (revealBtn) {
+        revealBtn.remove();
+      }
       
       // Generate event cards
       config.eventCards.forEach(card => {
@@ -385,11 +389,25 @@
             </div>
             <div class="stress-description">
               Your morning routine indicates a ${stressLevel} stress level.
-              Your physiological response is most similar to Student #${closestStudent}.
             </div>
           </div>
         `;
         metricsPanel.appendChild(profileSection);
+        
+        // Create student similarity section
+        const studentSection = document.createElement('div');
+        studentSection.className = 'metrics-section student-match-section';
+        studentSection.innerHTML = `
+          <div class="section-title">Student Match</div>
+          <div class="student-match">
+            <div class="student-match-icon">👤</div>
+            <div class="student-match-info">
+              <div class="student-match-label">Your physiological response is most similar to:</div>
+              <div class="student-match-value">Student #${closestStudent}</div>
+            </div>
+          </div>
+        `;
+        metricsPanel.appendChild(studentSection);
         
         // Create physiological metrics section
         const metricsSection = document.createElement('div');
@@ -470,51 +488,6 @@
       // Add event listener for the summary button
       summaryBtn.addEventListener('click', function() {
         analyzeStressProfile();
-      });
-      
-      // Add event listener for the reveal button
-      revealBtn.addEventListener('click', function() {
-        const zoneMarkers = document.querySelectorAll('.zone-marker');
-        
-        if (zoneMarkers.length > 0) {
-          // Toggle visibility of existing markers
-          zoneMarkers.forEach(marker => {
-            marker.style.display = marker.style.display === 'none' ? 'block' : 'none';
-          });
-        } else {
-          // Create zone markers
-          config.zones.forEach(zone => {
-            const zoneElement = document.createElement('div');
-            zoneElement.className = `zone-marker ${zone.type}`;
-            
-            // Calculate position and width
-            const startBlock = timeline.children[zone.start];
-            const endBlock = timeline.children[zone.end];
-            
-            if (startBlock && endBlock) {
-              const startRect = startBlock.getBoundingClientRect();
-              const endRect = endBlock.getBoundingClientRect();
-              const timelineRect = timeline.getBoundingClientRect();
-              
-              const left = startBlock.offsetLeft;
-              const width = endBlock.offsetLeft + endBlock.offsetWidth - startBlock.offsetLeft;
-              
-              zoneElement.style.left = `${left}px`;
-              zoneElement.style.width = `${width}px`;
-              
-              // Add label
-              const label = document.createElement('div');
-              label.className = 'zone-label';
-              label.textContent = zone.type.charAt(0).toUpperCase() + zone.type.slice(1);
-              zoneElement.appendChild(label);
-              
-              timeline.appendChild(zoneElement);
-            }
-          });
-          
-          // Update button text
-          revealBtn.textContent = 'Hide Physiological Patterns';
-        }
       });
     });
   </script>
