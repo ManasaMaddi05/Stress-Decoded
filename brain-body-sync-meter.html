@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brain-Body Sync Meter</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0b0f1a;
+      --card-bg: rgba(15, 23, 42, 0.8);
+      --in-sync-color: #10b981;
+      --in-sync-glow: rgba(16, 185, 129, 0.3);
+      --mild-mismatch-color: #f59e0b;
+      --mild-mismatch-glow: rgba(245, 158, 11, 0.3);
+      --strong-mismatch-color: #ef4444;
+      --strong-mismatch-glow: rgba(239, 68, 68, 0.3);
+      --text-primary: rgba(255, 255, 255, 0.9);
+      --text-secondary: rgba(255, 255, 255, 0.6);
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-dark);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      padding: 2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+    
+    .sync-meter-card {
+      background: var(--card-bg);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .student-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+    
+    .student-name {
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+    
+    .exam-info {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+    
+    .meter-container {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      margin: 0 auto;
+    }
+    
+    .meter-title {
+      text-align: center;
+      font-size: 1rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+    
+    .meter-subtitle {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+    }
+    
+    .meter-svg {
+      width: 100%;
+      height: 100%;
+    }
+    
+    .meter-label {
+      position: absolute;
+      bottom: 20px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    
+    .meter-value {
+      position: absolute;
+      top: 60%;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+    
+    .meter-icon {
+      position: absolute;
+      top: 45%;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 2rem;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    
+    .action-button {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      border-radius: 0.5rem;
+      padding: 0.5rem 1rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .action-button:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .tooltip {
+      position: absolute;
+      top: 0;
+      left: 0;
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      width: 220px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 10;
+    }
+    
+    .tooltip-title {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+    
+    .tooltip-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      font-size: 0.8rem;
+    }
+    
+    .tooltip-label {
+      color: var(--text-secondary);
+    }
+    
+    .tooltip-value {
+      font-weight: 500;
+    }
+    
+    .tooltip-interpretation {
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .reflection-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    
+    .reflection-modal.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    
+    .modal-content {
+      background: var(--card-bg);
+      border-radius: 1rem;
+      padding: 2rem;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      position: relative;
+    }
+    
+    .modal-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    
+    textarea {
+      width: 100%;
+      height: 150px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      color: white;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      resize: none;
+      margin-bottom: 1rem;
+    }
+    
+    textarea:focus {
+      outline: none;
+      border-color: var(--in-sync-color);
+    }
+    
+    .submit-button {
+      background: var(--in-sync-color);
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .submit-button:hover {
+      background: #0d9668;
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="sync-meter-container">
+    <!-- Sync meter cards will be generated here -->
+  </div>
+  
+  <div class="reflection-modal" id="reflection-modal">
+    <div class="modal-content">
+      <button class="modal-close" id="modal-close">×</button>
+      <div class="modal-title">Reflect on Your Brain-Body Sync</div>
+      <textarea id="reflection-textarea" placeholder="What insights do you have about the match (or mismatch) between how you felt and what your body was experiencing?"></textarea>
+      <button class="submit-button" id="submit-reflection">Save Reflection</button>
+    </div>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Sample student data
+      const students = [
+        {
+          id: 1,
+          name: "Student 1",
+          exam: "Midterm 1",
+          timeRange: "First 20 minutes",
+          selfReported: "Calm", // 0
+          physiological: "High Stress", // 2
+          heartRate: 98,
+          eda: 0.52
+        },
+        {
+          id: 2,
+          name: "Student 2",
+          exam: "Midterm 1",
+          timeRange: "First 20 minutes",
+          selfReported: "Focused", // 1
+          physiological: "Moderate Stress", // 1
+          heartRate: 82,
+          eda: 0.35
+        },
+        {
+          id: 3,
+          name: "Student 3",
+          exam: "Midterm 1",
+          timeRange: "First 20 minutes",
+          selfReported: "Anxious", // 2
+          physiological: "Calm", // 0
+          heartRate: 72,
+          eda: 0.18
+        },
+        {
+          id: 4,
+          name: "Student 4",
+          exam: "Midterm 1",
+          timeRange: "First 20 minutes",
+          selfReported: "Overwhelmed", // 2
+          physiological: "High Stress", // 2
+          heartRate: 105,
+          eda: 0.58
+        }
+      ];
+      
+      // Map self-reported states to numeric levels
+      const selfReportedMap = {
+        "Calm": 0,
+        "Focused": 1,
+        "Anxious": 2,
+        "Overwhelmed": 2
+      };
+      
+      // Map physiological states to numeric levels
+      const physiologicalMap = {
+        "Calm": 0,
+        "Moderate Stress": 1,
+        "High Stress": 2
+      };
+      
+      // Map mismatch levels to display values
+      const mismatchMap = {
+        0: {
+          label: "In Sync ✅",
+          color: "var(--in-sync-color)",
+          glow: "var(--in-sync-glow)",
+          icon: "✅",
+          interpretation: "Your perception of your emotional state matched your physiological signals well."
+        },
+        1: {
+          label: "Mild Mismatch 🤔",
+          color: "var(--mild-mismatch-color)",
+          glow: "var(--mild-mismatch-glow)",
+          icon: "🤔",
+          interpretation: "There was a slight difference between how you felt and what your body was experiencing."
+        },
+        2: {
+          label: "Strong Mismatch ⚠️",
+          color: "var(--strong-mismatch-color)",
+          glow: "var(--strong-mismatch-glow)",
+          icon: "⚠️",
+          interpretation: "Your body might have picked up on anxiety you weren't fully aware of."
+        }
+      };
+      
+      // Create sync meter cards for each student
+      const container = document.getElementById('sync-meter-container');
+      
+      students.forEach(student => {
+        // Calculate mismatch level
+        const selfReportedLevel = selfReportedMap[student.selfReported];
+        const physiologicalLevel = physiologicalMap[student.physiological];
+        const mismatchLevel = Math.abs(selfReportedLevel - physiologicalLevel);
+        const mismatchInfo = mismatchMap[mismatchLevel];
+        
+        // Create card element
+        const card = document.createElement('div');
+        card.className = 'sync-meter-card';
+        card.innerHTML = `
+          <div class="student-info">
+            <div class="student-name">${student.name}</div>
+            <div class="exam-info">${student.exam} | ${student.timeRange}</div>
+          </div>
+          <div class="meter-title">Brain-Body Sync</div>
+          <div class="meter-subtitle">Mental state vs. Physiological signals</div>
+          <div class="meter-container" id="meter-${student.id}">
+            <!-- SVG will be inserted here -->
+            <div class="meter-icon">${mismatchInfo.icon}</div>
+            <div class="meter-value">${mismatchInfo.label}</div>
+          </div>
+          <div class="action-buttons">
+            <button class="action-button" data-student="${student.id}" data-action="timeline">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21 7V17C21 20 19.5 22 16 22H8C4.5 22 3 20 3 17V7C3 4 4.5 2 8 2H16C19.5 2 21 4 21 7Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M8 12H16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M8 17H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M8 7H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              See Timeline
+            </button>
+            <button class="action-button" data-student="${student.id}" data-action="reflect">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8.5 19H8C4 19 2 18 2 13V8C2 4 4 2 8 2H16C20 2 22 4 22 8V13C22 17 20 19 16 19H15.5C15.19 19 14.89 19.15 14.7 19.4L13.2 21.4C12.54 22.28 11.46 22.28 10.8 21.4L9.3 19.4C9.14 19.18 8.77 19 8.5 19Z" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M15.9965 11H16.0054" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M11.9955 11H12.0045" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M7.99451 11H8.00349" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              I Want to Reflect
+            </button>
+          </div>
+          <div class="tooltip" id="tooltip-${student.id}">
+            <div class="tooltip-title">Brain-Body Sync Analysis</div>
+            <div class="tooltip-row">
+              <div class="tooltip-label">You said:</div>
+              <div class="tooltip-value">${student.selfReported}</div>
+            </div>
+            <div class="tooltip-row">
+              <div class="tooltip-label">Your signals showed:</div>
+              <div class="tooltip-value">${student.physiological}</div>
+            </div>
+            <div class="tooltip-row">
+              <div class="tooltip-label">Heart Rate:</div>
+              <div class="tooltip-value">${student.heartRate} bpm</div>
+            </div>
+            <div class="tooltip-row">
+              <div class="tooltip-label">EDA:</div>
+              <div class="tooltip-value">${student.eda} μS</div>
+            </div>
+            <div class="tooltip-interpretation">${mismatchInfo.interpretation}</div>
+          </div>
+        `;
+        
+        container.appendChild(card);
+        
+        // Create the gauge visualization using D3.js
+        createGauge(student.id, mismatchLevel, mismatchInfo);
+      });
+      
+      // Create gauge visualization
+      function createGauge(studentId, mismatchLevel, mismatchInfo) {
+        const width = 220;
+        const height = 220;
+        const radius = Math.min(width, height) / 2;
+        const innerRadius = radius * 0.6;
+        
+        // Create SVG
+        const svg = d3.select(`#meter-${studentId}`)
+          .append('svg')
+          .attr('class', 'meter-svg')
+          .attr('width', width)
+          .attr('height', height)
+          .append('g')
+          .attr('transform', `translate(${width / 2}, ${height / 2})`);
+        
+        // Create gradient
+        const defs = svg.append('defs');
+        
+        // Create gradient for each zone
+        const gradients = [
+          { id: 'inSyncGradient', color: 'var(--in-sync-color)', opacity: 0.7 },
+          { id: 'mildMismatchGradient', color: 'var(--mild-mismatch-color)', opacity: 0.7 },
+          { id: 'strongMismatchGradient', color: 'var(--strong-mismatch-color)', opacity: 0.7 }
+        ];
+        
+        gradients.forEach(gradient => {
+          const grad = defs.append('radialGradient')
+            .attr('id', gradient.id)
+            .attr('cx', '0')
+            .attr('cy', '0')
+            .attr('r', '100%')
+            .attr('fx', '0')
+            .attr('fy', '0');
+          
+          grad.append('stop')
+            .attr('offset', '0%')
+            .attr('stop-color', gradient.color)
+            .attr('stop-opacity', gradient.opacity);
+          
+          grad.append('stop')
+            .attr('offset', '100%')
+            .attr('stop-color', gradient.color)
+            .attr('stop-opacity', 0.1);
+        });
+        
+        // Create arc generator
+        const arc = d3.arc()
+          .innerRadius(innerRadius)
+          .outerRadius(radius)
+          .startAngle(-Math.PI / 2)
+          .endAngle(Math.PI / 2);
+        
+        // Create background arc
+        svg.append('path')
+          .attr('d', arc)
+          .attr('fill', 'rgba(255, 255, 255, 0.05)');
+        
+        // Create zone arcs
+        const zoneArc = d3.arc()
+          .innerRadius(innerRadius)
+          .outerRadius(radius);
+        
+        const zones = [
+          { name: 'inSync', startAngle: -Math.PI / 2, endAngle: -Math.PI / 6, fill: 'url(#inSyncGradient)' },
+          { name: 'mildMismatch', startAngle: -Math.PI / 6, endAngle: Math.PI / 6, fill: 'url(#mildMismatchGradient)' },
+          { name: 'strongMismatch', startAngle: Math.PI / 6, endAngle: Math.PI / 2, fill: 'url(#strongMismatchGradient)' }
+        ];
+        
+        zones.forEach(zone => {
+          svg.append('path')
+            .attr('d', zoneArc({
+              startAngle: zone.startAngle,
+              endAngle: zone.endAngle
+            }))
+            .attr('fill', zone.fill);
+        });
+        
+        // Add zone labels
+        const labelRadius = radius * 1.15;
+        const labels = [
+          { text: 'In Sync', angle: -Math.PI / 3 },
+          { text: 'Mild Mismatch', angle: 0 },
+          { text: 'Strong Mismatch', angle: Math.PI / 3 }
+        ];
+        
+        labels.forEach(label => {
+          const x = Math.cos(label.angle) * labelRadius;
+          const y = Math.sin(label.angle) * labelRadius;
+          
+          svg.append('text')
+            .attr('x', x)
+            .attr('y', y)
+            .attr('text-anchor', 'middle')
+            .attr('alignment-baseline', 'middle')
+            .attr('font-size', '8px')
+            .attr('fill', 'rgba(255, 255, 255, 0.6)')
+            .text(label.text);
+        });
+        
+        // Add needle
+        const needleLength = radius * 0.8;
+        const needleRadius = radius * 0.03;
+        
+        // Calculate needle angle based on mismatch level
+        let needleAngle;
+        switch(mismatchLevel) {
+          case 0:
+            needleAngle = -Math.PI / 3; // In Sync
+            break;
+          case 1:
+            needleAngle = 0; // Mild Mismatch
+            break;
+          case 2:
+            needleAngle = Math.PI / 3; // Strong Mismatch
+            break;
+          default:
+            needleAngle = -Math.PI / 3;
+        }
+        
+        // Create needle group
+        const needle = svg.append('g')
+          .attr('class', 'needle')
+          .style('transform-origin', '0 0')
+          .style('transform', `rotate(${-90}deg)`); // Start at -90 degrees
+        
+        // Add needle shape
+        needle.append('path')
+          .attr('d', `M 0 -${needleRadius} L ${needleLength} 0 L 0 ${needleRadius} Z`)
+          .attr('fill', mismatchInfo.color);
+        
+        // Add center circle
+        needle.append('circle')
+          .attr('cx', 0)
+          .attr('cy', 0)
+          .attr('r', needleRadius * 1.5)
+          .attr('fill', mismatchInfo.color)
+          .attr('stroke', 'rgba(255, 255, 255, 0.2)')
+          .attr('stroke-width', 1);
+        
+        // Add glow effect
+        svg.append('circle')
+          .attr('cx', 0)
+          .attr('cy', 0)
+          .attr('r', innerRadius * 0.8)
+          .attr('fill', 'none')
+          .attr('stroke', mismatchInfo.color)
+          .attr('stroke-width', 2)
+          .attr('stroke-opacity', 0.3)
+          .attr('filter', 'blur(4px)');
+        
+        // Animate needle to correct position
+        needle.transition()
+          .duration(1500)
+          .ease(d3.easeBounce)
+          .style('transform', `rotate(${needleAngle * 180 / Math.PI}deg)`);
+        
+        // Add hover effect to show tooltip
+        d3.select(`#meter-${studentId}`)
+          .on('mouseenter', function() {
+            d3.select(`#tooltip-${studentId}`)
+              .style('opacity', 1)
+              .style('top', '10px')
+              .style('left', '10px');
+          })
+          .on('mouseleave', function() {
+            d3.select(`#tooltip-${studentId}`)
+              .style('opacity', 0);
+          });
+      }
+      
+      // Add event listeners for action buttons
+      document.querySelectorAll('.action-button').forEach(button => {
+        button.addEventListener('click', function() {
+          const studentId = this.dataset.student;
+          const action = this.dataset.action;
+          
+          if (action === 'reflect') {
+            // Show reflection modal
+            document.getElementById('reflection-modal').classList.add('active');
+          } else if (action === 'timeline') {
+            // Redirect to timeline page (for demo purposes, just log)
+            console.log(`Showing timeline for student ${studentId}`);
+            alert(`This would navigate to the timeline view for Student ${studentId}`);
+          }
+        });
+      });
+      
+      // Close modal
+      document.getElementById('modal-close').addEventListener('click', function() {
+        document.getElementById('reflection-modal').classList.remove('active');
+      });
+      
+      // Submit reflection
+      document.getElementById('submit-reflection').addEventListener('click', function() {
+        const reflection = document.getElementById('reflection-textarea').value;
+        if (reflection.trim()) {
+          alert('Reflection saved!');
+          document.getElementById('reflection-textarea').value = '';
+          document.getElementById('reflection-modal').classList.remove('active');
+        } else {
+          alert('Please enter a reflection before submitting.');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
