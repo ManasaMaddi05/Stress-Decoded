@@ -778,4 +778,40 @@ select:focus {
   }
 }
 
+.view-comparison {
+  margin-top: 1rem;
+}
+
+.view-comparison-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(168, 85, 247, 0.2);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.view-comparison-btn:hover {
+  background: rgba(168, 85, 247, 0.4);
+  transform: translateY(-2px);
+}
+
+.view-comparison-btn:active {
+  transform: translateY(0);
+}
+
+.view-comparison-btn svg {
+  transition: transform 0.2s ease;
+}
+
+.view-comparison-btn:hover svg {
+  transform: translateX(3px);
+}
+
+
 

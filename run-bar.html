@@ -22,6 +22,22 @@
 <body class="bg-stress-pattern min-h-screen text-white">
     <div class="container mx-auto px-4 py-8">
         <h1 class="text-3xl font-bold mb-6 text-center">Blood Volume Pulse (BVP) Analysis</h1>
+        <div class="flex justify-between items-center mb-4">
+            <div class="text-sm text-white/70">
+                <span id="similar-student-badge" class="hidden px-3 py-1 bg-purple-600/30 border border-purple-500/50 rounded-full">
+                    Most similar to: <span id="similar-student-id" class="font-mono font-bold">Student #3</span>
+                </span>
+            </div>
+            <div class="controls flex gap-2">
+                <button id="pause-button" class="px-4 py-2 bg-black/40 hover:bg-purple-600/50 border border-purple-500/30 rounded-lg transition-all duration-200 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pause-icon">
+                        <rect x="6" y="4" width="4" height="16"></rect>
+                        <rect x="14" y="4" width="4" height="16"></rect>
+                    </svg>
+                    <span class="button-text">Pause</span>
+                </button>
+            </div>
+        </div>
         <div id="bvp-chart" class="w-full h-[800px] bg-black/40 backdrop-blur-sm rounded-lg shadow-lg border border-stress-700/30"></div>
         <div class="mt-6 text-center">
             <p class="text-lg mb-4">Blood Volume Pulse (BVP) measurements show changes in blood flow and vascular activity during exam periods.</p>
@@ -36,14 +52,38 @@
             margin: { top: 40, right: 60, bottom: 60, left: 150 },
             colors: {
                 bars: '#a855f7', // stress-500
+                similarStudent: '#10b981', // emerald-500
                 background: 'rgba(0, 0, 0, 0.4)',
                 text: '#ffffff',
                 grid: 'rgba(255, 255, 255, 0.1)'
-            }
+            },
+            isPaused: false,
+            similarStudentId: null
         };
+
+        // Check URL parameters for similar student
+        function getSimilarStudentFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('similarStudent')) {
+                const studentId = urlParams.get('similarStudent');
+                chartConfig.similarStudentId = `S${studentId}_BVP`;
+                
+                // Show the similar student badge
+                const badge = document.getElementById('similar-student-badge');
+                const studentIdSpan = document.getElementById('similar-student-id');
+                studentIdSpan.textContent = `Student #${studentId}`;
+                badge.classList.remove('hidden');
+                
+                return true;
+            }
+            return false;
+        }
 
         // Initialize the chart
         function initBVPChart() {
+            // Check for similar student in URL
+            const hasSimilarStudent = getSimilarStudentFromURL();
+            
             const container = d3.select('#bvp-chart');
             const width = container.node().getBoundingClientRect().width;
             const height = container.node().getBoundingClientRect().height;
@@ -144,8 +184,16 @@
                     .duration(1000)
                     .ease(d3.easeLinear)
                     .attr('width', d => xScale(d.value))
-                    .style('fill', chartConfig.colors.bars)
-                    .style('opacity', 0.8);
+                    .style('fill', d => {
+                        // Highlight the similar student if set
+                        return d.student === chartConfig.similarStudentId ? 
+                            chartConfig.colors.similarStudent : 
+                            chartConfig.colors.bars;
+                    })
+                    .style('opacity', d => {
+                        // Make the similar student more prominent
+                        return d.student === chartConfig.similarStudentId ? 1 : 0.8;
+                    });
 
                 bars.exit().remove();
             }
@@ -170,10 +218,40 @@
                 updateChart(processedData, currentTimeIndex);
 
                 // Set up animation interval
-                setInterval(() => {
-                    currentTimeIndex = (currentTimeIndex + 1) % processedData.length;
-                    updateChart(processedData, currentTimeIndex);
-                }, 500); // Update every 300ms
+                const animationInterval = setInterval(() => {
+                    if (!chartConfig.isPaused) {
+                        currentTimeIndex = (currentTimeIndex + 1) % processedData.length;
+                        updateChart(processedData, currentTimeIndex);
+                    }
+                }, 500); // Update every 500ms
+                
+                // Set up pause button
+                const pauseButton = document.getElementById('pause-button');
+                const pauseIcon = pauseButton.querySelector('.pause-icon');
+                const buttonText = pauseButton.querySelector('.button-text');
+                
+                pauseButton.addEventListener('click', function() {
+                    chartConfig.isPaused = !chartConfig.isPaused;
+                    
+                    if (chartConfig.isPaused) {
+                        // Change to play icon
+                        pauseIcon.innerHTML = `
+                            <polygon points="5,3 19,12 5,21"></polygon>
+                        `;
+                        buttonText.textContent = 'Resume';
+                        pauseButton.classList.add('bg-purple-600/50');
+                        pauseButton.classList.remove('bg-black/40');
+                    } else {
+                        // Change to pause icon
+                        pauseIcon.innerHTML = `
+                            <rect x="6" y="4" width="4" height="16"></rect>
+                            <rect x="14" y="4" width="4" height="16"></rect>
+                        `;
+                        buttonText.textContent = 'Pause';
+                        pauseButton.classList.remove('bg-purple-600/50');
+                        pauseButton.classList.add('bg-black/40');
+                    }
+                });
             });
         }
 
@@ -182,3 +260,4 @@
     </script>
 </body>
 </html>
+
