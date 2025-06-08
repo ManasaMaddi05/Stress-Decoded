@@ -80,15 +80,30 @@
       flex: 1;
     }
     
-    .student-title {
-      font-size: 2.5rem;
+    .student-title, .visualization-title {
+      font-size: 3rem;
       font-weight: 700;
-      background: linear-gradient(90deg, var(--primary), var(--accent));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
+      color: #a5b4fc;
       margin: 0;
-      padding: 0.25rem 0;
+      padding: 0.25rem 0 1.5rem 0;
+      text-align: center;
+      position: relative;
+      text-shadow: 0 0 15px rgba(165, 180, 252, 0.3);
+      background: none;
+      -webkit-background-clip: initial;
+      -webkit-text-fill-color: initial;
+    }
+
+    .student-title::after, .visualization-title::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 140px;
+      height: 4px;
+      background: #6366f1;
+      border-radius: 2px;
     }
     
     .controls-area {
@@ -463,33 +478,57 @@
         height: 10px;
       }
     }
-
-    .visualization-title {
-      font-weight: 700;
-      margin-bottom: 1rem;
-      color: #a5b4fc;
-      font-size: 3rem;
-      letter-spacing: 0px;
-      text-align: center;
+    
+    /* Add styles for the instructions panel */
+    .instructions-panel {
+      background: var(--panel-bg);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin: 1.5rem 0;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
       position: relative;
-      font-family: 'Inter', sans-serif;
-      padding-bottom: 1.5rem;
-      text-shadow: 0 0 15px rgba(165, 180, 252, 0.3);
-      background: none;
-      -webkit-background-clip: initial;
-      -webkit-text-fill-color: initial;
     }
-
-    .visualization-title::after {
+    
+    .instructions-panel::before {
       content: '';
       position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 140px;
-      height: 4px;
-      background: #6366f1;
-      border-radius: 2px;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      border-radius: 3px 3px 0 0;
+    }
+    
+    .instructions-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.75rem;
+    }
+    
+    .instructions-text {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+    
+    /* Responsive adjustments for instructions panel */
+    @media (max-width: 768px) {
+      .instructions-panel {
+        padding: 1rem;
+        margin: 1rem 0;
+      }
+      
+      .instructions-title {
+        font-size: 1rem;
+      }
+      
+      .instructions-text {
+        font-size: 0.9rem;
+      }
     }
   </style>
 </head>
@@ -497,7 +536,7 @@
   <div class="container">
     <div class="header">
       <div class="title-area">
-        <h1 class="visualization-title">Heart Rate Over the Course of the Exam</h1>
+        <h1 class="student-title" id="student-title">Heart Rate Profile: Student #5 During Final Exam</h1>
       </div>
       <div class="controls-area">
         <div class="student-selector">
@@ -528,9 +567,19 @@
       </div>
     </div>
     
+    <!-- Add instructions panel -->
+    <div class="instructions-panel">
+      <div class="instructions-content">
+        <h3 class="instructions-title">How to Use This Visualization</h3>
+        <p class="instructions-text">
+          Use the slider below the graph to move minute-by-minute through the exam timeline. As you slide, you'll see the student's exact heart rate update in real time at the top right — down to the specific minute of the exam. You'll also hear a heartbeat sound that pulses in sync with their stress level, giving you a visceral sense of what they were feeling in that moment.
+        </p>
+      </div>
+    </div>
+    
     <div class="main-content">
       <div class="chart-container">
-        <div class="chart-header" id="student-title">Student #5 - FINAL</div>
+        <div class="chart-header">Cardiovascular Response Throughout Exam Duration</div>
         <div class="chart" id="heart-rate-chart"></div>
       </div>
     </div>
@@ -606,28 +655,6 @@
       let sliderTimeout;
       let currentHeartRate = 0;
       let isAudioPlaying = false;
-
-
-
-      // Add intersection observer to control audio based on visibility
-      const heartRateChartElement = document.getElementById('heart-rate-chart');
-      const visibilityObserver = new IntersectionObserver((entries) => {
-        const [entry] = entries;
-        if (entry.isIntersecting) {
-          // Chart is visible, play audio if not paused by user
-          if (!heartbeatSound.paused && !isAudioPlaying) {
-            updateHeartbeatSound(currentHeartRate);
-          }
-        } else {
-          // Chart is not visible, pause audio
-          heartbeatSound.pause();
-          isAudioPlaying = false;
-        }
-      }, { threshold: 0.1 });
-
-      // Start observing the chart element
-      visibilityObserver.observe(document.querySelector('.chart-container'));
-      
       
       // Function to adjust heartbeat sound based on heart rate
       function updateHeartbeatSound(heartRate) {
@@ -656,6 +683,18 @@
         }
       }
       
+      // Update title based on student and exam selection
+      function updateTitle(studentId, examType) {
+        const examNames = {
+          'midterm1': 'Midterm 1',
+          'midterm2': 'Midterm 2',
+          'final': 'Final Exam'
+        };
+        
+        document.getElementById('student-title').textContent = 
+          `Heart Rate Profile: Student #${studentId} During ${examNames[examType]}`;
+      }
+      
       // Update config based on URL parameters
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.has('student')) {
@@ -667,9 +706,9 @@
         // Update dropdown to match URL parameter
         document.getElementById('exam-dropdown').value = config.examType;
       }
-      
-      // Update student title
-      document.getElementById('student-title').textContent = `Student #${config.studentId} - ${config.examType.toUpperCase()}`;
+
+      // Update student title with new format
+      updateTitle(config.studentId, config.examType);
       
       // Function to load heart rate data from CSV
       async function loadHeartRateData(studentId, examType) {
@@ -1220,6 +1259,7 @@
         const selectedStudentId = parseInt(this.value);
         const selectedExamType = document.getElementById('exam-dropdown').value;
         initVisualization(selectedStudentId, selectedExamType);
+        updateTitle(selectedStudentId, selectedExamType);
         
         // Update URL parameter without refreshing the page
         const url = new URL(window.location);
@@ -1232,6 +1272,7 @@
         const selectedExamType = this.value;
         const selectedStudentId = parseInt(document.getElementById('student-dropdown').value);
         initVisualization(selectedStudentId, selectedExamType);
+        updateTitle(selectedStudentId, selectedExamType);
         
         // Update URL parameter without refreshing the page
         const url = new URL(window.location);
@@ -1249,9 +1290,5 @@
   </script>
 </body>
 </html>
-
-
-
-
 
 

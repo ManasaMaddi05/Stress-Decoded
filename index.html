@@ -263,6 +263,35 @@
     .tooltip-popup li {
       margin-bottom: 8px;
     }
+
+    /* Add styles for the metrics boxes */
+    .metric-box {
+      transition: all 0.3s ease;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .metric-box:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
+    }
+    
+    .metric-box h3 {
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: -0.5px;
+    }
+    
+    .metric-box p {
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+    
+    @media (min-width: 768px) {
+      .grid-cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
   </style>
 </head>
 <body class="font-sans">
@@ -342,15 +371,27 @@
   <!-- Progress bar -->
   <div class="progress-bar" id="progress-bar"></div>
   
-  <div class="scroll-indicator hidden md:flex">
-    <div class="scroll-dot active" data-section="intro"></div>
-    <div class="scroll-dot" data-section="section-1"></div>
-    <div class="scroll-dot" data-section="section-2"></div>
-    <div class="scroll-dot" data-section="section-3"></div>
-    <div class="scroll-dot" data-section="section-4"></div>
-    <div class="scroll-dot" data-section="section-5"></div>
-    <div class="scroll-dot" data-section="conclusion"></div>
-  </div>
+  <!-- Update the scroll dots to include post-scatter-plot section -->
+<div class="scroll-indicator hidden md:flex">
+  <div class="scroll-dot active" data-section="intro"></div>
+  <div class="scroll-dot" data-section="hook-section"></div>
+  <div class="scroll-dot" data-section="introduction-section"></div>
+  <div class="scroll-dot" data-section="metrics-section"></div>
+  <div class="scroll-dot" data-section="classroom-intro"></div>
+  <div class="scroll-dot" data-section="section-1"></div>
+  <div class="scroll-dot" data-section="stress-analysis"></div>
+  <div class="scroll-dot" data-section="heart-rate-intro"></div>
+  <div class="scroll-dot" data-section="section-2"></div>
+  <div class="scroll-dot" data-section="post-heart-rate"></div>
+  <div class="scroll-dot" data-section="section-3"></div>
+  <div class="scroll-dot" data-section="post-timeline"></div>
+  <div class="scroll-dot" data-section="section-4"></div>
+  <div class="scroll-dot" data-section="post-bar-chart"></div>
+  <div class="scroll-dot" data-section="section-5"></div>
+  <div class="scroll-dot" data-section="post-scatter-plot"></div>
+  <div class="scroll-dot" data-section="conclusion"></div>
+  <div class="scroll-dot" data-section="bottom-line"></div>
+</div>
 
   <!-- Main Content (initially hidden) -->
   <main class="fullpage-container opacity-0 transition-opacity duration-1000" id="fullpage-container">
@@ -371,6 +412,166 @@
             Ten students. Three exams. One question: does stress help or hurt?
           </p>
           <div class="mt-8 fade-in delay-600">
+            <a href="#hook-section" class="cursor-pointer scroll-arrow">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto text-white animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Hook Section (Before Desks Visualization) -->
+    <section id="hook-section" class="section">
+      <div class="heart-bg">
+        <svg class="heart-svg" viewBox="0 0 32 32" fill="white" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 28.7c-.7 0-1.4-.3-1.9-.8L4.8 18.6C1.7 15.5 1.7 10.4 4.8 7.3c1.5-1.5 3.5-2.3 5.6-2.3s4.1.8 5.6 2.3L16 7.3l.1-.1c1.5-1.5 3.5-2.3 5.6-2.3s4.1.8 5.6 2.3c3.1 3.1 3.1 8.2 0 11.3L17.9 27.9c-.5.5-1.2.8-1.9.8z"/>
+        </svg>
+      </div>
+      
+      <!-- Hook Content Block -->
+      <div class="absolute inset-0 flex items-center justify-center z-10">
+        <div class="text-content-box max-w-4xl mx-auto p-8 rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl">
+          <h2 class="text-3xl md:text-4xl font-bold text-a5b4fc mb-6 text-center">Under Pressure: What Exam Stress Really Looks Like</h2>
+          <p class="text-lg text-white/90 mb-6 leading-relaxed">
+            You probably know what exam stress feels like — the racing heart, the cold sweat, the way everything you studied suddenly feels far away. But what does that stress actually look like on the inside? How does it build up? And does it really impact performance?
+          </p>
+          <p class="text-lg text-white/90 mb-6 leading-relaxed">
+            In this interactive walkthrough, we explore real physiological stress data recorded from 10 students across three major exams: Midterm 1, Midterm 2, and the Final. By combining Electrodermal Activity (EDA), heart rate, movement, and more, we'll uncover how stress evolves — not just during the test, but before the first question is even asked.
+          </p>
+          <p class="text-lg text-white/90 mb-6 leading-relaxed">
+            You'll match yourself to real students, examine patterns, and discover how the smallest decisions — like skipping breakfast or sleeping in — show up in the data. By the end, you might see stress not as a simple "bad thing," but as a signal worth understanding.
+          </p>
+          <p class="text-lg text-white/90 mb-6 leading-relaxed font-semibold">
+            Let's begin.
+          </p>
+          
+          <div class="mt-8 text-center">
+            <a href="#section-1" class="cursor-pointer scroll-arrow">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto text-white animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Introduction Section (New) -->
+    <section id="introduction-section" class="section">
+      <div class="heart-bg">
+        <svg class="heart-svg" viewBox="0 0 32 32" fill="white" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 28.7c-.7 0-1.4-.3-1.9-.8L4.8 18.6C1.7 15.5 1.7 10.4 4.8 7.3c1.5-1.5 3.5-2.3 5.6-2.3s4.1.8 5.6 2.3L16 7.3l.1-.1c1.5-1.5 3.5-2.3 5.6-2.3s4.1.8 5.6 2.3c3.1 3.1 3.1 8.2 0 11.3L17.9 27.9c-.5.5-1.2.8-1.9.8z"/>
+        </svg>
+      </div>
+      
+      <!-- Introduction Content Block -->
+      <div class="absolute inset-0 flex items-center justify-center z-10">
+        <div class="text-content-box max-w-4xl mx-auto p-8 rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl">
+          <h2 class="text-3xl md:text-4xl font-bold text-a5b4fc mb-6 text-center">Everyone experiences stress…</h2>
+          <h3 class="text-2xl md:text-3xl font-semibold text-white mb-6 text-center italic">But not in the same way.</h3>
+          <p class="text-lg text-white/90 mb-6 leading-relaxed">
+            Some students spike the moment they sit down. Others build up slowly. Some crash early, while others ride the wave. Stress isn't just emotional — it's physiological, and it's shaped by how we prepare, how we cope, and what we carry into the room.
+          </p>
+          <p class="text-lg text-white/90 mb-6 leading-relaxed">
+            In this project, we use data from Empatica E4 wristbands worn during each student's midterms and finals. These sensors tracked EDA, heart rate, body temperature, and motion — second by second. That means we're not just looking at how students say they felt; we're seeing how their bodies actually reacted in real time.
+          </p>
+          <p class="text-lg text-white/90 mb-6 leading-relaxed">
+            You'll be able to dive into each of these students' profiles, simulate your own pre-exam routine, and see how your experience compares. Whether you're a high achiever with high stress or a calm crammer, this experience will give you something we rarely get during finals season: perspective.
+          </p>
+          
+          <div class="mt-8 text-center">
+            <a href="#metrics-section" class="cursor-pointer scroll-arrow">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto text-white animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Metrics Behind Stress Section (New) -->
+    <section id="metrics-section" class="section">
+      <div class="heart-bg">
+        <svg class="heart-svg" viewBox="0 0 32 32" fill="white" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 28.7c-.7 0-1.4-.3-1.9-.8L4.8 18.6C1.7 15.5 1.7 10.4 4.8 7.3c1.5-1.5 3.5-2.3 5.6-2.3s4.1.8 5.6 2.3L16 7.3l.1-.1c1.5-1.5 3.5-2.3 5.6-2.3s4.1.8 5.6 2.3c3.1 3.1 3.1 8.2 0 11.3L17.9 27.9c-.5.5-1.2.8-1.9.8z"/>
+        </svg>
+      </div>
+      
+      <!-- Metrics Content Block -->
+      <div class="absolute inset-0 flex items-center justify-center z-10">
+        <div class="text-content-box max-w-5xl mx-auto p-8 rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl">
+          <h2 class="text-3xl md:text-4xl font-bold text-a5b4fc mb-8 text-center">The Metrics Behind Stress</h2>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- EDA Metric -->
+            <div class="metric-box p-5 rounded-lg backdrop-blur-sm bg-slate-800/50 border border-indigo-500/30 hover:shadow-glow transition-shadow duration-300">
+              <h3 class="text-xl font-bold text-white mb-3"><span class="text-stress-400">Electrodermal Activity (EDA)</span></h3>
+              <p class="text-white/90">
+                Tracks changes in the skin's electrical conductivity caused by sweat gland activity — a reliable signal of emotional or physiological arousal.
+              </p>
+            </div>
+            
+            <!-- HR Metric -->
+            <div class="metric-box p-5 rounded-lg backdrop-blur-sm bg-slate-800/50 border border-indigo-500/30 hover:shadow-glow transition-shadow duration-300">
+              <h3 class="text-xl font-bold text-white mb-3"><span class="text-stress-400">Heart Rate (HR)</span></h3>
+              <p class="text-white/90">
+                Measures the number of heartbeats per minute (BPM), often increasing during stress or mental effort.
+              </p>
+            </div>
+            
+            <!-- BVP Metric -->
+            <div class="metric-box p-5 rounded-lg backdrop-blur-sm bg-slate-800/50 border border-indigo-500/30 hover:shadow-glow transition-shadow duration-300">
+              <h3 class="text-xl font-bold text-white mb-3"><span class="text-stress-400">Blood Volume Pulse (BVP)</span></h3>
+              <p class="text-white/90">
+                Monitors the volume of blood passing through your vessels with each heartbeat — used to assess cardiovascular response.
+              </p>
+            </div>
+            
+            <!-- TEMP Metric -->
+            <div class="metric-box p-5 rounded-lg backdrop-blur-sm bg-slate-800/50 border border-indigo-500/30 hover:shadow-glow transition-shadow duration-300">
+              <h3 class="text-xl font-bold text-white mb-3"><span class="text-stress-400">Skin Temperature (TEMP)</span></h3>
+              <p class="text-white/90">
+                Measures the surface temperature of your skin, which can drop under stress due to reduced blood flow to the extremities.
+              </p>
+            </div>
+          </div>
+          
+          <div class="mt-8 text-center">
+            <a href="#section-1" class="cursor-pointer scroll-arrow">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto text-white animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Add classroom visual description before section-1 -->
+    <section id="classroom-intro" class="section">
+      <div class="heart-bg">
+        <svg class="heart-svg" viewBox="0 0 32 32" fill="white" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 28.7c-.7 0-1.4-.3-1.9-.8L4.8 18.6C1.7 15.5 1.7 10.4 4.8 7.3c1.5-1.5 3.5-2.3 5.6-2.3s4.1.8 5.6 2.3L16 7.3l.1-.1c1.5-1.5 3.5-2.3 5.6-2.3s4.1.8 5.6 2.3c3.1 3.1 3.1 8.2 0 11.3L17.9 27.9c-.5.5-1.2.8-1.9.8z"/>
+        </svg>
+      </div>
+      
+      <!-- Classroom Intro Content Block with added title -->
+      <div class="absolute inset-0 flex items-center justify-center z-10">
+        <div class="text-content-box max-w-4xl mx-auto p-8 rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl">
+          <h2 class="text-3xl md:text-4xl font-bold text-a5b4fc mb-8 text-center">Inside the Exam Room</h2>
+          
+          <p class="text-lg text-white/90 mb-6 leading-relaxed">
+            It's 9:00 AM — the start of Midterm 1. Ten students take their seats, bluebooks out, pencils tapping. On the surface, the room is calm. But beneath it? Their stress is spiking, dipping, and sometimes flatlining — all captured by their EDA (electrodermal activity) sensors. And this is only the beginning. With another midterm and a 3-hour final ahead, the data tells a deeper story than any test score ever could.
+          </p>
+          
+          <p class="text-lg text-white/90 mb-6 leading-relaxed">
+            In the next visualization, you'll see all ten students at their desks. Click on any student to see their stress curve during the exam. Each student has a unique pattern — some spike early, others build gradually, and a few maintain surprising calm. These patterns reveal how differently we each experience the same stressful situation.
+          </p>
+          
+          <div class="mt-8 text-center">
             <a href="#section-1" class="cursor-pointer scroll-arrow">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto text-white animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
@@ -382,27 +583,306 @@
     </section>
     
     <section id="section-1" class="section">
+      <!-- Instructions for Desks Visualization -->
       <iframe src="desks.html" class="section-frame" title="Heart Rate Patterns"></iframe>
+    </section>
+    
+    <!-- Add stress response analysis page after section-1 (desk visualization) -->
+    <section id="stress-analysis" class="section">
+      <div class="heart-bg">
+        <svg class="heart-svg" viewBox="0 0 32 32" fill="white" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 28.7c-.7 0-1.4-.3-1.9-.8L4.8 18.6C1.7 15.5 1.7 10.4 4.8 7.3c1.5-1.5 3.5-2.3 5.6-2.3s4.1.8 5.6 2.3L16 7.3l.1-.1c1.5-1.5 3.5-2.3 5.6-2.3s4.1.8 5.6 2.3c3.1 3.1 3.1 8.2 0 11.3L17.9 27.9c-.5.5-1.2.8-1.9.8z"/>
+        </svg>
+      </div>
+      
+      <!-- Stress Analysis Content Block - Larger box with title -->
+      <div class="absolute inset-0 flex items-center justify-center z-10">
+        <div class="text-content-box max-w-5xl mx-auto p-10 rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl">
+          <h2 class="text-3xl md:text-4xl font-bold text-a5b4fc mb-8 text-center">Individual Stress Signatures</h2>
+          
+          <p class="text-lg md:text-xl text-white/90 mb-8 leading-relaxed">
+            While every student sat in the same room and took the same exam, their stress responses were anything but uniform. Some students — like S10 — experienced sharp spikes early on, reaching their peak EDA just minutes after the exam began. Others, such as S3 and S7, showed a steady rise in stress that plateaued mid-exam and took significantly longer to recover. Interestingly, the average EDA across all students hovered around 0.3 μS, but peak values shot up to 2.9 μS — nearly 10 times higher. Student 8 had one of the most chaotic stress profiles, while Student 4 maintained an unusually flat response. These differences highlight a key insight: stress looks drastically different not just across exams, but across individuals. It's not about how stressed you are — it's about when and how that stress shows up.
+          </p>
+          
+          <div class="mt-10 text-center">
+            <a href="#heart-rate-intro" class="cursor-pointer scroll-arrow">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto text-white animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Add heart rate introduction page before section-2 -->
+    <section id="heart-rate-intro" class="section">
+      <div class="heart-bg">
+        <svg class="heart-svg" viewBox="0 0 32 32" fill="white" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 28.7c-.7 0-1.4-.3-1.9-.8L4.8 18.6C1.7 15.5 1.7 10.4 4.8 7.3c1.5-1.5 3.5-2.3 5.6-2.3s4.1.8 5.6 2.3L16 7.3l.1-.1c1.5-1.5 3.5-2.3 5.6-2.3s4.1.8 5.6 2.3c3.1 3.1 3.1 8.2 0 11.3L17.9 27.9c-.5.5-1.2.8-1.9.8z"/>
+        </svg>
+      </div>
+      
+      <!-- Heart Rate Introduction Content Block - Same size as previous box -->
+      <div class="absolute inset-0 flex items-center justify-center z-10">
+        <div class="text-content-box max-w-5xl mx-auto p-10 rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl">
+          <h2 class="text-3xl md:text-4xl font-bold text-a5b4fc mb-8 text-center">The Hidden Rhythm of Stress</h2>
+          
+          <p class="text-lg md:text-xl text-white/90 mb-8 leading-relaxed">
+            Let's take a closer look at Student #8 during Midterm 2. Outwardly, they looked calm — no leg shaking, no pacing, no whispered complaints. But their body was telling a different story.
+          </p>
+          
+          <p class="text-lg md:text-xl text-white/90 mb-8 leading-relaxed">
+            Beneath the surface, their heart was racing, responding to pressure in real time. The next visualization tracks their heart rate minute-by-minute — revealing how even a steady exterior can mask intense internal stress.
+          </p>
+          
+          <p class="text-lg md:text-xl text-white/90 mb-8 leading-relaxed">
+            Ready to step into their shoes? Let's see what stress really looked like, one beat at a time.
+          </p>
+          
+          <div class="mt-10 text-center">
+            <a href="#section-2" class="cursor-pointer scroll-arrow">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto text-white animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
     </section>
     
     <section id="section-2" class="section">
       <iframe src="student-heart-monitor.html" class="section-frame" title="Electrodermal Activity"></iframe>
     </section>
     
+    <!-- Add post-heart-rate analysis section after section-2 -->
+    <section id="post-heart-rate" class="section">
+      <div class="heart-bg">
+        <svg class="heart-svg" viewBox="0 0 32 32" fill="white" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 28.7c-.7 0-1.4-.3-1.9-.8L4.8 18.6C1.7 15.5 1.7 10.4 4.8 7.3c1.5-1.5 3.5-2.3 5.6-2.3s4.1.8 5.6 2.3L16 7.3l.1-.1c1.5-1.5 3.5-2.3 5.6-2.3s4.1.8 5.6 2.3c3.1 3.1 3.1 8.2 0 11.3L17.9 27.9c-.5.5-1.2.8-1.9.8z"/>
+        </svg>
+      </div>
+      
+      <!-- Post Heart Rate Analysis Content Block -->
+      <div class="absolute inset-0 flex items-center justify-center z-10">
+        <div class="text-content-box max-w-5xl mx-auto p-10 rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl">
+          <h2 class="text-3xl md:text-4xl font-bold text-a5b4fc mb-8 text-center">Behind the Peaks and Valleys</h2>
+          
+          <p class="text-lg md:text-xl text-white/90 mb-8 leading-relaxed">
+            At just 17 minutes in, Student #8's heart rate soared to 137 bpm — a level more common during light cardio than sitting in a lecture hall. That spike wasn't a fluke. For the next 30 minutes, their heart rate fluctuated dramatically, revealing a rollercoaster of internal stress, even as they appeared calm on the outside.
+          </p>
+          
+          <p class="text-lg md:text-xl text-white/90 mb-8 leading-relaxed">
+            But what stands out is the rhythm — a repeating wave of pressure. A few moments of calm? Quickly replaced by another sharp climb. Even toward the end, new peaks suggest a sudden challenge — maybe a confusing question or a race against the clock.
+          </p>
+          
+          <p class="text-lg md:text-xl text-white/90 mb-8 leading-relaxed">
+            Here's the catch: this wasn't just about what happened during the exam. This curve didn't begin at 9:00 AM. The body was already primed — or overloaded — long before the test began.
+          </p>
+          
+          <p class="text-lg md:text-xl text-white/90 mb-8 leading-relaxed">
+            So what happened before they even sat down?
+          </p>
+          
+          <p class="text-lg md:text-xl text-white/90 mb-8 leading-relaxed font-semibold">
+            Let's rewind the clock and take a closer look at what a student's morning might look like….
+          </p>
+          
+          <div class="mt-10 text-center">
+            <a href="#section-3" class="cursor-pointer scroll-arrow">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto text-white animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+    
     <section id="section-3" class="section">
       <iframe src="student-timeline.html" class="section-frame" title="Student Timeline"></iframe>
     </section>
     
+    <!-- Add post-timeline analysis section after section-3 -->
+    <section id="post-timeline" class="section">
+      <div class="heart-bg">
+        <svg class="heart-svg" viewBox="0 0 32 32" fill="white" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 28.7c-.7 0-1.4-.3-1.9-.8L4.8 18.6C1.7 15.5 1.7 10.4 4.8 7.3c1.5-1.5 3.5-2.3 5.6-2.3s4.1.8 5.6 2.3L16 7.3l.1-.1c1.5-1.5 3.5-2.3 5.6-2.3s4.1.8 5.6 2.3c3.1 3.1 3.1 8.2 0 11.3L17.9 27.9c-.5.5-1.2.8-1.9.8z"/>
+        </svg>
+      </div>
+      
+      <!-- Post Timeline Analysis Content Block -->
+      <div class="absolute inset-0 flex items-center justify-center z-10">
+        <div class="text-content-box max-w-5xl mx-auto p-10 rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl">
+          <h2 class="text-3xl md:text-4xl font-bold text-a5b4fc mb-8 text-center">The Morning Effect</h2>
+          
+          <p class="text-lg md:text-xl text-white/90 mb-6 leading-relaxed">
+            What you do before 9:00 AM can shape your entire exam experience.
+          </p>
+          
+          <p class="text-lg md:text-xl text-white/90 mb-6 leading-relaxed">
+            For example, one student who skipped breakfast, crammed flashcards, and argued with their roommate hit a peak heart rate of 114 bpm before even reading the first question. In contrast, a student who meditated, ate breakfast, and arrived early maintained a steady heart rate around 63 bpm.
+          </p>
+          
+          <p class="text-lg md:text-xl text-white/90 mb-6 leading-relaxed">
+            Our matching algorithm shows that activities like "woke up late," "argued," and "forgot calculator" tend to cluster with higher EDA levels — meaning your body felt more aroused and alert, possibly in a negative way. On the other hand, students who practiced calming behaviors (like meditation or listening to music) saw decreased stress markers.
+          </p>
+          
+          <p class="text-lg md:text-xl text-white/90 mb-6 leading-relaxed">
+            What's surprising is that many students didn't even recognize how their routine affected them — until they saw it visualized like this.
+          </p>
+          
+          <p class="text-lg md:text-xl text-white/90 mb-6 leading-relaxed">
+            So if you're feeling "off" during your next test, ask yourself: What happened before you sat down?
+          </p>
+          
+          <div class="mt-8 p-6 bg-indigo-900/40 rounded-lg border border-indigo-500/30">
+            <h3 class="text-xl font-semibold text-white mb-3">🧭 Up Next:</h3>
+            <p class="text-lg text-white/90">
+              Now that you've met your stress twin, let's see how they performed during the exam — and how their experience stacked up minute-by-minute against the rest of the class.
+            </p>
+          </div>
+          
+          <div class="mt-10 text-center">
+            <a href="#section-4" class="cursor-pointer scroll-arrow">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto text-white animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+    
     <section id="section-4" class="section">
-      <iframe src="run-bar.html" class="section-frame" title="Physiological Metrics Analysis"></iframe>
+      <iframe src="run-bar.html" class="section-frame" title="Running Bar Chart"></iframe>
+    </section>
+    
+    <!-- Add post-bar-chart section after section-4 -->
+    <section id="post-bar-chart" class="section">
+      <div class="heart-bg">
+        <svg class="heart-svg" viewBox="0 0 32 32" fill="white" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 28.7c-.7 0-1.4-.3-1.9-.8L4.8 18.6C1.7 15.5 1.7 10.4 4.8 7.3c1.5-1.5 3.5-2.3 5.6-2.3s4.1.8 5.6 2.3L16 7.3l.1-.1c1.5-1.5 3.5-2.3 5.6-2.3s4.1.8 5.6 2.3c3.1 3.1 3.1 8.2 0 11.3L17.9 27.9c-.5.5-1.2.8-1.9.8z"/>
+        </svg>
+      </div>
+      
+      <!-- Post Bar Chart Analysis Content Block -->
+      <div class="absolute inset-0 flex items-center justify-center z-10">
+        <div class="text-content-box max-w-5xl mx-auto p-10 rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl">
+          <h2 class="text-3xl md:text-4xl font-bold text-a5b4fc mb-8 text-center">The Stress Race: Individual Patterns Revealed</h2>
+          
+          <p class="text-lg md:text-xl text-white/90 mb-6 leading-relaxed">
+            Even when the exam questions were the same, the stress responses weren't. Some students climbed rapidly — spiking in heart rate or skin conductance — while others stayed remarkably steady. By watching your stress doppelgänger in motion, you get a clearer view of what "holding it together" or "melting down" actually looks like in the data.
+          </p>
+          
+          <p class="text-lg md:text-xl text-white/90 mb-6 leading-relaxed">
+            Now the big question: Did those stress patterns actually affect performance? Let's find out by mapping stress against exam scores.
+          </p>
+          
+          <div class="mt-10 text-center">
+            <a href="#section-5" class="cursor-pointer scroll-arrow">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto text-white animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
     </section>
     
     <section id="section-5" class="section">
-      <iframe src="student-scatter-plot.html" class="section-frame" title="Performance Correlation"></iframe>
+      <iframe src="student-scatter-plot.html" class="section-frame" title="Stress vs. Performance"></iframe>
+      
+      <!-- Add navigation arrow to post-scatter-plot -->
+      <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
+        <a href="#post-scatter-plot" class="cursor-pointer scroll-arrow">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto text-white animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+        </a>
+      </div>
+    </section>
+    
+    <section id="post-scatter-plot" class="section">
+      <div class="heart-bg">
+        <svg class="heart-svg" viewBox="0 0 32 32" fill="white" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 28.7c-.7 0-1.4-.3-1.9-.8L4.8 18.6C1.7 15.5 1.7 10.4 4.8 7.3c1.5-1.5 3.5-2.3 5.6-2.3s4.1.8 5.6 2.3L16 7.3l.1-.1c1.5-1.5 3.5-2.3 5.6-2.3s4.1.8 5.6 2.3c3.1 3.1 3.1 8.2 0 11.3L17.9 27.9c-.5.5-1.2.8-1.9.8z"/>
+        </svg>
+      </div>
+      
+      <!-- Post Scatter Plot Analysis Content Block -->
+      <div class="absolute inset-0 flex items-center justify-center z-10">
+        <div class="text-content-box max-w-5xl mx-auto p-10 rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl">
+          <h2 class="text-3xl md:text-4xl font-bold text-a5b4fc mb-8 text-center">Beyond the Numbers: The Personal Stress Equation</h2>
+          
+          <p class="text-lg md:text-xl text-white/90 mb-6 leading-relaxed">
+            In our sample, the overall correlation between average heart rate and exam score was r = –0.19 — a slight negative trend, but not a definitive predictor. Stress didn't always sink performance. One student, for example, had a heart rate above 100 bpm and still scored in the 90s. Another stayed calm around 80 bpm but earned one of the lowest scores in the class.
+          </p>
+          
+          <p class="text-lg md:text-xl text-white/90 mb-6 leading-relaxed font-semibold">
+            So what gives?
+          </p>
+          
+          <p class="text-lg md:text-xl text-white/90 mb-6 leading-relaxed">
+            The truth is: stress affects everyone differently. It's not always about how high your numbers go — it's about how well you manage the moments that spike.
+          </p>
+          
+          <div class="mt-8 p-6 bg-indigo-900/40 rounded-lg border border-indigo-500/30">
+            <h3 class="text-xl font-semibold text-white mb-3">🧠 Up Next:</h3>
+            <p class="text-lg text-white/90">
+              Let's pause the data. Now it's your turn. Take a moment to reflect: What would you do differently next time to take care of yourself — before, during, or after the exam?
+            </p>
+          </div>
+          
+          <div class="mt-10 text-center">
+            <a href="#conclusion" class="cursor-pointer scroll-arrow">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto text-white animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
     </section>
     
     <section id="conclusion" class="section">
       <iframe src="reflection-wall.html" class="section-frame" title="Key Findings"></iframe>
+    </section> <!-- Update post-scatter-plot to link to conclusion -->
+
+    <!-- The Bottom Line Section (Now Last) -->
+    <section id="bottom-line" class="section">
+      <div class="heart-bg">
+        <svg class="heart-svg" viewBox="0 0 32 32" fill="white" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 28.7c-.7 0-1.4-.3-1.9-.8L4.8 18.6C1.7 15.5 1.7 10.4 4.8 7.3c1.5-1.5 3.5-2.3 5.6-2.3s4.1.8 5.6 2.3L16 7.3l.1-.1c1.5-1.5 3.5-2.3 5.6-2.3s4.1.8 5.6 2.3c3.1 3.1 3.1 8.2 0 11.3L17.9 27.9c-.5.5-1.2.8-1.9.8z"/>
+        </svg>
+      </div>
+      
+      <!-- The Bottom Line Content Block -->
+      <div class="absolute inset-0 flex items-center justify-center z-10">
+        <div class="text-content-box max-w-4xl mx-auto p-8 rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl">
+          <h2 class="text-3xl md:text-5xl font-bold text-a5b4fc mb-8 text-center">
+            <span class="block py-2 px-4 bg-indigo-900/50 rounded-lg border border-indigo-500/30 shadow-lg">THE BOTTOM LINE</span>
+          </h2>
+          <div class="text-center">
+            <p class="text-lg text-white/90 mb-6 leading-relaxed">
+              A steady hand doesn't always mean a steady mind — and a fast-beating heart doesn't always lead to failure. Our data shows that students experienced stress in deeply individual ways: some reached heart rates over 130 bpm before the exam even began, while others showed little physiological response and still underperformed.
+            </p>
+            <p class="text-lg text-white/90 mb-6 leading-relaxed">
+              Some students performed better under pressure, while others saw their performance decline. What's clear is that understanding your own stress response is the first step toward managing it effectively.
+            </p>
+            <p class="text-lg text-white/90 mb-6 leading-relaxed">
+              Whether you're a student preparing for exams or anyone facing high-pressure situations, remember that stress isn't inherently good or bad — it's information. Listen to what your body is telling you, and use that knowledge to develop strategies that work for you.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Final quote outside the box -->
+      <div class="absolute bottom-16 left-0 right-0 z-20 text-center">
+        <p class="final-quote text-xl md:text-2xl font-bold text-white mx-auto max-w-3xl px-6 py-4">
+          Because when it comes to stress, <span class="text-stress-400">awareness</span> is the most powerful tool we have.
+        </p>
+      </div>
     </section>
   </main>
 
@@ -922,7 +1402,7 @@
     });
   </script>
 </body>
-</html>
+
 <!-- Add authors to the main index.html footer as well -->
 <footer class="w-full py-6 text-center text-gray-400 border-t border-gray-800">
   <div class="container mx-auto px-4">
@@ -930,3 +1410,5 @@
     <p class="text-sm text-gray-500">Authors: Andrew Chen, Lakshmi Manasa Maddi, Rakshan Patnaik</p>
   </div>
 </footer>
+</html>
+

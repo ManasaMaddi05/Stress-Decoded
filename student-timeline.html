@@ -237,36 +237,54 @@
       background-color: rgba(255, 255, 255, 0.15);
       box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.3);
     }
-
-
     
+    /* Add styles for the instructions panel */
+    .instructions-panel {
+      background: rgba(15, 23, 42, 0.7);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(79, 70, 229, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+    }
+    
+    .instructions-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: white;
+    }
+    
+    .instructions-text {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 0.75rem;
+    }
+    
+    .instructions-text:last-child {
+      margin-bottom: 0;
+    }
+    
+    /* Adjust spacing for main content to accommodate instructions */
+    .main-content {
+      margin-top: 1rem;
+    }
+    
+    /* Adjust container padding to ensure everything fits */
+    .container {
+      padding: 1.5rem;
+      height: auto;
+      min-height: 100vh;
+    }
   </style>
-
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Student Morning Routine Timeline</title>
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <link rel="stylesheet" href="css/student-timeline.css">
 </head>
 <body>
   <div class="container">
     <div class="header">
       <h1>Student Morning Routine Timeline</h1>
       <div class="selectors">
-        <div class="selector">
-          <div class="selector-label">Student</div>
-          <select id="student-dropdown">
-            <option value="1">Student #1</option>
-            <option value="2">Student #2</option>
-            <option value="3" selected>Student #3</option>
-            <option value="4">Student #4</option>
-            <option value="5">Student #5</option>
-          </select>
-        </div>
         <div class="selector">
           <div class="selector-label">Exam</div>
           <select id="exam-dropdown">
@@ -275,6 +293,22 @@
             <option value="final">Final Exam</option>
           </select>
         </div>
+      </div>
+    </div>
+    
+    <!-- Add instructions panel between title and activity boxes -->
+    <div class="instructions-panel">
+      <div class="instructions-content">
+        <h3 class="instructions-title">How to Use This Visualization</h3>
+        <p class="instructions-text">
+          Here, you build your own pre-exam routine and see which real student it matches based on your choices. Start by entering your own heart rate at 8:00 AM in the box on the bottom-left corner.
+        </p>
+        <p class="instructions-text">
+          Next, drag and drop your morning activities into the timeline. Did you skip breakfast? Meditate? Forget your calculator? Every choice impacts your physiological stress profile.
+        </p>
+        <p class="instructions-text">
+          Then click "Generate Stress Summary" to reveal your match: a real student with a similar pre-exam routine and stress signature. You'll see how your morning decisions compare in terms of heart rate, skin conductance (EDA), and overall stress category.
+        </p>
       </div>
     </div>
     
@@ -744,10 +778,5 @@
   </script>
 </body>
 </html>
-
-
-
-
-
 
 

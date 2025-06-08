@@ -239,12 +239,72 @@
       font-weight: 600;
       text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
     }
+    
+    /* Add styles for the instructions panel */
+    .instructions-panel {
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      margin: 1rem 0 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .instructions-content {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .instructions-text {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1rem;
+      line-height: 1.6;
+      margin-bottom: 0.75rem;
+      text-align: center;
+    }
+    
+    .instructions-text:last-child {
+      margin-bottom: 0;
+    }
+    
+    /* Adjust spacing for controls to accommodate instructions */
+    .controls {
+      margin-bottom: 1.5rem;
+    }
+    
+    /* Adjust container padding */
+    .container {
+      padding: 2rem;
+    }
+    
+    @media (max-width: 768px) {
+      .instructions-panel {
+        padding: 1rem;
+        margin: 0.75rem 0 1.25rem;
+      }
+      
+      .instructions-text {
+        font-size: 0.9rem;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Stress vs. Score: What's the Real Cost?</h1>
     <div class="subtitle">Explore the relationship between physiological stress and academic performance</div>
+    
+    <!-- Add instructions panel between title and controls -->
+    <div class="instructions-panel">
+      <div class="instructions-content">
+        <p class="instructions-text">
+          Use the dropdowns above the graph to choose different stress indicators (like Mean Heart Rate, EDA, or Temperature) and see how they relate to final exam scores. Toggle between exam types and turn on the trendline to uncover patterns.
+        </p>
+        <p class="instructions-text">
+          This chart helps answer one of the biggest questions students ask themselves after a tough test: did my stress actually hurt my grade?
+        </p>
+      </div>
+    </div>
     
     <div class="controls">
       <div class="control-group">
@@ -752,6 +812,8 @@
       });
     });
   </script>
+
+
 
 
 

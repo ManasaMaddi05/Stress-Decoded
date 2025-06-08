@@ -821,11 +821,45 @@
         grid-template-columns: 1fr;
       }
     }
+    
+    /* Add styles for the instructions box */
+    .instructions-box {
+      background: rgba(15, 23, 42, 0.8);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(79, 70, 229, 0.3);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .instructions-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #a5b4fc;
+      margin-bottom: 0.75rem;
+    }
+    
+    .instructions-text {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1rem;
+      line-height: 1.5;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1 class="visualization-title">Meet the Students</h1>
+    
+    <!-- Add instructions between title and desks -->
+    <div class="instructions-box mb-6">
+      <h3 class="instructions-title">Instructions</h3>
+      <p class="instructions-text">
+        👆 Click any desk(s) to see the student's stress curve (EDA) during the exam. This will open a full pop-up of that student's data: a moment-by-moment breakdown of how stress rose, fell, or flatlined.
+      </p>
+    </div>
     
     <div class="classroom">
       <button class="show-graph-button" id="show-graph-button">Show Graph</button>
@@ -1656,15 +1690,5 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
 
 

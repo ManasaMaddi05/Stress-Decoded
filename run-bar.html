@@ -73,6 +73,13 @@
             border-radius: 2px;
         }
         
+        .subtitle {
+            margin-top: -0.5rem;
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.8);
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        
         .controls {
             display: flex;
             justify-content: space-between;
@@ -269,11 +276,64 @@
             font-size: 0.9rem;
             fill: rgba(255, 255, 255, 0.8);
         }
+        
+        /* Add styles for the instructions panel */
+        .instructions-panel {
+            background: rgba(15, 23, 42, 0.7);
+            border-radius: 12px;
+            padding: 1.25rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .instructions-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(79, 70, 229, 0.5), 
+                rgba(168, 85, 247, 0.5), 
+                rgba(79, 70, 229, 0.5), 
+                transparent
+            );
+        }
+        
+        .instructions-text {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            line-height: 1.6;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .instructions-panel {
+                padding: 1rem;
+            }
+            
+            .instructions-text {
+                font-size: 0.9rem;
+            }
+        }
     </style>
 </head>
 <body class="font-sans">
     <div class="container">
         <h1 class="visualization-title">Track your Stress Doppelgänger</h1>
+        <p class="subtitle text-center text-white/80 text-lg mb-6">How do you rank against others for the Final Exam?</p>
+        
+        <!-- Add instructions panel between title and controls -->
+        <div class="instructions-panel mb-6">
+            <p class="instructions-text">
+                Use the dropdown to explore different signals — HR, EDA, BVP, or Temp for the Final exam. Then click the bar for the student you matched with earlier to highlight them in the race. See how their stress levels shift over time — and how they stack up against the rest.
+            </p>
+        </div>
         
         <div class="controls">
             <div class="flex items-center gap-2">
@@ -712,6 +772,11 @@
     </script>
 </body>
 </html>
+
+
+
+
+
 
 
 
