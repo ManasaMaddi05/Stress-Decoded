@@ -74,6 +74,7 @@
       scroll-behavior: smooth;
       position: relative;
       background-color: #0d1b3d;
+      overscroll-behavior-y: contain; /* Prevent browser overscroll */
     }
     
     .section {
@@ -81,7 +82,7 @@
       width: 100%;
       position: relative;
       scroll-snap-align: start;
-      scroll-snap-stop: always; /* Force stopping at each section */
+      scroll-snap-stop: normal; /* Change from always to normal for smoother scrolling */
       display: flex;
       align-items: center;
       justify-content: center;
@@ -544,6 +545,8 @@
         let currentSectionIndex = 0;
         let isScrolling = false;
         let scrollTimeout;
+        let lastScrollTop = 0;
+        let scrollDirection = 0;
         
         // Make intro fade elements visible
         fadeElements.forEach(el => {
@@ -558,7 +561,7 @@
           progressBar.style.width = `${progress}%`;
         }
         
-        // Highlight active section based on scroll position
+        // Improved highlight active section function
         function highlightActiveSection() {
           const scrollPosition = container.scrollTop;
           const windowHeight = window.innerHeight;
@@ -567,9 +570,9 @@
             const sectionTop = section.offsetTop;
             const sectionHeight = section.offsetHeight;
             
-            // Check if section is in view
-            if (scrollPosition >= sectionTop - windowHeight * 0.5 && 
-                scrollPosition < sectionTop + sectionHeight - windowHeight * 0.5) {
+            // More lenient check for section visibility
+            if (scrollPosition >= sectionTop - windowHeight * 0.6 && 
+                scrollPosition < sectionTop + sectionHeight - windowHeight * 0.4) {
               
               // Only update if the section changed
               if (currentSectionIndex !== index) {
@@ -592,14 +595,14 @@
           });
         }
         
-        // Smooth scroll to section
+        // Improved smooth scroll to section
         function scrollToSection(index) {
           if (isScrolling) return;
           isScrolling = true;
           
           const targetSection = sections[index];
           
-          // Smooth scroll to the target section with enhanced behavior
+          // Smooth scroll to the target section
           container.scrollTo({
             top: targetSection.offsetTop,
             behavior: 'smooth'
@@ -628,16 +631,43 @@
           }, 800);
         }
         
-        // Listen for scroll events
+        // Improved scroll event listener
         container.addEventListener('scroll', () => {
           // Update progress bar
           updateProgressBar();
+          
+          // Determine scroll direction
+          const st = container.scrollTop;
+          scrollDirection = st > lastScrollTop ? 1 : -1;
+          lastScrollTop = st;
           
           // Debounce the section highlighting
           clearTimeout(scrollTimeout);
           scrollTimeout = setTimeout(() => {
             highlightActiveSection();
-          }, 50);
+            
+            // Check if we need to snap to a section after manual scrolling stops
+            if (!isScrolling) {
+              const currentScrollPos = container.scrollTop;
+              
+              // Find the closest section
+              let closestSectionIndex = 0;
+              let closestDistance = Infinity;
+              
+              sections.forEach((section, index) => {
+                const distance = Math.abs(section.offsetTop - currentScrollPos);
+                if (distance < closestDistance) {
+                  closestDistance = distance;
+                  closestSectionIndex = index;
+                }
+              });
+              
+              // Only snap if we're not already very close to a section boundary
+              if (closestDistance > 20 && closestDistance < window.innerHeight * 0.3) {
+                scrollToSection(closestSectionIndex);
+              }
+            }
+          }, 100);
         });
         
         // Handle dot navigation
@@ -647,26 +677,38 @@
           });
         });
         
-        // Add wheel event handler to enhance snap scrolling
+        // Improved wheel event handler with less aggressive prevention
+        let wheelTimeout;
         container.addEventListener('wheel', function(e) {
-          if (isScrolling) {
-            e.preventDefault();
-            return;
-          }
+          clearTimeout(wheelTimeout);
           
-          // Determine scroll direction
-          const direction = e.deltaY > 0 ? 1 : -1;
-          
-          // Calculate target section
-          let targetIndex = currentSectionIndex + direction;
-          
-          // Ensure target index is within bounds
-          if (targetIndex >= 0 && targetIndex < sections.length) {
-            e.preventDefault();
-            scrollToSection(targetIndex);
-          }
-        }, { passive: false });
-
+          wheelTimeout = setTimeout(() => {
+            if (isScrolling) return;
+            
+            // Determine scroll direction
+            const direction = e.deltaY > 0 ? 1 : -1;
+            
+            // Calculate target section
+            let targetIndex = currentSectionIndex + direction;
+            
+            // Ensure target index is within bounds
+            if (targetIndex >= 0 && targetIndex < sections.length) {
+              // Allow some natural scrolling before taking over
+              const currentScrollPos = container.scrollTop;
+              const currentSection = sections[currentSectionIndex];
+              const sectionTop = currentSection.offsetTop;
+              
+              // Only take over scrolling if we're near a section boundary
+              const distanceFromTop = Math.abs(currentScrollPos - sectionTop);
+              
+              if ((direction > 0 && distanceFromTop > window.innerHeight * 0.7) || 
+                  (direction < 0 && distanceFromTop < window.innerHeight * 0.3)) {
+                scrollToSection(targetIndex);
+              }
+            }
+          }, 50);
+        }, { passive: true }); // Change to passive for better performance
+        
         // Add keyboard navigation
         document.addEventListener('keydown', function(e) {
           if (isScrolling) return;
@@ -680,85 +722,26 @@
           }
         });
         
-        // Handle link clicks
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-          anchor.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            const targetId = this.getAttribute('href').substring(1);
-            const targetSection = document.getElementById(targetId);
-            
-            if (targetSection) {
-              const index = Array.from(sections).indexOf(targetSection);
-              if (index !== -1) {
-                scrollToSection(index);
-              }
-            }
-          });
-        });
-        
-        // Initialize progress bar
-        updateProgressBar();
-        
-        // Intersection Observer for fade-in animations
-        const observer = new IntersectionObserver((entries) => {
-          entries.forEach(entry => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('visible');
-            }
-          });
-        }, { threshold: 0.1 });
-        
-        // Observe all sections
-        document.querySelectorAll('section').forEach(el => {
-          observer.observe(el);
-        });
-
-        // Detect when scrolling has stopped to ensure proper snapping
-        let scrollEndTimeout;
-        container.addEventListener('scroll', function() {
-          clearTimeout(scrollEndTimeout);
-          
-          scrollEndTimeout = setTimeout(function() {
-            // When scrolling stops, ensure we're properly snapped to a section
-            const currentScrollPos = container.scrollTop;
-            const windowHeight = window.innerHeight;
-            
-            // Find the closest section
-            let closestSectionIndex = 0;
-            let closestDistance = Infinity;
-            
-            sections.forEach((section, index) => {
-              const distance = Math.abs(section.offsetTop - currentScrollPos);
-              if (distance < closestDistance) {
-                closestDistance = distance;
-                closestSectionIndex = index;
-              }
-            });
-            
-            // If we're not exactly at a section boundary and not currently animating
-            if (closestDistance > 10 && !isScrolling) {
-              scrollToSection(closestSectionIndex);
-            }
-          }, 100);
-        });
-
-        // Add touch swipe support for mobile
+        // Improved touch swipe support
         let touchStartY = 0;
         let touchEndY = 0;
-
+        let touchStartTime = 0;
+        
         container.addEventListener('touchstart', function(e) {
           touchStartY = e.changedTouches[0].screenY;
+          touchStartTime = Date.now();
         }, { passive: true });
-
+        
         container.addEventListener('touchend', function(e) {
           if (isScrolling) return;
           
           touchEndY = e.changedTouches[0].screenY;
+          const touchEndTime = Date.now();
           const diffY = touchStartY - touchEndY;
+          const timeDiff = touchEndTime - touchStartTime;
           
-          // Detect swipe direction (with threshold)
-          if (Math.abs(diffY) > 50) {
+          // Only trigger for quick swipes (faster than 300ms)
+          if (Math.abs(diffY) > 50 && timeDiff < 300) {
             if (diffY > 0 && currentSectionIndex < sections.length - 1) {
               // Swipe up - go to next section
               scrollToSection(currentSectionIndex + 1);
@@ -768,6 +751,25 @@
             }
           }
         }, { passive: true });
+        
+        // Initialize with first section
+        updateProgressBar();
+        highlightActiveSection();
+        
+        // Handle initial hash in URL
+        if (window.location.hash) {
+          const targetId = window.location.hash.substring(1);
+          const targetSection = document.getElementById(targetId);
+          if (targetSection) {
+            const index = Array.from(sections).indexOf(targetSection);
+            if (index !== -1) {
+              // Use setTimeout to ensure the page is fully loaded
+              setTimeout(() => {
+                scrollToSection(index);
+              }, 500);
+            }
+          }
+        }
       }
     });
   </script>
