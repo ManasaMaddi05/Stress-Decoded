@@ -1,0 +1,26 @@
+/* Add the consistent title styling to the main stylesheet for global use */
+.visualization-title {
+    font-weight: 700;
+    margin-bottom: 2rem;
+    background: linear-gradient(90deg, #fff, #a5b4fc, #c4b5fd);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 2.5rem; /* Increased font size */
+    letter-spacing: -0.5px;
+    text-align: center; /* Center alignment */
+    position: relative;
+    font-family: 'Inter', sans-serif;
+    padding-bottom: 1rem;
+}
+
+.visualization-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px; /* Wider underline */
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    border-radius: 3px;
+}
