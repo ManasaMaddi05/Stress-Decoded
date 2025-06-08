@@ -572,12 +572,31 @@
       const heartbeatSound = new Audio('sounds/heartbeat.mp3');
       heartbeatSound.volume = 1; // Increased from 0.3 to 0.6
       heartbeatSound.loop = true;
-      
+
       // Variables to track slider movement
       let isSliderMoving = false;
       let sliderTimeout;
       let currentHeartRate = 0;
       let isAudioPlaying = false;
+
+      // Add intersection observer to control audio based on visibility
+      const heartRateChartElement = document.getElementById('heart-rate-chart');
+      const visibilityObserver = new IntersectionObserver((entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting) {
+          // Chart is visible, play audio if not paused by user
+          if (!heartbeatSound.paused && !isAudioPlaying) {
+            updateHeartbeatSound(currentHeartRate);
+          }
+        } else {
+          // Chart is not visible, pause audio
+          heartbeatSound.pause();
+          isAudioPlaying = false;
+        }
+      }, { threshold: 0.1 });
+
+      // Start observing the chart element
+      visibilityObserver.observe(document.querySelector('.chart-container'));
       
       // Function to adjust heartbeat sound based on heart rate
       function updateHeartbeatSound(heartRate) {

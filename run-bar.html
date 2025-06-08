@@ -347,11 +347,13 @@
                 similarStudent: '#10b981', // emerald-500
                 background: 'rgba(0, 0, 0, 0.4)',
                 text: '#ffffff',
-                grid: 'rgba(255, 255, 255, 0.1)'
+                grid: 'rgba(255, 255, 255, 0.1)',
+                selected: '#0ea5e9' // calm-500 for selected bars
             },
             isPaused: false,
             similarStudentId: null,
-            currentMetric: 'BVP'
+            currentMetric: 'BVP',
+            selectedBars: new Set() // Track selected bars
         };
 
         // Metric descriptions
@@ -549,6 +551,16 @@
                     .attr('y', d => yScale(d.student))
                     .attr('height', yScale.bandwidth())
                     .attr('width', 0)
+                    .on('click', function(event, d) {
+                        // Toggle selection
+                        if (chartConfig.selectedBars.has(d.student)) {
+                            chartConfig.selectedBars.delete(d.student);
+                        } else {
+                            chartConfig.selectedBars.add(d.student);
+                        }
+                        // Update the chart to reflect the new selection
+                        updateChart(processedData, currentTimeIndex);
+                    })
                     .merge(bars)
                     .transition()
                     .duration(1000)
@@ -558,14 +570,18 @@
                         Math.abs(xScale(d.value) - xScale(0)) : 
                         xScale(d.value))
                     .style('fill', d => {
-                        // Highlight the similar student if set
+                        // Check selection state first
+                        if (chartConfig.selectedBars.has(d.student)) {
+                            return chartConfig.colors.selected;
+                        }
+                        // Then check similar student
                         return d.student === chartConfig.similarStudentId ? 
                             chartConfig.colors.similarStudent : 
                             chartConfig.colors.bars;
                     })
                     .style('opacity', d => {
-                        // Make the similar student more prominent
-                        return d.student === chartConfig.similarStudentId ? 1 : 0.8;
+                        // Make selected and similar students more prominent
+                        return (chartConfig.selectedBars.has(d.student) || d.student === chartConfig.similarStudentId) ? 1 : 0.8;
                     });
 
                 // Add value labels only when paused
