@@ -1,16 +1,15 @@
-/* Add the consistent title styling to the main stylesheet for global use */
+/* Updated visualization title styling to match the image exactly */
 .visualization-title {
     font-weight: 700;
-    margin-bottom: 2rem;
-    background: linear-gradient(90deg, #fff, #a5b4fc, #c4b5fd);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    font-size: 2.5rem; /* Increased font size */
-    letter-spacing: -0.5px;
-    text-align: center; /* Center alignment */
+    margin-bottom: 1rem;
+    color: #a5b4fc;
+    font-size: 3rem; /* Larger font size to match image */
+    letter-spacing: 0px;
+    text-align: center;
     position: relative;
     font-family: 'Inter', sans-serif;
-    padding-bottom: 1rem;
+    padding-bottom: 1.5rem;
+    text-shadow: 0 0 15px rgba(165, 180, 252, 0.3);
 }
 
 .visualization-title::after {
@@ -19,8 +18,8 @@
     bottom: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: 100px; /* Wider underline */
-    height: 3px;
-    background: linear-gradient(90deg, var(--primary), var(--accent));
-    border-radius: 3px;
+    width: 140px; /* Wider underline */
+    height: 4px;
+    background: #6366f1;
+    border-radius: 2px;
 }

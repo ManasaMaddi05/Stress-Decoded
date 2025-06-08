@@ -40,12 +40,26 @@
     
     h1 {
       text-align: center;
-      margin-bottom: 0.5rem;
-      font-size: 2rem;
-      background: linear-gradient(90deg, var(--stress-color), var(--calm-color));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      margin-bottom: 1rem;
+      font-size: 3rem;
+      font-weight: 700;
+      color: #a5b4fc;
+      position: relative;
+      padding-bottom: 1.5rem;
+      text-shadow: 0 0 15px rgba(165, 180, 252, 0.3);
+      letter-spacing: 0px;
+    }
+    
+    h1::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 140px;
+      height: 4px;
+      background: #6366f1;
+      border-radius: 2px;
     }
     
     .subtitle {
@@ -738,5 +752,6 @@
       });
     });
   </script>
+
 
 
