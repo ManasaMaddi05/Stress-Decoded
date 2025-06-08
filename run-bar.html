@@ -86,38 +86,74 @@
             align-items: center;
             margin-bottom: 1.5rem;
             gap: 1rem;
+            padding: 0 1rem;
         }
         
         select, button {
-            background-color: rgba(15, 23, 42, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: rgba(79, 70, 229, 0.2); /* Indigo-600 with opacity */
+            border: 1px solid rgba(99, 102, 241, 0.3); /* Indigo-500 border */
             border-radius: 8px;
             color: white;
-            padding: 0.6rem 1.2rem;
-            font-size: 0.9rem;
+            padding: 0.75rem 1.25rem;
+            font-size: 0.95rem;
             cursor: pointer;
             transition: all 0.2s ease;
             backdrop-filter: blur(10px);
+            min-width: 180px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
         
         select {
             appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24' width='16' height='16'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
-            background-position: right 0.8rem center;
+            background-position: right 1rem center;
             padding-right: 2.5rem;
+            text-align: left;
         }
         
         select:hover, button:hover {
-            background-color: rgba(30, 41, 59, 0.8);
-            border-color: rgba(255, 255, 255, 0.2);
+            background-color: rgba(99, 102, 241, 0.3); /* Indigo-500 with opacity */
+            border-color: rgba(129, 140, 248, 0.4); /* Indigo-400 border */
             box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+            transform: translateY(-1px);
         }
         
         select:focus, button:focus {
             outline: none;
             border-color: var(--accent);
             box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.25);
+        }
+
+        #metric-selector:focus {
+            padding-left: 1.5rem;
+        }
+
+        #pause-button {
+            min-width: 140px;
+            background-color: rgba(79, 70, 229, 0.2); /* Indigo-600 with opacity */
+            border: 1px solid rgba(99, 102, 241, 0.3); /* Indigo-500 border */
+            color: white;
+            font-weight: 500;
+        }
+
+        #pause-button:hover {
+            background-color: rgba(99, 102, 241, 0.3); /* Indigo-500 with opacity */
+            border-color: rgba(129, 140, 248, 0.4); /* Indigo-400 border */
+        }
+
+        #pause-button.bg-purple-600\/50 {
+            background-color: rgba(168, 85, 247, 0.5); /* Purple-500 with opacity */
+            border-color: rgba(192, 132, 252, 0.4); /* Purple-400 border */
+        }
+
+        #pause-button.bg-black\/40 {
+            background-color: rgba(79, 70, 229, 0.2); /* Indigo-600 with opacity */
+            border-color: rgba(99, 102, 241, 0.3); /* Indigo-500 border */
         }
         
         .chart-container {
@@ -211,6 +247,12 @@
             .controls {
                 flex-direction: column;
                 align-items: stretch;
+                padding: 0;
+            }
+            
+            select, button {
+                width: 100%;
+                min-width: unset;
             }
             
             h1 {
@@ -699,6 +741,31 @@
 
                 animationInterval = setInterval(() => {
                     if (!chartConfig.isPaused) {
+                        const currentTime = parseFloat(processedData[currentTimeIndex][0].time);
+                        
+                        if (currentTime >= 180) {
+                            // Stop the animation when we reach 180 minutes
+                            clearInterval(animationInterval);
+                            chartConfig.isPaused = true;
+                            
+                            // Update pause button to show resume state
+                            const pauseButton = document.getElementById('pause-button');
+                            if (pauseButton) {
+                                pauseButton.innerHTML = `
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>
+                                    </svg>
+                                    Resume
+                                `;
+                                pauseButton.classList.add('bg-purple-600/50');
+                                pauseButton.classList.remove('bg-black/40');
+                            }
+                            
+                            // Show value labels when stopped
+                            updateChart(processedData, currentTimeIndex);
+                            return;
+                        }
+                        
                         currentTimeIndex = (currentTimeIndex + 1) % processedData.length;
                         updateChart(processedData, currentTimeIndex);
                     }
