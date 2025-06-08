@@ -9,28 +9,53 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/landing-page.css">
+  <!-- Preload audio files -->
+  <link rel="preload" href="sounds/clock-tick.mp3" as="audio">
+  <link rel="preload" href="sounds/school-bell.mp3" as="audio">
 </head>
 <body class="font-sans">
   <!-- Countdown Timer Overlay -->
   <div id="countdown-overlay" class="fixed inset-0 bg-black z-50 flex items-center justify-center">
-    <div class="alarm-clock">
-      <div class="alarm-clock-face">
-        <div class="clock-markings"></div>
-        <div id="countdown-timer" class="font-mono text-red-500 countdown-glow">00:00:03</div>
-        <div class="alarm-bells">
-          <div class="bell bell-left"></div>
-          <div class="bell bell-right"></div>
-        </div>
-        <div class="clock-details">
-          <div class="clock-button clock-button-left"></div>
-          <div class="clock-button clock-button-right"></div>
+    <div class="wall-clock">
+      <div class="clock-frame">
+        <div class="clock-face">
+          <div class="clock-markings">
+            <div class="hour-mark mark-12">12</div>
+            <div class="hour-mark mark-1">1</div>
+            <div class="hour-mark mark-2">2</div>
+            <div class="hour-mark mark-3">3</div>
+            <div class="hour-mark mark-4">4</div>
+            <div class="hour-mark mark-5">5</div>
+            <div class="hour-mark mark-6">6</div>
+            <div class="hour-mark mark-7">7</div>
+            <div class="hour-mark mark-8">8</div>
+            <div class="hour-mark mark-9">9</div>
+            <div class="hour-mark mark-10">10</div>
+            <div class="hour-mark mark-11">11</div>
+          </div>
+          <div class="clock-hands">
+            <div class="hour-hand"></div>
+            <div class="minute-hand"></div>
+            <div class="second-hand"></div>
+            <div class="clock-center"></div>
+          </div>
+          <div id="countdown-timer" class="exam-timer font-mono text-red-500 countdown-glow">00:03</div>
         </div>
       </div>
-      <div class="alarm-stand"></div>
+      <div class="clock-pendulum">
+        <div class="pendulum-rod"></div>
+        <div class="pendulum-bob"></div>
+      </div>
     </div>
     <div id="countdown-pulse" class="absolute w-full h-full pointer-events-none"></div>
+    <div id="exam-elements" class="absolute inset-0 pointer-events-none">
+      <div class="pencil"></div>
+      <div class="paper"></div>
+      <div class="calculator"></div>
+      <div class="coffee-cup"></div>
+    </div>
     <div id="pun-message" class="text-center text-white font-bold opacity-0 transition-opacity duration-500">
-      Ticked Off? See Why.
+      Time's Up!
     </div>
   </div>
 
@@ -143,12 +168,18 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // Audio setup
-      const tickSound = new Audio('sounds/alarm1.mp3');
-      tickSound.volume = 0.1;
+      // Preload audio files
+      const tickSound = new Audio('sounds/clock-tick.mp3');
+      tickSound.volume = 0.9; // Increased volume further
+      tickSound.preload = 'auto';
       
-      const finalSound = new Audio('sounds/alarm1.mp3');
-      finalSound.volume = 0.1;
+      const finalSound = new Audio('sounds/school-bell.mp3');
+      finalSound.volume = 0.9; // Increased volume further
+      finalSound.preload = 'auto';
+      
+      // Force audio to load
+      tickSound.load();
+      finalSound.load();
       
       // Countdown timer functionality
       const countdownOverlay = document.getElementById('countdown-overlay');
@@ -157,16 +188,98 @@
       const mainContent = document.getElementById('main-content');
       const punMessage = document.getElementById('pun-message');
       
+      // Animate clock hands
+      const hourHand = document.querySelector('.hour-hand');
+      const minuteHand = document.querySelector('.minute-hand');
+      const secondHand = document.querySelector('.second-hand');
+      
+      // Set initial random positions for hands
+      hourHand.style.transform = `rotate(${Math.random() * 360}deg)`;
+      minuteHand.style.transform = `rotate(${Math.random() * 360}deg)`;
+      
+      // Initialize audio context on user interaction
+      let audioContext;
+      
+      // Function to initialize audio context
+      function initAudio() {
+        if (!audioContext) {
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+          document.removeEventListener('click', initAudio);
+          document.removeEventListener('keydown', initAudio);
+        }
+      }
+      
+      // Add event listeners to initialize audio context on user interaction
+      document.addEventListener('click', initAudio);
+      document.addEventListener('keydown', initAudio);
+      
+      // Alternative audio playback function using multiple approaches
+      function playSound(sound) {
+        // Try the standard way first
+        const playPromise = sound.play();
+        
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
+            console.log('Audio play prevented, trying alternative method:', error);
+            
+            // If standard play fails, try creating a new Audio instance
+            const newSound = new Audio(sound.src);
+            newSound.volume = sound.volume;
+            newSound.play().catch(e => console.log('Alternative method also failed:', e));
+            
+            // Also try with audio context as a last resort
+            if (audioContext) {
+              try {
+                const source = audioContext.createBufferSource();
+                fetch(sound.src)
+                  .then(response => response.arrayBuffer())
+                  .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
+                  .then(audioBuffer => {
+                    source.buffer = audioBuffer;
+                    source.connect(audioContext.destination);
+                    source.start(0);
+                  });
+              } catch (e) {
+                console.log('Audio context method failed:', e);
+              }
+            }
+          });
+        }
+      }
+      
+      // Animate second hand
+      let secondRotation = 0;
+      const secondHandTick = setInterval(() => {
+        secondRotation += 6;
+        secondHand.style.transform = `rotate(${secondRotation}deg)`;
+        
+        // Play tick sound every 5 seconds
+        if (secondRotation % 30 === 0) {
+          tickSound.currentTime = 0;
+          playSound(tickSound);
+        }
+      }, 1000);
+      
       let timeLeft = 3; // 3 seconds countdown
       
       // Set initial time
-      countdownTimer.textContent = `00:00:0${timeLeft}`;
+      countdownTimer.textContent = `00:0${timeLeft}`;
+      
+      // Play a tick sound immediately to "warm up" the audio system
+      setTimeout(() => {
+        tickSound.currentTime = 0;
+        playSound(tickSound);
+      }, 100);
       
       const countdown = setInterval(() => {
+        // Play tick sound for each second
+        tickSound.currentTime = 0;
+        playSound(tickSound);
+        
         timeLeft--;
         
-        // Format time as 00:00:XX
-        const formattedTime = `00:00:0${timeLeft}`;
+        // Format time as 00:XX
+        const formattedTime = `00:0${timeLeft}`;
         countdownTimer.textContent = formattedTime;
         
         // Create pulse effect
@@ -174,15 +287,9 @@
         pulse.classList.add('timer-pulse');
         countdownPulse.appendChild(pulse);
         
-        // Play tick sound
-        if (timeLeft > 0) {
-          tickSound.currentTime = 0;
-          tickSound.play().catch(e => console.log('Audio play prevented:', e));
-          
-          // Make timer red and more urgent as we get closer to zero
-          countdownTimer.style.color = timeLeft === 1 ? '#ff0000' : '#ff5555';
-          countdownTimer.style.textShadow = `0 0 10px rgba(255, ${timeLeft * 85}, ${timeLeft * 85}, 0.7), 0 0 20px rgba(255, ${timeLeft * 85}, ${timeLeft * 85}, 0.7)`;
-        }
+        // Make timer red and more urgent as we get closer to zero
+        countdownTimer.style.color = timeLeft === 1 ? '#ff0000' : '#ff5555';
+        countdownTimer.style.textShadow = `0 0 10px rgba(255, ${timeLeft * 85}, ${timeLeft * 85}, 0.7), 0 0 20px rgba(255, ${timeLeft * 85}, ${timeLeft * 85}, 0.7)`;
         
         // Remove pulse after animation
         setTimeout(() => {
@@ -191,9 +298,10 @@
         
         if (timeLeft <= 0) {
           clearInterval(countdown);
+          clearInterval(secondHandTick);
           
-          // Play explosion sound
-          finalSound.play().catch(e => console.log('Audio play prevented:', e));
+          // Play school bell sound
+          playSound(finalSound);
           
           // Explosion effect
           countdownTimer.classList.add('explosion-effect');
@@ -204,7 +312,7 @@
             createExplosionParticle();
           }
           
-          // Show pun message with enhanced animation
+          // Show message with enhanced animation
           setTimeout(() => {
             punMessage.style.opacity = '1';
             punMessage.classList.add('pun-animate');
@@ -215,16 +323,10 @@
             countdownOverlay.classList.add('fade-out');
             mainContent.classList.remove('opacity-0');
             
-            // Stop all audio when countdown overlay is hidden
-            tickSound.pause();
-            tickSound.currentTime = 0;
-            finalSound.pause();
-            finalSound.currentTime = 0;
-            
             setTimeout(() => {
               countdownOverlay.style.display = 'none';
             }, 1000);
-          }, 2500); // Increased delay to allow time to read the pun
+          }, 2500);
         }
       }, 1000);
       
@@ -274,6 +376,15 @@
   </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
 
 
 

@@ -23,33 +23,43 @@ body {
     radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.05) 0%, transparent 50%);
 }
 
-/* Alarm Clock Styles */
-.alarm-clock {
+/* Wall Clock Styles */
+.wall-clock {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   z-index: 10;
-  transform: scale(1.5);
+  transform: scale(1.2);
 }
 
-.alarm-clock-face {
-  position: relative;
-  width: 300px;
-  height: 300px;
-  background: #0a0f1a;
+.clock-frame {
+  width: 350px;
+  height: 350px;
+  background: #5c3c10;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 12px solid #162b60;
+  border: 15px solid #8b5a2b;
   box-shadow: 
-    0 0 0 4px rgba(79, 70, 229, 0.2),
-    0 0 20px rgba(79, 70, 229, 0.4),
-    0 0 40px rgba(79, 70, 229, 0.2),
-    inset 0 0 15px rgba(79, 70, 229, 0.6);
+    0 0 0 5px rgba(92, 60, 16, 0.8),
+    0 0 30px rgba(0, 0, 0, 0.6),
+    inset 0 0 30px rgba(0, 0, 0, 0.3);
+  position: relative;
   overflow: hidden;
-  padding: 20px;
+}
+
+.clock-face {
+  width: 300px;
+  height: 300px;
+  background: #f5f5dc;
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
 }
 
 .clock-markings {
@@ -59,150 +69,268 @@ body {
   border-radius: 50%;
 }
 
-.clock-markings::before {
+.hour-mark {
+  position: absolute;
+  font-family: 'Times New Roman', serif;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+}
+
+.mark-12 { top: 10px; left: calc(50% - 15px); }
+.mark-1 { top: 25px; right: 75px; }
+.mark-2 { top: 75px; right: 25px; }
+.mark-3 { top: calc(50% - 15px); right: 10px; }
+.mark-4 { bottom: 75px; right: 25px; }
+.mark-5 { bottom: 25px; right: 75px; }
+.mark-6 { bottom: 10px; left: calc(50% - 15px); }
+.mark-7 { bottom: 25px; left: 75px; }
+.mark-8 { bottom: 75px; left: 25px; }
+.mark-9 { top: calc(50% - 15px); left: 10px; }
+.mark-10 { top: 75px; left: 25px; }
+.mark-11 { top: 25px; left: 75px; }
+
+.clock-hands {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.hour-hand, .minute-hand, .second-hand {
+  position: absolute;
+  background: #333;
+  transform-origin: bottom center;
+  left: 50%;
+  bottom: 50%;
+}
+
+.hour-hand {
+  width: 8px;
+  height: 60px;
+  margin-left: -4px;
+  border-radius: 4px;
+  transform: rotate(45deg);
+  z-index: 2;
+}
+
+.minute-hand {
+  width: 6px;
+  height: 90px;
+  margin-left: -3px;
+  border-radius: 3px;
+  transform: rotate(180deg);
+  z-index: 3;
+}
+
+.second-hand {
+  width: 2px;
+  height: 100px;
+  margin-left: -1px;
+  background: #cc0000;
+  transform: rotate(90deg);
+  z-index: 4;
+}
+
+.clock-center {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: #333;
+  border-radius: 50%;
+  top: calc(50% - 8px);
+  left: calc(50% - 8px);
+  z-index: 5;
+}
+
+.exam-timer {
+  position: absolute;
+  bottom: 80px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 2.5rem;
+  color: #cc0000;
+  text-shadow: 0 0 10px rgba(204, 0, 0, 0.5);
+  z-index: 6;
+}
+
+.clock-pendulum {
+  position: relative;
+  height: 120px;
+  display: flex;
+  justify-content: center;
+  margin-top: -10px;
+}
+
+.pendulum-rod {
+  width: 4px;
+  height: 100px;
+  background: #5c3c10;
+  position: relative;
+  transform-origin: top center;
+  animation: swing 2s infinite ease-in-out;
+}
+
+.pendulum-bob {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 30px;
+  background: #8b5a2b;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes swing {
+  0%, 100% { transform: rotate(15deg); }
+  50% { transform: rotate(-15deg); }
+}
+
+/* Exam Elements */
+.pencil {
+  position: absolute;
+  width: 200px;
+  height: 15px;
+  background: linear-gradient(to right, #f0c987 0%, #f0c987 70%, #e5a45d 70%, #e5a45d 80%, #333 80%, #333 90%, #ff6b6b 90%, #ff6b6b 100%);
+  border-radius: 2px;
+  transform: rotate(30deg);
+  top: 20%;
+  right: 15%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.pencil::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 7.5px 15px 7.5px 0;
+  border-color: transparent #ff6b6b transparent transparent;
+}
+
+.paper {
+  position: absolute;
+  width: 180px;
+  height: 240px;
+  background: white;
+  border-radius: 5px;
+  bottom: 15%;
+  left: 15%;
+  transform: rotate(-10deg);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.paper::before {
+  content: '';
+  position: absolute;
+  top: 30px;
+  left: 20px;
+  right: 20px;
+  height: 2px;
+  background: #e0e0e0;
+  box-shadow: 
+    0 20px 0 #e0e0e0,
+    0 40px 0 #e0e0e0,
+    0 60px 0 #e0e0e0,
+    0 80px 0 #e0e0e0,
+    0 100px 0 #e0e0e0,
+    0 120px 0 #e0e0e0,
+    0 140px 0 #e0e0e0,
+    0 160px 0 #e0e0e0;
+}
+
+.calculator {
+  position: absolute;
+  width: 120px;
+  height: 180px;
+  background: #333;
+  border-radius: 10px;
+  bottom: 20%;
+  right: 20%;
+  transform: rotate(5deg);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.calculator::before {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: 15px;
+  width: 90px;
+  height: 40px;
+  background: #a0d6b4;
+  border-radius: 5px;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.calculator::after {
+  content: '';
+  position: absolute;
+  top: 80px;
+  left: 15px;
+  right: 15px;
+  height: 80px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 5px;
+  background: repeating-conic-gradient(
+    #555 0% 25%,
+    #666 25% 50%,
+    #555 50% 75%,
+    #666 75% 100%
+  ) 0 0 / 20px 20px;
+}
+
+.coffee-cup {
+  position: absolute;
+  width: 60px;
+  height: 80px;
+  background: #fff;
+  border-radius: 0 0 30px 30px;
+  top: 30%;
+  left: 20%;
+  transform: rotate(-15deg);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.coffee-cup::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
-  background: 
-    repeating-conic-gradient(
-      from 0deg,
-      transparent 0deg 6deg,
-      rgba(255, 255, 255, 0.1) 6deg 6.5deg,
-      transparent 6.5deg 30deg
-    );
-  border-radius: 50%;
-}
-
-.clock-markings::after {
-  content: '';
-  position: absolute;
-  top: 10%;
-  left: 10%;
-  width: 80%;
-  height: 80%;
-  border-radius: 50%;
-  background: 
-    repeating-conic-gradient(
-      from 0deg,
-      transparent 0deg 29.5deg,
-      rgba(79, 70, 229, 0.3) 29.5deg 30deg
-    );
-}
-
-.alarm-bells {
-  position: absolute;
-  top: -25px;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-}
-
-.bell {
-  width: 40px;
-  height: 40px;
-  background: #4f46e5;
-  border-radius: 50%;
-  position: relative;
-  box-shadow: 0 0 10px rgba(79, 70, 229, 0.5);
-}
-
-.bell::before {
-  content: '';
-  position: absolute;
-  top: -15px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 20px;
   height: 20px;
-  background: #6366f1;
-  border-radius: 50%;
-  box-shadow: 0 0 5px rgba(79, 70, 229, 0.5);
+  background: #8b5a2b;
+  border-radius: 5px 5px 0 0;
 }
 
-.bell::after {
+.coffee-cup::after {
   content: '';
   position: absolute;
-  top: -5px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 8px;
-  height: 15px;
-  background: #222;
-  border-radius: 4px;
-}
-
-.bell-left {
-  left: 30px;
-  animation: bellShake 0.2s infinite alternate;
-}
-
-.bell-right {
-  right: 30px;
-  animation: bellShake 0.2s infinite alternate-reverse;
-}
-
-@keyframes bellShake {
-  0% { transform: rotate(-15deg); }
-  100% { transform: rotate(15deg); }
-}
-
-.clock-details {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-}
-
-.clock-button {
-  position: absolute;
+  top: 10px;
+  right: -20px;
   width: 20px;
-  height: 20px;
-  background: #444;
-  border-radius: 50%;
-  border: 2px solid #222;
-  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+  height: 30px;
+  border: 5px solid #fff;
+  border-radius: 0 20px 20px 0;
+  border-left: none;
 }
 
-.clock-button-left {
-  top: 50%;
-  left: -10px;
-  transform: translateY(-50%);
+#countdown-overlay {
+  background: radial-gradient(circle at center, #0a0f1a 0%, #050a15 100%);
+  transition: opacity 1s ease-out;
 }
 
-.clock-button-right {
-  top: 50%;
-  right: -10px;
-  transform: translateY(-50%);
-}
-
-.alarm-stand {
-  width: 80px;
-  height: 50px;
-  background: linear-gradient(to bottom, #162b60, #0a0f1a);
-  border-radius: 0 0 15px 15px;
-  position: relative;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-}
-
-.alarm-stand::before,
-.alarm-stand::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  width: 25px;
-  height: 15px;
-  background: linear-gradient(to bottom, #162b60, #0a0f1a);
-  border-radius: 5px;
-}
-
-.alarm-stand::before {
-  left: -15px;
-}
-
-.alarm-stand::after {
-  right: -15px;
+#countdown-overlay.fade-out {
+  opacity: 0;
 }
 
 #pun-message {
@@ -210,9 +338,20 @@ body {
   top: 85%;
   left: 50%;
   transform: translateX(-50%);
-  text-shadow: 0 0 10px rgba(79, 70, 229, 0.7), 0 0 20px rgba(79, 70, 229, 0.5);
+  text-shadow: 0 0 10px rgba(79, 70, 229, 0.8), 0 0 20px rgba(79, 70, 229, 0.7);
   z-index: 60;
   font-size: 2.5rem;
+  letter-spacing: 1px;
+  font-weight: 800;
+  background: linear-gradient(90deg, #4f46e5, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: pulse-text 2s infinite alternate;
+}
+
+@keyframes pulse-text {
+  0% { transform: translateX(-50%) scale(1); }
+  100% { transform: translateX(-50%) scale(1.05); }
 }
 
 /* Countdown Timer Styles */
@@ -499,6 +638,45 @@ body {
   0% { transform: translateX(-50%) scale(1); }
   100% { transform: translateX(-50%) scale(1.05); }
 }
+
+/* Explosion Particles */
+.explosion-particle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  background: #ff5555;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: explode var(--duration) ease-out forwards;
+  z-index: 60;
+}
+
+@keyframes explode {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(-50% + var(--x-pos)), calc(-50% + var(--y-pos))) rotate(var(--rotation)) scale(0);
+    opacity: 0;
+  }
+}
+
+.explosion-effect {
+  animation: explodeText 0.5s forwards;
+}
+
+@keyframes explodeText {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.8; }
+  100% { transform: scale(0); opacity: 0; }
+}
+
+
+
+
 
 
 
