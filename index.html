@@ -563,10 +563,20 @@
             createExplosionParticle();
           }
           
-          // Show message with enhanced animation
+          // Show message with enhanced animation and ensure it's light purple
           setTimeout(() => {
             punMessage.style.opacity = '1';
             punMessage.classList.add('pun-animate');
+            punMessage.style.color = '#a5b4fc'; // Force light purple color
+            punMessage.style.background = 'rgba(15, 23, 42, 0.7)';
+            punMessage.style.textShadow = '0 0 10px rgba(165, 180, 252, 0.8), 0 0 20px rgba(99, 102, 241, 0.7)';
+            punMessage.style.border = '1px solid rgba(165, 180, 252, 0.3)';
+            punMessage.style.backdropFilter = 'blur(5px)';
+            
+            // Remove any gradient background that might be overriding
+            punMessage.style.backgroundImage = 'none';
+            punMessage.style.webkitBackgroundClip = 'initial';
+            punMessage.style.webkitTextFillColor = 'initial';
           }, 800);
           
           // Fade out overlay and show main content
@@ -913,3 +923,10 @@
   </script>
 </body>
 </html>
+<!-- Add authors to the main index.html footer as well -->
+<footer class="w-full py-6 text-center text-gray-400 border-t border-gray-800">
+  <div class="container mx-auto px-4">
+    <p class="mb-2">© 2023 MindPulse | Exam Stress Visualization Project</p>
+    <p class="text-sm text-gray-500">Authors: Andrew Chen, Lakshmi Manasa Maddi, Rakshan Patnaik</p>
+  </div>
+</footer>

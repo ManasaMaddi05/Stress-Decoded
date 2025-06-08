@@ -463,13 +463,41 @@
         height: 10px;
       }
     }
+
+    .visualization-title {
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: #a5b4fc;
+      font-size: 3rem;
+      letter-spacing: 0px;
+      text-align: center;
+      position: relative;
+      font-family: 'Inter', sans-serif;
+      padding-bottom: 1.5rem;
+      text-shadow: 0 0 15px rgba(165, 180, 252, 0.3);
+      background: none;
+      -webkit-background-clip: initial;
+      -webkit-text-fill-color: initial;
+    }
+
+    .visualization-title::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 140px;
+      height: 4px;
+      background: #6366f1;
+      border-radius: 2px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
       <div class="title-area">
-        <h1 class="student-title" id="student-title">Student #5 - FINAL</h1>
+        <h1 class="visualization-title">Heart Rate Over the Course of the Exam</h1>
       </div>
       <div class="controls-area">
         <div class="student-selector">
@@ -502,7 +530,7 @@
     
     <div class="main-content">
       <div class="chart-container">
-        <div class="chart-header">Heart Rate Over the Course of the Exam</div>
+        <div class="chart-header" id="student-title">Student #5 - FINAL</div>
         <div class="chart" id="heart-rate-chart"></div>
       </div>
     </div>
@@ -572,12 +600,14 @@
       const heartbeatSound = new Audio('sounds/heartbeat.mp3');
       heartbeatSound.volume = 1; // Increased from 0.3 to 0.6
       heartbeatSound.loop = true;
-
+      
       // Variables to track slider movement
       let isSliderMoving = false;
       let sliderTimeout;
       let currentHeartRate = 0;
       let isAudioPlaying = false;
+
+
 
       // Add intersection observer to control audio based on visibility
       const heartRateChartElement = document.getElementById('heart-rate-chart');
@@ -597,6 +627,7 @@
 
       // Start observing the chart element
       visibilityObserver.observe(document.querySelector('.chart-container'));
+      
       
       // Function to adjust heartbeat sound based on heart rate
       function updateHeartbeatSound(heartRate) {
@@ -638,7 +669,7 @@
       }
       
       // Update student title
-      document.getElementById('student-title').textContent = `Student #${config.studentId}`;
+      document.getElementById('student-title').textContent = `Student #${config.studentId} - ${config.examType.toUpperCase()}`;
       
       // Function to load heart rate data from CSV
       async function loadHeartRateData(studentId, examType) {
