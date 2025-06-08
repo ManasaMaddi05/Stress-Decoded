@@ -21,7 +21,7 @@
 </head>
 <body class="bg-stress-pattern min-h-screen text-white">
     <div class="container mx-auto px-4 py-8">
-        <h1 class="text-3xl font-bold mb-6 text-center">Blood Volume Pulse (BVP) Analysis</h1>
+        <h1 class="text-3xl font-bold mb-6 text-center">Physiological Metrics Analysis</h1>
         <div class="flex justify-between items-center mb-4">
             <div class="text-sm text-white/70">
                 <span id="similar-student-badge" class="hidden px-3 py-1 bg-purple-600/30 border border-purple-500/50 rounded-full">
@@ -29,6 +29,11 @@
                 </span>
             </div>
             <div class="controls flex gap-2">
+                <select id="metric-selector" class="px-4 py-2 bg-black/40 border border-purple-500/30 rounded-lg text-white">
+                    <option value="BVP">Blood Volume Pulse (BVP)</option>
+                    <option value="HR">Heart Rate (HR)</option>
+                    <option value="TEMP">Temperature (TEMP)</option>
+                </select>
                 <button id="pause-button" class="px-4 py-2 bg-black/40 hover:bg-purple-600/50 border border-purple-500/30 rounded-lg transition-all duration-200 flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pause-icon">
                         <rect x="6" y="4" width="4" height="16"></rect>
@@ -38,10 +43,12 @@
                 </button>
             </div>
         </div>
-        <div id="bvp-chart" class="w-full h-[800px] bg-black/40 backdrop-blur-sm rounded-lg shadow-lg border border-stress-700/30"></div>
+        <div class="flex justify-center">
+            <div id="bvp-chart" class="w-[900px] h-[450px] bg-black/40 backdrop-blur-sm rounded-lg shadow-lg border border-stress-700/30"></div>
+        </div>
         <div class="mt-6 text-center">
-            <p class="text-lg mb-4">Blood Volume Pulse (BVP) measurements show changes in blood flow and vascular activity during exam periods.</p>
-            <p class="text-lg">Higher BVP values indicate increased blood flow, often associated with stress and anxiety responses.</p>
+            <p class="text-lg mb-4" id="metric-description">Blood Volume Pulse (BVP) measurements show changes in blood flow and vascular activity during exam periods.</p>
+            <p class="text-lg" id="metric-explanation">Higher BVP values indicate increased blood flow, often associated with stress and anxiety responses.</p>
             <p id="time-display" class="text-xl font-bold mt-4 metric"></p>
         </div>
     </div>
@@ -49,7 +56,7 @@
     <script>
         // BVP Chart Configuration
         const chartConfig = {
-            margin: { top: 40, right: 60, bottom: 60, left: 150 },
+            margin: { top: 20, right: 30, bottom: 40, left: 100 },
             colors: {
                 bars: '#a855f7', // stress-500
                 similarStudent: '#10b981', // emerald-500
@@ -58,7 +65,30 @@
                 grid: 'rgba(255, 255, 255, 0.1)'
             },
             isPaused: false,
-            similarStudentId: null
+            similarStudentId: null,
+            currentMetric: 'BVP'
+        };
+
+        // Metric descriptions
+        const metricInfo = {
+            BVP: {
+                description: "Blood Volume Pulse (BVP) measurements show changes in blood flow and vascular activity during exam periods.",
+                explanation: "Higher BVP values indicate increased blood flow, often associated with stress and anxiety responses.",
+                file: "Data/filtered_BVP.csv",
+                label: "BVP Value"
+            },
+            HR: {
+                description: "Heart Rate (HR) measurements show the number of heartbeats per minute during exam periods.",
+                explanation: "Higher HR values indicate increased heart rate, often associated with stress and physical exertion.",
+                file: "Data/filtered_HR.csv",
+                label: "Heart Rate (BPM)"
+            },
+            TEMP: {
+                description: "Temperature measurements show body temperature variations during exam periods.",
+                explanation: "Temperature changes can indicate stress responses and physiological reactions.",
+                file: "Data/filtered_TEMP.csv",
+                label: "Temperature (°C)"
+            }
         };
 
         // Check URL parameters for similar student
@@ -90,7 +120,9 @@
 
             const svg = container.append('svg')
                 .attr('width', width)
-                .attr('height', height);
+                .attr('height', height)
+                .attr('viewBox', `0 0 ${width} ${height}`)
+                .attr('preserveAspectRatio', 'xMidYMid meet');
 
             const chartGroup = svg.append('g')
                 .attr('transform', `translate(${chartConfig.margin.left}, ${chartConfig.margin.top})`);
@@ -114,22 +146,28 @@
             const yAxis = chartGroup.append('g')
                 .attr('class', 'y-axis');
 
+            // Add zero line
+            const zeroLine = chartGroup.append('line')
+                .attr('class', 'zero-line')
+                .style('stroke', chartConfig.colors.grid)
+                .style('stroke-width', 2)
+                .style('stroke-dasharray', 'none');
+
             // Add axis labels
-            chartGroup.append('text')
+            const xAxisLabel = chartGroup.append('text')
+                .attr('class', 'axis-label')
+                .attr('transform', `translate(${chartWidth / 2}, ${chartHeight + chartConfig.margin.bottom - 10})`)
+                .style('text-anchor', 'middle')
+                .style('fill', chartConfig.colors.text)
+                .style('font-size', '1.2rem');
+
+            const yAxisLabel = chartGroup.append('text')
                 .attr('class', 'axis-label')
                 .attr('transform', `translate(-${chartConfig.margin.left - 20}, ${chartHeight / 2}) rotate(-90)`)
                 .style('text-anchor', 'middle')
                 .style('fill', chartConfig.colors.text)
                 .style('font-size', '1.2rem')
                 .text('Students');
-
-            chartGroup.append('text')
-                .attr('class', 'axis-label')
-                .attr('transform', `translate(${chartWidth / 2}, ${chartHeight + chartConfig.margin.bottom - 10})`)
-                .style('text-anchor', 'middle')
-                .style('fill', chartConfig.colors.text)
-                .style('font-size', '1.2rem')
-                .text('BVP Value');
 
             // Add grid lines
             const xGrid = chartGroup.append('g')
@@ -148,8 +186,21 @@
                 
                 // Update scales
                 const maxValue = d3.max([...currentData, ...nextData], d => d.value);
-                xScale.domain([0, maxValue]);
+                const minValue = chartConfig.currentMetric === 'BVP' ? 
+                    d3.min([...currentData, ...nextData], d => d.value) : 0;
+                const absMax = chartConfig.currentMetric === 'BVP' ? 
+                    Math.max(Math.abs(maxValue), Math.abs(minValue)) : maxValue;
+                
+                xScale.domain(chartConfig.currentMetric === 'BVP' ? [-absMax, absMax] : [0, absMax]);
                 yScale.domain(currentData.map(d => d.student));
+
+                // Update zero line
+                zeroLine
+                    .attr('x1', xScale(0))
+                    .attr('y1', 0)
+                    .attr('x2', xScale(0))
+                    .attr('y2', chartHeight)
+                    .style('display', chartConfig.currentMetric === 'BVP' ? 'block' : 'none');
 
                 // Update axes
                 xAxis.call(d3.axisBottom(xScale))
@@ -172,10 +223,13 @@
                 const bars = chartGroup.selectAll('.bar')
                     .data(currentData, d => d.student);
 
+                // Remove old value labels
+                chartGroup.selectAll('.value-label').remove();
+
                 bars.enter()
                     .append('rect')
                     .attr('class', 'bar')
-                    .attr('x', 0)
+                    .attr('x', d => chartConfig.currentMetric === 'BVP' && d.value < 0 ? xScale(d.value) : xScale(0))
                     .attr('y', d => yScale(d.student))
                     .attr('height', yScale.bandwidth())
                     .attr('width', 0)
@@ -183,7 +237,10 @@
                     .transition()
                     .duration(1000)
                     .ease(d3.easeLinear)
-                    .attr('width', d => xScale(d.value))
+                    .attr('x', d => chartConfig.currentMetric === 'BVP' && d.value < 0 ? xScale(d.value) : xScale(0))
+                    .attr('width', d => chartConfig.currentMetric === 'BVP' ? 
+                        Math.abs(xScale(d.value) - xScale(0)) : 
+                        xScale(d.value))
                     .style('fill', d => {
                         // Highlight the similar student if set
                         return d.student === chartConfig.similarStudentId ? 
@@ -195,63 +252,117 @@
                         return d.student === chartConfig.similarStudentId ? 1 : 0.8;
                     });
 
+                // Add value labels only when paused
+                if (chartConfig.isPaused) {
+                    const valueLabels = chartGroup.selectAll('.value-label')
+                        .data(currentData);
+
+                    valueLabels.enter()
+                        .append('text')
+                        .attr('class', 'value-label')
+                        .merge(valueLabels)
+                        .attr('x', d => chartConfig.currentMetric === 'BVP' && d.value < 0 ? 
+                            xScale(d.value) - 5 : 
+                            xScale(d.value) + 5)
+                        .attr('y', d => yScale(d.student) + yScale.bandwidth() / 2)
+                        .attr('dy', '0.35em')
+                        .style('fill', 'white')
+                        .style('font-size', '0.9rem')
+                        .style('text-anchor', d => chartConfig.currentMetric === 'BVP' && d.value < 0 ? 'end' : 'start')
+                        .text(d => d.value.toFixed(2));
+
+                    valueLabels.exit().remove();
+                }
+
                 bars.exit().remove();
             }
 
-            // Load and process the data
-            d3.csv('Data/filtered_BVP.csv').then(data => {
-                const timeColumn = 'relative_time';
-                const bvpColumns = Object.keys(data[0]).filter(col => col.startsWith('S') && col.endsWith('_BVP'));
-                
-                // Process all time points
-                const processedData = data.map(row => {
-                    return bvpColumns.map(col => ({
-                        time: row[timeColumn],
-                        student: col,
-                        value: +row[col]
-                    }));
+            // Function to load and process data
+            function loadData(metric) {
+                const metricData = metricInfo[metric];
+                return d3.csv(metricData.file).then(data => {
+                    const timeColumn = 'relative_time';
+                    const valueColumns = Object.keys(data[0]).filter(col => col.startsWith('S') && col.endsWith(`_${metric}`));
+                    
+                    // Process all time points
+                    return data.map(row => {
+                        return valueColumns.map(col => ({
+                            time: row[timeColumn],
+                            student: col,
+                            value: +row[col]
+                        }));
+                    });
                 });
+            }
 
-                let currentTimeIndex = 0;
-                
-                // Initial chart render
+            // Initial data load
+            let currentTimeIndex = 0;
+            let processedData = [];
+            let animationInterval;
+
+            function startAnimation(data) {
+                processedData = data;
+                currentTimeIndex = 0;
                 updateChart(processedData, currentTimeIndex);
 
-                // Set up animation interval
-                const animationInterval = setInterval(() => {
+                if (animationInterval) {
+                    clearInterval(animationInterval);
+                }
+
+                animationInterval = setInterval(() => {
                     if (!chartConfig.isPaused) {
                         currentTimeIndex = (currentTimeIndex + 1) % processedData.length;
                         updateChart(processedData, currentTimeIndex);
                     }
-                }, 500); // Update every 500ms
+                }, 500);
+            }
+
+            // Load initial data
+            loadData(chartConfig.currentMetric).then(startAnimation);
+
+            // Set up metric selector
+            const metricSelector = document.getElementById('metric-selector');
+            metricSelector.addEventListener('change', function() {
+                const newMetric = this.value;
+                chartConfig.currentMetric = newMetric;
                 
-                // Set up pause button
-                const pauseButton = document.getElementById('pause-button');
-                const pauseIcon = pauseButton.querySelector('.pause-icon');
-                const buttonText = pauseButton.querySelector('.button-text');
+                // Update descriptions
+                document.getElementById('metric-description').textContent = metricInfo[newMetric].description;
+                document.getElementById('metric-explanation').textContent = metricInfo[newMetric].explanation;
                 
-                pauseButton.addEventListener('click', function() {
-                    chartConfig.isPaused = !chartConfig.isPaused;
-                    
-                    if (chartConfig.isPaused) {
-                        // Change to play icon
-                        pauseIcon.innerHTML = `
-                            <polygon points="5,3 19,12 5,21"></polygon>
-                        `;
-                        buttonText.textContent = 'Resume';
-                        pauseButton.classList.add('bg-purple-600/50');
-                        pauseButton.classList.remove('bg-black/40');
-                    } else {
-                        // Change to pause icon
-                        pauseIcon.innerHTML = `
-                            <rect x="6" y="4" width="4" height="16"></rect>
-                            <rect x="14" y="4" width="4" height="16"></rect>
-                        `;
-                        buttonText.textContent = 'Pause';
-                        pauseButton.classList.remove('bg-purple-600/50');
-                        pauseButton.classList.add('bg-black/40');
-                    }
-                });
+                // Update x-axis label
+                xAxisLabel.text(metricInfo[newMetric].label);
+                
+                // Load new data
+                loadData(newMetric).then(startAnimation);
+            });
+
+            // Set up pause button
+            const pauseButton = document.getElementById('pause-button');
+            const pauseIcon = pauseButton.querySelector('.pause-icon');
+            const buttonText = pauseButton.querySelector('.button-text');
+            
+            pauseButton.addEventListener('click', function() {
+                chartConfig.isPaused = !chartConfig.isPaused;
+                
+                if (chartConfig.isPaused) {
+                    // Change to play icon
+                    pauseIcon.innerHTML = `
+                        <polygon points="5,3 19,12 5,21"></polygon>
+                    `;
+                    buttonText.textContent = 'Resume';
+                    pauseButton.classList.add('bg-purple-600/50');
+                    pauseButton.classList.remove('bg-black/40');
+                } else {
+                    // Change to pause icon
+                    pauseIcon.innerHTML = `
+                        <rect x="6" y="4" width="4" height="16"></rect>
+                        <rect x="14" y="4" width="4" height="16"></rect>
+                    `;
+                    buttonText.textContent = 'Pause';
+                    pauseButton.classList.remove('bg-purple-600/50');
+                    pauseButton.classList.add('bg-black/40');
+                }
             });
         }
 
