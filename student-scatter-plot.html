@@ -727,16 +727,6 @@
             )
           ) + 15; // Add padding
           
-          // Add highlight circle around the high stress high score group
-          svg.append('circle')
-            .attr('cx', centroidX)
-            .attr('cy', centroidY)
-            .attr('r', radius)
-            .attr('fill', 'rgba(255, 255, 255, 0.1)')
-            .attr('stroke', 'rgba(255, 255, 255, 0.3)')
-            .attr('stroke-width', 1)
-            .attr('stroke-dasharray', '3,3');
-          
           // Add single label for the group
           svg.append('text')
             .attr('class', 'outlier-label')
