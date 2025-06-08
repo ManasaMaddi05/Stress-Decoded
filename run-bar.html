@@ -3,53 +3,309 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BVP Bar Chart</title>
+    <title>Physiological Metrics Analysis</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        .bg-stress-pattern {
-            background-color: #1a103c;
-            background-image: radial-gradient(rgba(168, 85, 247, 0.1) 1px, transparent 1px);
-            background-size: 20px 20px;
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #3730a3;
+            --accent: #a855f7;
+            --accent-dark: #7e22ce;
+            --dark-bg: #0a0f1a;
+            --panel-bg: rgba(15, 23, 42, 0.8);
+            --stress-color: #a855f7;
+            --calm-color: #0ea5e9;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-bg);
+            color: white;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(79, 70, 229, 0.15) 0%, transparent 30%),
+                radial-gradient(circle at 80% 70%, rgba(14, 165, 233, 0.1) 0%, transparent 30%),
+                radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.05) 0%, transparent 50%);
+            overflow-x: hidden;
+        }
+        
+        .container {
+            width: 95%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        h1 {
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(90deg, #fff, #a5b4fc, #c4b5fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 2rem;
+            letter-spacing: -0.5px;
+            text-align: center;
+            position: relative;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 3px;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+        }
+        
+        select, button {
+            background-color: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24' width='16' height='16'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.8rem center;
+            padding-right: 2.5rem;
+        }
+        
+        select:hover, button:hover {
+            background-color: rgba(30, 41, 59, 0.8);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+        }
+        
+        select:focus, button:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.25);
+        }
+        
+        .chart-container {
+            flex: 1;
+            background: rgba(15, 23, 42, 0.7);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            height: 600px; /* Increased height */
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chart-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(79, 70, 229, 0.5), 
+                rgba(168, 85, 247, 0.5), 
+                rgba(79, 70, 229, 0.5), 
+                transparent
+            );
+        }
+        
+        .description {
+            text-align: center;
+            margin-bottom: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .time-indicator {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            text-align: center;
+            margin-top: 1rem;
+            color: var(--accent);
+            text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+        }
+        
+        .bar {
+            fill: var(--accent);
+            transition: all 0.3s ease;
+        }
+        
+        .bar:hover {
+            fill: var(--primary);
+            filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.7));
+        }
+        
+        .axis text {
+            fill: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+        }
+        
+        .axis line, .axis path {
+            stroke: rgba(255, 255, 255, 0.2);
+        }
+        
+        .similar-student-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background: rgba(168, 85, 247, 0.2);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.2);
         }
         
         .metric {
             font-family: 'JetBrains Mono', monospace;
             text-shadow: 0 0 10px rgba(168, 85, 247, 0.7);
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .chart-container {
+                padding: 1rem;
+            }
+        }
+        
+        /* Add these additional styles to ensure the chart is visible */
+        #running-bar-chart {
+            width: 100%;
+            height: 100%; /* Make it fill the container */
+            position: relative;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #running-bar-chart svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .bar {
+            fill: var(--accent);
+            transition: all 0.3s ease;
+        }
+        
+        .bar:hover {
+            fill: var(--primary);
+            filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.7));
+        }
+        
+        .axis text {
+            fill: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+        }
+        
+        .axis line, .axis path {
+            stroke: rgba(255, 255, 255, 0.2);
+        }
+        
+        .zero-line {
+            stroke: rgba(255, 255, 255, 0.3);
+            stroke-width: 1px;
+        }
+        
+        .grid line {
+            stroke: rgba(255, 255, 255, 0.1);
+        }
+        
+        .value-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+        }
+        
+        .axis-label {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            fill: rgba(255, 255, 255, 0.8);
         }
     </style>
 </head>
-<body class="bg-stress-pattern min-h-screen text-white">
-    <div class="container mx-auto px-4 py-8">
-        <h1 class="text-3xl font-bold mb-6 text-center">Physiological Metrics Analysis</h1>
-        <div class="flex justify-between items-center mb-4">
-            <div class="text-sm text-white/70">
-                <span id="similar-student-badge" class="hidden px-3 py-1 bg-purple-600/30 border border-purple-500/50 rounded-full">
-                    Most similar to: <span id="similar-student-id" class="font-mono font-bold">Student #3</span>
+<body class="font-sans">
+    <div class="container">
+        <h1 class="text-3xl font-bold mb-6">Physiological Metrics Analysis</h1>
+        
+        <div class="controls">
+            <div class="flex items-center gap-2">
+                <span id="similar-student-badge" class="similar-student-badge hidden">
+                    Most similar to: <span id="similar-student-id" class="metric ml-1">Student #3</span>
                 </span>
             </div>
-            <div class="controls flex gap-2">
-                <select id="metric-selector" class="px-4 py-2 bg-black/40 border border-purple-500/30 rounded-lg text-white">
+            
+            <div class="flex gap-3">
+                <select id="metric-selector" class="focus:outline-none">
                     <option value="BVP">Blood Volume Pulse (BVP)</option>
                     <option value="HR">Heart Rate (HR)</option>
+                    <option value="EDA">Electrodermal Activity (EDA)</option>
                     <option value="TEMP">Temperature (TEMP)</option>
                 </select>
-                <button id="pause-button" class="px-4 py-2 bg-black/40 hover:bg-purple-600/50 border border-purple-500/30 rounded-lg transition-all duration-200 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pause-icon">
-                        <rect x="6" y="4" width="4" height="16"></rect>
-                        <rect x="14" y="4" width="4" height="16"></rect>
+                
+                <button id="pause-button" class="flex items-center gap-2 focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M5 3.5h2A.5.5 0 0 1 7.5 4v8a.5.5 0 0 1-.5.5H5a.5.5 0 0 1-.5-.5V4a.5.5 0 0 1 .5-.5zm4 0h2a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5H9a.5.5 0 0 1-.5-.5V4a.5.5 0 0 1 .5-.5z"/>
                     </svg>
-                    <span class="button-text">Pause</span>
+                    Pause
                 </button>
             </div>
         </div>
-        <div class="flex justify-center">
-            <div id="bvp-chart" class="w-[900px] h-[450px] bg-black/40 backdrop-blur-sm rounded-lg shadow-lg border border-stress-700/30"></div>
+        
+        <div class="chart-container">
+            <div id="running-bar-chart"></div>
         </div>
-        <div class="mt-6 text-center">
-            <p class="text-lg mb-4" id="metric-description">Blood Volume Pulse (BVP) measurements show changes in blood flow and vascular activity during exam periods.</p>
-            <p class="text-lg" id="metric-explanation">Higher BVP values indicate increased blood flow, often associated with stress and anxiety responses.</p>
-            <p id="time-display" class="text-xl font-bold mt-4 metric"></p>
+        
+        <div class="description">
+            <p>Heart Rate (HR) measurements show the number of heartbeats per minute during exam periods.</p>
+            <p>Higher HR values indicate increased heart rate, often associated with stress and physical exertion.</p>
+        </div>
+        
+        <div class="time-indicator" id="time-display">
+            Time: <span class="metric">45.0 Minutes</span>
         </div>
     </div>
 
@@ -83,6 +339,12 @@
                 file: "Data/filtered_HR.csv",
                 label: "Heart Rate (BPM)"
             },
+            EDA: {
+                description: "Electrodermal Activity (EDA) measures skin conductance, which increases with psychological arousal.",
+                explanation: "Higher EDA values indicate increased sympathetic nervous system activity, often linked to stress.",
+                file: "Data/filtered_EDA.csv",
+                label: "EDA (μS)"
+            },
             TEMP: {
                 description: "Temperature measurements show body temperature variations during exam periods.",
                 explanation: "Temperature changes can indicate stress responses and physiological reactions.",
@@ -96,7 +358,7 @@
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.has('similarStudent')) {
                 const studentId = urlParams.get('similarStudent');
-                chartConfig.similarStudentId = `S${studentId}_BVP`;
+                chartConfig.similarStudentId = `S${studentId}_${chartConfig.currentMetric}`;
                 
                 // Show the similar student badge
                 const badge = document.getElementById('similar-student-badge');
@@ -110,23 +372,28 @@
         }
 
         // Initialize the chart
-        function initBVPChart() {
+        function initRunningBarChart() {
             // Check for similar student in URL
             const hasSimilarStudent = getSimilarStudentFromURL();
             
-            const container = d3.select('#bvp-chart');
-            const width = container.node().getBoundingClientRect().width;
-            const height = container.node().getBoundingClientRect().height;
-
+            const container = d3.select('#running-bar-chart');
+            
+            // Clear any existing content
+            container.html('');
+            
+            const containerRect = container.node().getBoundingClientRect();
+            const width = containerRect.width;
+            const height = containerRect.height; // Use the full container height
+            
             const svg = container.append('svg')
                 .attr('width', width)
                 .attr('height', height)
                 .attr('viewBox', `0 0 ${width} ${height}`)
                 .attr('preserveAspectRatio', 'xMidYMid meet');
-
+            
             const chartGroup = svg.append('g')
                 .attr('transform', `translate(${chartConfig.margin.left}, ${chartConfig.margin.top})`);
-
+            
             const chartWidth = width - chartConfig.margin.left - chartConfig.margin.right;
             const chartHeight = height - chartConfig.margin.top - chartConfig.margin.bottom;
 
@@ -159,14 +426,14 @@
                 .attr('transform', `translate(${chartWidth / 2}, ${chartHeight + chartConfig.margin.bottom - 10})`)
                 .style('text-anchor', 'middle')
                 .style('fill', chartConfig.colors.text)
-                .style('font-size', '1.2rem');
+                .style('font-size', '0.9rem');
 
             const yAxisLabel = chartGroup.append('text')
                 .attr('class', 'axis-label')
                 .attr('transform', `translate(-${chartConfig.margin.left - 20}, ${chartHeight / 2}) rotate(-90)`)
                 .style('text-anchor', 'middle')
                 .style('fill', chartConfig.colors.text)
-                .style('font-size', '1.2rem')
+                .style('font-size', '0.9rem')
                 .text('Students');
 
             // Add grid lines
@@ -177,12 +444,29 @@
 
             // Function to update the chart
             function updateChart(data, timeIndex) {
+                if (!data || data.length === 0 || !data[timeIndex]) {
+                    console.error("No data available for the current time index");
+                    return;
+                }
+                
                 const currentData = data[timeIndex];
                 const nextData = data[(timeIndex + 1) % data.length];
                 
                 // Update time display
                 const timeDisplay = document.getElementById('time-display');
-                timeDisplay.textContent = `Time: ${currentData[0].time} Minutes`;
+                if (timeDisplay) {
+                    timeDisplay.innerHTML = `Time: <span class="metric">${currentData[0].time} Minutes</span>`;
+                }
+                
+                // Update description based on current metric
+                const descriptionDiv = document.querySelector('.description');
+                if (descriptionDiv) {
+                    const metricData = metricInfo[chartConfig.currentMetric];
+                    descriptionDiv.innerHTML = `
+                        <p>${metricData.description}</p>
+                        <p>${metricData.explanation}</p>
+                    `;
+                }
                 
                 // Update scales
                 const maxValue = d3.max([...currentData, ...nextData], d => d.value);
@@ -206,18 +490,21 @@
                 xAxis.call(d3.axisBottom(xScale))
                     .selectAll('text')
                     .style('fill', chartConfig.colors.text)
-                    .style('font-size', '1rem');
+                    .style('font-size', '0.8rem');
 
                 yAxis.call(d3.axisLeft(yScale))
                     .selectAll('text')
                     .style('fill', chartConfig.colors.text)
-                    .style('font-size', '1rem');
+                    .style('font-size', '0.8rem');
 
                 // Update grid lines
                 xGrid.call(d3.axisBottom(xScale)
                     .tickSize(-chartHeight)
                     .tickFormat('')
                 );
+
+                // Update x-axis label
+                xAxisLabel.text(metricInfo[chartConfig.currentMetric].label);
 
                 // Update bars
                 const bars = chartGroup.selectAll('.bar')
@@ -292,7 +579,28 @@
                             value: +row[col]
                         }));
                     });
+                }).catch(error => {
+                    console.error("Error loading data:", error);
+                    // Create mock data for testing if file not found
+                    return createMockData(metric);
                 });
+            }
+
+            // Create mock data for testing
+            function createMockData(metric) {
+                const mockData = [];
+                const students = Array.from({length: 10}, (_, i) => `S${i+1}_${metric}`);
+                
+                for (let t = 0; t < 120; t++) {
+                    const timePoint = students.map(student => ({
+                        time: t.toFixed(1),
+                        student: student,
+                        value: (Math.random() - (metric === 'BVP' ? 0.5 : 0)) * (metric === 'HR' ? 100 : 20)
+                    }));
+                    mockData.push(timePoint);
+                }
+                
+                return mockData;
             }
 
             // Initial data load
@@ -322,53 +630,74 @@
 
             // Set up metric selector
             const metricSelector = document.getElementById('metric-selector');
-            metricSelector.addEventListener('change', function() {
-                const newMetric = this.value;
-                chartConfig.currentMetric = newMetric;
-                
-                // Update descriptions
-                document.getElementById('metric-description').textContent = metricInfo[newMetric].description;
-                document.getElementById('metric-explanation').textContent = metricInfo[newMetric].explanation;
-                
-                // Update x-axis label
-                xAxisLabel.text(metricInfo[newMetric].label);
-                
-                // Load new data
-                loadData(newMetric).then(startAnimation);
-            });
+            if (metricSelector) {
+                metricSelector.addEventListener('change', function() {
+                    const newMetric = this.value;
+                    chartConfig.currentMetric = newMetric;
+                    
+                    // Update similar student ID if needed
+                    if (chartConfig.similarStudentId) {
+                        const studentNum = chartConfig.similarStudentId.split('_')[0];
+                        chartConfig.similarStudentId = `${studentNum}_${newMetric}`;
+                    }
+                    
+                    // Load new data
+                    loadData(newMetric).then(startAnimation);
+                });
+            }
 
             // Set up pause button
             const pauseButton = document.getElementById('pause-button');
-            const pauseIcon = pauseButton.querySelector('.pause-icon');
-            const buttonText = pauseButton.querySelector('.button-text');
-            
-            pauseButton.addEventListener('click', function() {
-                chartConfig.isPaused = !chartConfig.isPaused;
-                
-                if (chartConfig.isPaused) {
-                    // Change to play icon
-                    pauseIcon.innerHTML = `
-                        <polygon points="5,3 19,12 5,21"></polygon>
-                    `;
-                    buttonText.textContent = 'Resume';
-                    pauseButton.classList.add('bg-purple-600/50');
-                    pauseButton.classList.remove('bg-black/40');
-                } else {
-                    // Change to pause icon
-                    pauseIcon.innerHTML = `
-                        <rect x="6" y="4" width="4" height="16"></rect>
-                        <rect x="14" y="4" width="4" height="16"></rect>
-                    `;
-                    buttonText.textContent = 'Pause';
-                    pauseButton.classList.remove('bg-purple-600/50');
-                    pauseButton.classList.add('bg-black/40');
-                }
+            if (pauseButton) {
+                pauseButton.addEventListener('click', function() {
+                    chartConfig.isPaused = !chartConfig.isPaused;
+                    
+                    if (chartConfig.isPaused) {
+                        this.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>
+                            </svg>
+                            Resume
+                        `;
+                        this.classList.add('bg-purple-600/50');
+                        this.classList.remove('bg-black/40');
+                        
+                        // Update chart to show value labels
+                        updateChart(processedData, currentTimeIndex);
+                    } else {
+                        this.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M5 3.5h2A.5.5 0 0 1 7.5 4v8a.5.5 0 0 1-.5.5H5a.5.5 0 0 1-.5-.5V4a.5.5 0 0 1 .5-.5zm4 0h2a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5H9a.5.5 0 0 1-.5-.5V4a.5.5 0 0 1 .5-.5z"/>
+                            </svg>
+                            Pause
+                        `;
+                        this.classList.remove('bg-purple-600/50');
+                        this.classList.add('bg-black/40');
+                        
+                        // Update chart to hide value labels
+                        updateChart(processedData, currentTimeIndex);
+                    }
+                });
+            }
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                // Redraw the chart on window resize
+                initRunningBarChart();
             });
         }
 
         // Initialize the chart when the DOM is loaded
-        document.addEventListener('DOMContentLoaded', initBVPChart);
+        document.addEventListener('DOMContentLoaded', initRunningBarChart);
     </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
 
