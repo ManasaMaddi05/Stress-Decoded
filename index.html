@@ -70,7 +70,7 @@
     .fullpage-container {
       height: 100vh;
       overflow-y: auto;
-      scroll-snap-type: y proximity;
+      scroll-snap-type: y mandatory; /* Change from proximity to mandatory for true snap */
       scroll-behavior: smooth;
       position: relative;
       background-color: #0d1b3d;
@@ -81,12 +81,13 @@
       width: 100%;
       position: relative;
       scroll-snap-align: start;
+      scroll-snap-stop: always; /* Force stopping at each section */
       display: flex;
       align-items: center;
       justify-content: center;
-      opacity: 1 !important; /* Force visibility */
-      pointer-events: auto !important; /* Enable interaction */
-      transform: none !important; /* Remove any transforms that might hide content */
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      transform: none !important;
     }
     
     .section.active {
@@ -598,8 +599,11 @@
           
           const targetSection = sections[index];
           
-          // Smooth scroll to the target section
-          targetSection.scrollIntoView({ behavior: 'smooth' });
+          // Smooth scroll to the target section with enhanced behavior
+          container.scrollTo({
+            top: targetSection.offsetTop,
+            behavior: 'smooth'
+          });
           
           // Update active dot
           scrollDots.forEach((dot, i) => {
@@ -643,16 +647,36 @@
           });
         });
         
-        // Handle keyboard navigation
-        document.addEventListener('keydown', (e) => {
+        // Add wheel event handler to enhance snap scrolling
+        container.addEventListener('wheel', function(e) {
+          if (isScrolling) {
+            e.preventDefault();
+            return;
+          }
+          
+          // Determine scroll direction
+          const direction = e.deltaY > 0 ? 1 : -1;
+          
+          // Calculate target section
+          let targetIndex = currentSectionIndex + direction;
+          
+          // Ensure target index is within bounds
+          if (targetIndex >= 0 && targetIndex < sections.length) {
+            e.preventDefault();
+            scrollToSection(targetIndex);
+          }
+        }, { passive: false });
+
+        // Add keyboard navigation
+        document.addEventListener('keydown', function(e) {
           if (isScrolling) return;
           
           if (e.key === 'ArrowDown' && currentSectionIndex < sections.length - 1) {
+            e.preventDefault();
             scrollToSection(currentSectionIndex + 1);
-            e.preventDefault();
           } else if (e.key === 'ArrowUp' && currentSectionIndex > 0) {
-            scrollToSection(currentSectionIndex - 1);
             e.preventDefault();
+            scrollToSection(currentSectionIndex - 1);
           }
         });
         
@@ -689,6 +713,61 @@
         document.querySelectorAll('section').forEach(el => {
           observer.observe(el);
         });
+
+        // Detect when scrolling has stopped to ensure proper snapping
+        let scrollEndTimeout;
+        container.addEventListener('scroll', function() {
+          clearTimeout(scrollEndTimeout);
+          
+          scrollEndTimeout = setTimeout(function() {
+            // When scrolling stops, ensure we're properly snapped to a section
+            const currentScrollPos = container.scrollTop;
+            const windowHeight = window.innerHeight;
+            
+            // Find the closest section
+            let closestSectionIndex = 0;
+            let closestDistance = Infinity;
+            
+            sections.forEach((section, index) => {
+              const distance = Math.abs(section.offsetTop - currentScrollPos);
+              if (distance < closestDistance) {
+                closestDistance = distance;
+                closestSectionIndex = index;
+              }
+            });
+            
+            // If we're not exactly at a section boundary and not currently animating
+            if (closestDistance > 10 && !isScrolling) {
+              scrollToSection(closestSectionIndex);
+            }
+          }, 100);
+        });
+
+        // Add touch swipe support for mobile
+        let touchStartY = 0;
+        let touchEndY = 0;
+
+        container.addEventListener('touchstart', function(e) {
+          touchStartY = e.changedTouches[0].screenY;
+        }, { passive: true });
+
+        container.addEventListener('touchend', function(e) {
+          if (isScrolling) return;
+          
+          touchEndY = e.changedTouches[0].screenY;
+          const diffY = touchStartY - touchEndY;
+          
+          // Detect swipe direction (with threshold)
+          if (Math.abs(diffY) > 50) {
+            if (diffY > 0 && currentSectionIndex < sections.length - 1) {
+              // Swipe up - go to next section
+              scrollToSection(currentSectionIndex + 1);
+            } else if (diffY < 0 && currentSectionIndex > 0) {
+              // Swipe down - go to previous section
+              scrollToSection(currentSectionIndex - 1);
+            }
+          }
+        }, { passive: true });
       }
     });
   </script>
