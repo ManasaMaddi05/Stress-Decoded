@@ -209,9 +209,74 @@
       z-index: 100;
       transition: width 0.3s ease;
     }
+
+    /* Add tooltip styles */
+    .tooltip {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(15, 23, 42, 0.9);
+      color: white;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      z-index: 1000;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .tooltip:hover {
+      background: rgba(30, 41, 59, 0.9);
+      transform: translateY(-2px);
+    }
+
+    .tooltip-popup {
+      position: fixed;
+      top: 70px;
+      left: 20px;
+      background: rgba(15, 23, 42, 0.95);
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      z-index: 1000;
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      display: none;
+      min-width: 400px;
+      max-width: 500px;
+      line-height: 1.5;
+    }
+
+    .tooltip-popup ul {
+      list-style-type: disc;
+      padding-left: 20px;
+      margin: 0;
+    }
+
+    .tooltip-popup li {
+      margin-bottom: 8px;
+    }
   </style>
 </head>
 <body class="font-sans">
+  <!-- Add tooltip button -->
+  <div class="tooltip" id="info-tooltip">Info</div>
+  <div class="tooltip-popup" id="tooltip-popup">
+    <ul>
+      <li><strong>BVP (Blood Volume Pulse):</strong> Measures changes in blood flow with each heartbeat. Higher BVP may reflect increased arousal or stress.</li>
+  <li><strong>HR (Heart Rate):</strong> The number of heartbeats per minute. A higher HR can indicate excitement, stress, or physical exertion.</li>
+  <li><strong>Temp (Skin Temperature):</strong> Measures peripheral skin temperature. Drops can signal stress or anxiety as blood flow shifts inward.</li>
+  <li><strong>EDA (Electrodermal Activity):</strong> Tracks sweat gland activity, a direct indicator of emotional arousal and stress response.</li>
+    </ul>
+  </div>
+
   <!-- Countdown Timer Overlay (from landing1.html) -->
   <div id="countdown-overlay" class="fixed inset-0 bg-black z-50 flex items-center justify-center">
     <div class="wall-clock">
@@ -326,6 +391,25 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+      // Add tooltip click functionality
+      const tooltip = document.getElementById('info-tooltip');
+      const tooltipPopup = document.getElementById('tooltip-popup');
+      
+      tooltip.addEventListener('click', function() {
+        if (tooltipPopup.style.display === 'none' || !tooltipPopup.style.display) {
+          tooltipPopup.style.display = 'block';
+        } else {
+          tooltipPopup.style.display = 'none';
+        }
+      });
+
+      // Close tooltip when clicking outside
+      document.addEventListener('click', function(event) {
+        if (!tooltip.contains(event.target) && !tooltipPopup.contains(event.target)) {
+          tooltipPopup.style.display = 'none';
+        }
+      });
+
       // Preload audio files (from landing1.html)
       const tickSound = new Audio('sounds/clock-tick.mp3');
       tickSound.volume = 0.9;
