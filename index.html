@@ -55,30 +55,38 @@
     }
   </script>
   <style>
+    /* Add these styles for the landing page elements */
+    @import url('css/landing-page.css');
+    
     html, body {
       margin: 0;
       padding: 0;
       height: 100%;
       overflow: hidden;
       font-family: 'Inter', sans-serif;
+      background-color: #0d1b3d;
     }
     
     .fullpage-container {
       height: 100vh;
-      overflow: hidden;
+      overflow-y: auto;
+      scroll-snap-type: y proximity;
+      scroll-behavior: smooth;
       position: relative;
+      background-color: #0d1b3d;
     }
     
     .section {
       height: 100vh;
-      width: 100vw;
-      position: absolute;
-      top: 0;
-      left: 0;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 1.2s cubic-bezier(0.65, 0, 0.35, 1);
-      transform: translateY(0);
+      width: 100%;
+      position: relative;
+      scroll-snap-align: start;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 1 !important; /* Force visibility */
+      pointer-events: auto !important; /* Enable interaction */
+      transform: none !important; /* Remove any transforms that might hide content */
     }
     
     .section.active {
@@ -87,22 +95,16 @@
     }
     
     /* Add previous and next section states for smoother transitions */
-    .section.prev {
-      opacity: 0;
-      transform: translateY(-5%);
-      transition: opacity 1.2s cubic-bezier(0.65, 0, 0.35, 1), transform 1.2s cubic-bezier(0.65, 0, 0.35, 1);
-    }
-    
-    .section.next {
-      opacity: 0;
-      transform: translateY(5%);
-      transition: opacity 1.2s cubic-bezier(0.65, 0, 0.35, 1), transform 1.2s cubic-bezier(0.65, 0, 0.35, 1);
+    .section.prev, .section.next {
+      opacity: 1 !important;
+      transform: none !important;
     }
     
     .section-frame {
       width: 100%;
       height: 100%;
       border: none;
+      display: block !important;
     }
     
     .scroll-indicator {
@@ -208,7 +210,52 @@
   </style>
 </head>
 <body class="font-sans">
-  <!-- Add this progress bar -->
+  <!-- Countdown Timer Overlay (from landing1.html) -->
+  <div id="countdown-overlay" class="fixed inset-0 bg-black z-50 flex items-center justify-center">
+    <div class="wall-clock">
+      <div class="clock-frame">
+        <div class="clock-face">
+          <div class="clock-markings">
+            <div class="hour-mark mark-12">12</div>
+            <div class="hour-mark mark-1">1</div>
+            <div class="hour-mark mark-2">2</div>
+            <div class="hour-mark mark-3">3</div>
+            <div class="hour-mark mark-4">4</div>
+            <div class="hour-mark mark-5">5</div>
+            <div class="hour-mark mark-6">6</div>
+            <div class="hour-mark mark-7">7</div>
+            <div class="hour-mark mark-8">8</div>
+            <div class="hour-mark mark-9">9</div>
+            <div class="hour-mark mark-10">10</div>
+            <div class="hour-mark mark-11">11</div>
+          </div>
+          <div class="clock-hands">
+            <div class="hour-hand"></div>
+            <div class="minute-hand"></div>
+            <div class="second-hand"></div>
+            <div class="clock-center"></div>
+          </div>
+          <div id="countdown-timer" class="exam-timer font-mono text-red-500 countdown-glow">00:03</div>
+        </div>
+      </div>
+      <div class="clock-pendulum">
+        <div class="pendulum-rod"></div>
+        <div class="pendulum-bob"></div>
+      </div>
+    </div>
+    <div id="countdown-pulse" class="absolute w-full h-full pointer-events-none"></div>
+    <div id="exam-elements" class="absolute inset-0 pointer-events-none">
+      <div class="pencil"></div>
+      <div class="paper"></div>
+      <div class="calculator"></div>
+      <div class="coffee-cup"></div>
+    </div>
+    <div id="pun-message" class="text-center text-white font-bold opacity-0 transition-opacity duration-500">
+      Time's Up!
+    </div>
+  </div>
+
+  <!-- Progress bar -->
   <div class="progress-bar" id="progress-bar"></div>
   
   <div class="scroll-indicator hidden md:flex">
@@ -221,7 +268,8 @@
     <div class="scroll-dot" data-section="conclusion"></div>
   </div>
 
-  <div class="fullpage-container">
+  <!-- Main Content (initially hidden) -->
+  <main class="fullpage-container opacity-0 transition-opacity duration-1000" id="fullpage-container">
     <section id="intro" class="section active">
       <div class="heart-bg">
         <svg class="heart-svg" viewBox="0 0 32 32" fill="white" xmlns="http://www.w3.org/2000/svg">
@@ -269,11 +317,11 @@
     </section>
     
     <section id="section-4" class="section">
-      <div class="w-full h-full flex flex-col items-center justify-center bg-calm-pattern">
-        <h2 class="text-3xl font-bold mb-6 text-white">Stress Management</h2>
+      <div class="w-full h-full flex flex-col items-center justify-center bg-stress-pattern">
+        <h2 class="text-3xl font-bold mb-6 text-white">Recovery Patterns</h2>
         <div class="text-center">
           <span class="metric-calm text-calm-400 text-5xl">Recovery Time: <span class="text-6xl">8.2</span> min</span>
-          <p class="text-lg mt-8 mb-4 text-white/80 max-w-2xl mx-auto">Top-performing students showed an average stress recovery time of <span class="metric-calm text-calm-400">8.2 minutes</span> after encountering difficult questions.</p>
+          <p class="text-lg mt-8 mb-4 text-white/80 max-w-2xl mx-auto">Students who practiced <span class="metric-calm text-calm-400">mindfulness techniques</span> showed significantly faster physiological recovery after stress spikes.</p>
           <p class="text-lg text-white/80 max-w-2xl mx-auto">Students who practiced mindfulness techniques showed <span class="metric-calm text-calm-400">42% faster</span> physiological recovery from stress spikes.</p>
         </div>
       </div>
@@ -286,310 +334,361 @@
     <section id="conclusion" class="section">
       <iframe src="reflection-wall.html" class="section-frame" title="Key Findings"></iframe>
     </section>
-  </div>
+  </main>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const sections = document.querySelectorAll('.section');
-      const scrollDots = document.querySelectorAll('.scroll-dot');
-      const fadeElements = document.querySelectorAll('.fade-in');
-      const progressBar = document.getElementById('progress-bar');
+    document.addEventListener('DOMContentLoaded', function() {
+      // Preload audio files (from landing1.html)
+      const tickSound = new Audio('sounds/clock-tick.mp3');
+      tickSound.volume = 0.9;
+      tickSound.preload = 'auto';
       
-      // Initialize
-      let currentSectionIndex = 0;
-      updateActiveSection(currentSectionIndex);
+      const finalSound = new Audio('sounds/school-bell.mp3');
+      finalSound.volume = 0.9;
+      finalSound.preload = 'auto';
       
-      // Make intro fade elements visible
-      fadeElements.forEach(el => {
-        el.classList.add('visible');
-      });
+      // Force audio to load
+      tickSound.load();
+      finalSound.load();
       
-      // Update progress bar
-      function updateProgressBar() {
-        progressBar.style.width = `${(currentSectionIndex / (sections.length - 1)) * 100}%`;
-      }
-      updateProgressBar();
+      // Countdown timer functionality
+      const countdownOverlay = document.getElementById('countdown-overlay');
+      const countdownTimer = document.getElementById('countdown-timer');
+      const countdownPulse = document.getElementById('countdown-pulse');
+      const mainContent = document.getElementById('fullpage-container');
+      const punMessage = document.getElementById('pun-message');
       
-      // Update active section with smoother transitions
-      function updateActiveSection(index) {
-        // Update sections with smooth transitions
-        sections.forEach((section, i) => {
-          // Remove all transition classes first
-          section.classList.remove('active', 'prev', 'next');
-          
-          // Add appropriate class based on position
-          if (i === index) {
-            section.classList.add('active');
-          } else if (i < index) {
-            section.classList.add('prev');
-          } else if (i > index) {
-            section.classList.add('next');
-          }
-        });
-        
-        // Update dots
-        scrollDots.forEach((dot, i) => {
-          if (i === index) {
-            dot.classList.add('active');
-          } else {
-            dot.classList.remove('active');
-          }
-        });
-        
-        // Update progress bar
-        updateProgressBar();
-        
-        // Update URL hash without scrolling
-        const sectionId = sections[index].id;
-        history.replaceState(null, null, `#${sectionId}`);
+      // Animate clock hands
+      const hourHand = document.querySelector('.hour-hand');
+      const minuteHand = document.querySelector('.minute-hand');
+      const secondHand = document.querySelector('.second-hand');
+      
+      // Set initial random positions for hands
+      hourHand.style.transform = `rotate(${Math.random() * 360}deg)`;
+      minuteHand.style.transform = `rotate(${Math.random() * 360}deg)`;
+      
+      // Initialize audio context on user interaction
+      let audioContext;
+      
+      // Function to initialize audio context
+      function initAudio() {
+        if (!audioContext) {
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+          document.removeEventListener('click', initAudio);
+          document.removeEventListener('keydown', initAudio);
+        }
       }
       
-      // Handle wheel events with smoother transitions
-      let isScrolling = false;
+      // Add event listeners to initialize audio context on user interaction
+      document.addEventListener('click', initAudio);
+      document.addEventListener('keydown', initAudio);
       
-      document.addEventListener('wheel', (e) => {
-        // Prevent multiple scroll events from firing too quickly
-        if (isScrolling) return;
+      // Alternative audio playback function using multiple approaches
+      function playSound(sound) {
+        // Try the standard way first
+        const playPromise = sound.play();
         
-        // Determine scroll direction
-        if (e.deltaY > 0 && currentSectionIndex < sections.length - 1) {
-          // Scroll down - only move one section at a time
-          isScrolling = true;
-          currentSectionIndex++;
-          updateActiveSection(currentSectionIndex);
-          
-          // Reset scroll lock after a longer delay for smoother transition
-          setTimeout(() => {
-            isScrolling = false;
-          }, 1200); // Match the transition duration
-        } else if (e.deltaY < 0 && currentSectionIndex > 0) {
-          // Scroll up - only move one section at a time
-          isScrolling = true;
-          currentSectionIndex--;
-          updateActiveSection(currentSectionIndex);
-          
-          // Reset scroll lock after a longer delay for smoother transition
-          setTimeout(() => {
-            isScrolling = false;
-          }, 1200); // Match the transition duration
+        if (playPromise !== undefined) {
+          playPromise.catch(error => {
+            console.log('Audio play prevented, trying alternative method:', error);
+            
+            // If standard play fails, try creating a new Audio instance
+            const newSound = new Audio(sound.src);
+            newSound.volume = sound.volume;
+            newSound.play().catch(e => console.log('Alternative method also failed:', e));
+            
+            // Also try with audio context as a last resort
+            if (audioContext) {
+              try {
+                const source = audioContext.createBufferSource();
+                fetch(sound.src)
+                  .then(response => response.arrayBuffer())
+                  .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
+                  .then(audioBuffer => {
+                    source.buffer = audioBuffer;
+                    source.connect(audioContext.destination);
+                    source.start(0);
+                  });
+              } catch (e) {
+                console.log('Audio context method failed:', e);
+              }
+            }
+          });
         }
-        
-        e.preventDefault();
-      }, { passive: false });
+      }
       
-      // Modify the keyboard navigation for smoother transitions
-      document.addEventListener('keydown', (e) => {
-        if (isScrolling) return;
+      // Animate second hand
+      let secondRotation = 0;
+      const secondHandTick = setInterval(() => {
+        secondRotation += 6;
+        secondHand.style.transform = `rotate(${secondRotation}deg)`;
         
-        if (e.key === 'ArrowDown' && currentSectionIndex < sections.length - 1) {
-          isScrolling = true;
-          currentSectionIndex++;
-          updateActiveSection(currentSectionIndex);
-          e.preventDefault();
-          
-          setTimeout(() => {
-            isScrolling = false;
-          }, 1200);
-        } else if (e.key === 'ArrowUp' && currentSectionIndex > 0) {
-          isScrolling = true;
-          currentSectionIndex--;
-          updateActiveSection(currentSectionIndex);
-          e.preventDefault();
-          
-          setTimeout(() => {
-            isScrolling = false;
-          }, 1200);
+        // Play tick sound every 5 seconds
+        if (secondRotation % 30 === 0) {
+          tickSound.currentTime = 0;
+          playSound(tickSound);
         }
-      });
+      }, 1000);
       
-      // Modify the dot navigation for smoother transitions
-      scrollDots.forEach((dot, index) => {
-        dot.addEventListener('click', () => {
-          if (isScrolling) return;
-          isScrolling = true;
-          
-          currentSectionIndex = index;
-          updateActiveSection(currentSectionIndex);
-          
-          setTimeout(() => {
-            isScrolling = false;
-          }, 1200);
-        });
-      });
+      // Start countdown
+      let timeLeft = 3;
       
-      // Handle hash changes
-      window.addEventListener('hashchange', () => {
-        if (isScrolling) return;
+      const countdown = setInterval(() => {
+        // Play tick sound for each second
+        tickSound.currentTime = 0;
+        playSound(tickSound);
         
-        const hash = window.location.hash.substring(1);
-        const targetSection = document.getElementById(hash);
-        if (targetSection) {
-          const index = Array.from(sections).indexOf(targetSection);
-          if (index !== -1) {
-            isScrolling = true;
-            currentSectionIndex = index;
-            updateActiveSection(currentSectionIndex);
+        timeLeft--;
+        
+        // Format time as 00:XX
+        const formattedTime = `00:0${timeLeft}`;
+        countdownTimer.textContent = formattedTime;
+        
+        // Create pulse effect
+        const pulse = document.createElement('div');
+        pulse.classList.add('timer-pulse');
+        countdownPulse.appendChild(pulse);
+        
+        // Make timer red and more urgent as we get closer to zero
+        countdownTimer.style.color = timeLeft === 1 ? '#ff0000' : '#ff5555';
+        countdownTimer.style.textShadow = `0 0 10px rgba(255, ${timeLeft * 85}, ${timeLeft * 85}, 0.7), 0 0 20px rgba(255, ${timeLeft * 85}, ${timeLeft * 85}, 0.7)`;
+        
+        // Remove pulse after animation
+        setTimeout(() => {
+          pulse.remove();
+        }, 2000);
+        
+        if (timeLeft <= 0) {
+          clearInterval(countdown);
+          clearInterval(secondHandTick);
+          
+          // Play school bell sound
+          playSound(finalSound);
+          
+          // Explosion effect
+          countdownTimer.classList.add('explosion-effect');
+          countdownOverlay.classList.add('shake-effect');
+          
+          // Create explosion particles
+          for (let i = 0; i < 20; i++) {
+            createExplosionParticle();
+          }
+          
+          // Show message with enhanced animation
+          setTimeout(() => {
+            punMessage.style.opacity = '1';
+            punMessage.classList.add('pun-animate');
+          }, 800);
+          
+          // Fade out overlay and show main content
+          setTimeout(() => {
+            countdownOverlay.classList.add('fade-out');
+            mainContent.classList.remove('opacity-0');
             
             setTimeout(() => {
-              isScrolling = false;
-            }, 1200);
-          }
+              countdownOverlay.style.display = 'none';
+              
+              // Initialize the main content scrolling functionality
+              initMainContent();
+            }, 1000);
+          }, 2500);
         }
-      });
+      }, 1000);
       
-      // Check initial hash
-      if (window.location.hash) {
-        const hash = window.location.hash.substring(1);
-        const targetSection = document.getElementById(hash);
-        if (targetSection) {
-          const index = Array.from(sections).indexOf(targetSection);
-          if (index !== -1) {
-            currentSectionIndex = index;
-            updateActiveSection(currentSectionIndex);
-          }
-        }
+      // Function to create explosion particles
+      function createExplosionParticle() {
+        const particle = document.createElement('div');
+        particle.classList.add('explosion-particle');
+        
+        // Random position, size and color
+        const size = Math.random() * 10 + 5;
+        const xPos = (Math.random() - 0.5) * 100;
+        const yPos = (Math.random() - 0.5) * 100;
+        const rotation = Math.random() * 360;
+        const duration = Math.random() * 1 + 1;
+        
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.background = `hsl(${Math.random() * 30 + 10}, 100%, 50%)`;
+        particle.style.setProperty('--x-pos', `${xPos}vw`);
+        particle.style.setProperty('--y-pos', `${yPos}vh`);
+        particle.style.setProperty('--rotation', `${rotation}deg`);
+        particle.style.setProperty('--duration', `${duration}s`);
+        
+        countdownPulse.appendChild(particle);
+        
+        // Remove particle after animation
+        setTimeout(() => {
+          particle.remove();
+        }, duration * 1000);
       }
       
-      // Handle link clicks
-      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-          e.preventDefault();
+      // Initialize main content scrolling functionality
+      function initMainContent() {
+        const container = document.getElementById('fullpage-container');
+        const sections = document.querySelectorAll('.section');
+        const scrollDots = document.querySelectorAll('.scroll-dot');
+        const fadeElements = document.querySelectorAll('.fade-in');
+        const progressBar = document.getElementById('progress-bar');
+        
+        // Force all sections to be visible
+        sections.forEach(section => {
+          section.style.opacity = '1';
+          section.style.pointerEvents = 'auto';
+          section.style.transform = 'none';
+          section.style.position = 'relative'; // Change from absolute to relative
+        });
+        
+        // Initialize
+        let currentSectionIndex = 0;
+        let isScrolling = false;
+        let scrollTimeout;
+        
+        // Make intro fade elements visible
+        fadeElements.forEach(el => {
+          el.classList.add('visible');
+        });
+        
+        // Update progress bar based on scroll position
+        function updateProgressBar() {
+          const scrollPosition = container.scrollTop;
+          const totalHeight = container.scrollHeight - container.clientHeight;
+          const progress = (scrollPosition / totalHeight) * 100;
+          progressBar.style.width = `${progress}%`;
+        }
+        
+        // Highlight active section based on scroll position
+        function highlightActiveSection() {
+          const scrollPosition = container.scrollTop;
+          const windowHeight = window.innerHeight;
           
+          sections.forEach((section, index) => {
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.offsetHeight;
+            
+            // Check if section is in view
+            if (scrollPosition >= sectionTop - windowHeight * 0.5 && 
+                scrollPosition < sectionTop + sectionHeight - windowHeight * 0.5) {
+              
+              // Only update if the section changed
+              if (currentSectionIndex !== index) {
+                currentSectionIndex = index;
+                
+                // Update active dot
+                scrollDots.forEach((dot, i) => {
+                  if (i === index) {
+                    dot.classList.add('active');
+                  } else {
+                    dot.classList.remove('active');
+                  }
+                });
+                
+                // Update URL hash without scrolling
+                const sectionId = section.id;
+                history.replaceState(null, null, `#${sectionId}`);
+              }
+            }
+          });
+        }
+        
+        // Smooth scroll to section
+        function scrollToSection(index) {
           if (isScrolling) return;
           isScrolling = true;
           
-          const targetId = this.getAttribute('href').substring(1);
-          const targetSection = document.getElementById(targetId);
-          if (targetSection) {
-            const index = Array.from(sections).indexOf(targetSection);
-            if (index !== -1) {
-              currentSectionIndex = index;
-              updateActiveSection(currentSectionIndex);
+          const targetSection = sections[index];
+          
+          // Smooth scroll to the target section
+          targetSection.scrollIntoView({ behavior: 'smooth' });
+          
+          // Update active dot
+          scrollDots.forEach((dot, i) => {
+            if (i === index) {
+              dot.classList.add('active');
+            } else {
+              dot.classList.remove('active');
             }
-          }
+          });
           
-          setTimeout(() => {
+          // Update current section index
+          currentSectionIndex = index;
+          
+          // Update URL hash
+          const sectionId = targetSection.id;
+          history.replaceState(null, null, `#${sectionId}`);
+          
+          // Reset scrolling flag after animation completes
+          clearTimeout(scrollTimeout);
+          scrollTimeout = setTimeout(() => {
             isScrolling = false;
-          }, 1200);
+          }, 800);
+        }
+        
+        // Listen for scroll events
+        container.addEventListener('scroll', () => {
+          // Update progress bar
+          updateProgressBar();
+          
+          // Debounce the section highlighting
+          clearTimeout(scrollTimeout);
+          scrollTimeout = setTimeout(() => {
+            highlightActiveSection();
+          }, 50);
         });
-      });
-      
-      // Fix iframe focus issue - ensure parent page can still capture keyboard events
-      const iframes = document.querySelectorAll('iframe');
-      iframes.forEach(iframe => {
-        iframe.addEventListener('load', () => {
-          // Add event listeners to handle focus/blur on iframes
-          iframe.contentWindow.addEventListener('focus', () => {
-            // When iframe gets focus, set up a message listener for key events
-            window.addEventListener('keydown', handleParentKeydown);
+        
+        // Handle dot navigation
+        scrollDots.forEach((dot, index) => {
+          dot.addEventListener('click', () => {
+            scrollToSection(index);
           });
+        });
+        
+        // Handle keyboard navigation
+        document.addEventListener('keydown', (e) => {
+          if (isScrolling) return;
           
-          iframe.contentWindow.addEventListener('blur', () => {
-            // When iframe loses focus, remove the message listener
-            window.removeEventListener('keydown', handleParentKeydown);
-          });
-          
-          // Add wheel event listener to the iframe content
-          try {
-            iframe.contentDocument.addEventListener('wheel', (e) => {
-              // If at the top or bottom of the iframe content, allow parent scrolling
-              const scrollableHeight = iframe.contentDocument.documentElement.scrollHeight;
-              const visibleHeight = iframe.contentDocument.documentElement.clientHeight;
-              const scrollTop = iframe.contentDocument.documentElement.scrollTop;
-              
-              if ((scrollTop <= 0 && e.deltaY < 0) || 
-                  (scrollTop + visibleHeight >= scrollableHeight && e.deltaY > 0)) {
-                // Only process if we're not already scrolling
-                if (isScrolling) return;
-                isScrolling = true;
-                
-                if (e.deltaY > 0 && currentSectionIndex < sections.length - 1) {
-                  // Scroll down - only one section at a time
-                  currentSectionIndex++;
-                  updateActiveSection(currentSectionIndex);
-                  e.preventDefault();
-                } else if (e.deltaY < 0 && currentSectionIndex > 0) {
-                  // Scroll up - only one section at a time
-                  currentSectionIndex--;
-                  updateActiveSection(currentSectionIndex);
-                  e.preventDefault();
-                }
-                
-                setTimeout(() => {
-                  isScrolling = false;
-                }, 1200);
+          if (e.key === 'ArrowDown' && currentSectionIndex < sections.length - 1) {
+            scrollToSection(currentSectionIndex + 1);
+            e.preventDefault();
+          } else if (e.key === 'ArrowUp' && currentSectionIndex > 0) {
+            scrollToSection(currentSectionIndex - 1);
+            e.preventDefault();
+          }
+        });
+        
+        // Handle link clicks
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+          anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const targetId = this.getAttribute('href').substring(1);
+            const targetSection = document.getElementById(targetId);
+            
+            if (targetSection) {
+              const index = Array.from(sections).indexOf(targetSection);
+              if (index !== -1) {
+                scrollToSection(index);
               }
-            }, { passive: false });
-          } catch (e) {
-            // Handle cross-origin iframe errors silently
-            console.log("Could not add wheel listener to iframe content");
-          }
+            }
+          });
         });
-      });
-      
-      // Handle keydown events when iframe has focus
-      function handleParentKeydown(e) {
-        if (isScrolling) return;
         
-        if (e.key === 'ArrowDown' && currentSectionIndex < sections.length - 1) {
-          isScrolling = true;
-          currentSectionIndex++;
-          updateActiveSection(currentSectionIndex);
-          e.preventDefault();
-          
-          setTimeout(() => {
-            isScrolling = false;
-          }, 1200);
-        } else if (e.key === 'ArrowUp' && currentSectionIndex > 0) {
-          isScrolling = true;
-          currentSectionIndex--;
-          updateActiveSection(currentSectionIndex);
-          e.preventDefault();
-          
-          setTimeout(() => {
-            isScrolling = false;
-          }, 1200);
-        }
-      }
-      
-      // Add touch swipe support for mobile
-      let touchStartY = 0;
-      let touchEndY = 0;
-      
-      document.addEventListener('touchstart', (e) => {
-        touchStartY = e.changedTouches[0].screenY;
-      }, { passive: true });
-      
-      document.addEventListener('touchend', (e) => {
-        if (isScrolling) return;
+        // Initialize progress bar
+        updateProgressBar();
         
-        touchEndY = e.changedTouches[0].screenY;
-        handleSwipe();
-      }, { passive: true });
-      
-      function handleSwipe() {
-        const swipeDistance = touchEndY - touchStartY;
-        const minSwipeDistance = 50;
+        // Intersection Observer for fade-in animations
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+            }
+          });
+        }, { threshold: 0.1 });
         
-        if (swipeDistance > minSwipeDistance && currentSectionIndex > 0) {
-          // Swipe down (previous section)
-          isScrolling = true;
-          currentSectionIndex--;
-          updateActiveSection(currentSectionIndex);
-          
-          setTimeout(() => {
-            isScrolling = false;
-          }, 1200);
-        } else if (swipeDistance < -minSwipeDistance && currentSectionIndex < sections.length - 1) {
-          // Swipe up (next section)
-          isScrolling = true;
-          currentSectionIndex++;
-          updateActiveSection(currentSectionIndex);
-          
-          setTimeout(() => {
-            isScrolling = false;
-          }, 1200);
-        }
+        // Observe all sections
+        document.querySelectorAll('section').forEach(el => {
+          observer.observe(el);
+        });
       }
     });
   </script>
