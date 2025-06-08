@@ -63,37 +63,32 @@
       font-family: 'Inter', sans-serif;
     }
     
-    .scroll-container {
+    .fullpage-container {
       height: 100vh;
-      overflow-y: scroll;
-      scroll-snap-type: y mandatory;
-      scroll-behavior: smooth;
+      overflow: hidden;
+      position: relative;
     }
     
     .section {
       height: 100vh;
-      scroll-snap-align: start;
-      scroll-snap-stop: always;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 2rem;
+      width: 100vw;
+      position: absolute;
+      top: 0;
+      left: 0;
       opacity: 0;
-      transition: opacity 0.8s ease;
-      position: relative;
+      pointer-events: none;
+      transition: opacity 0.4s ease; /* Faster transition */
     }
     
-    .section.visible {
+    .section.active {
       opacity: 1;
+      pointer-events: all;
     }
     
-    .content-wrapper {
-      max-width: 800px;
+    .section-frame {
       width: 100%;
-      text-align: center;
-      position: relative;
-      z-index: 10;
+      height: 100%;
+      border: none;
     }
     
     .scroll-indicator {
@@ -185,18 +180,6 @@
       font-family: 'JetBrains Mono', monospace;
       text-shadow: 0 0 10px rgba(14, 165, 233, 0.7);
     }
-    
-    .bg-stress-pattern {
-      background-color: #1a103c;
-      background-image: radial-gradient(rgba(168, 85, 247, 0.1) 1px, transparent 1px);
-      background-size: 20px 20px;
-    }
-    
-    .bg-calm-pattern {
-      background-color: #0c2546;
-      background-image: radial-gradient(rgba(14, 165, 233, 0.1) 1px, transparent 1px);
-      background-size: 20px 20px;
-    }
   </style>
 </head>
 <body class="font-sans">
@@ -206,11 +189,12 @@
     <div class="scroll-dot" data-section="section-2"></div>
     <div class="scroll-dot" data-section="section-3"></div>
     <div class="scroll-dot" data-section="section-4"></div>
+    <div class="scroll-dot" data-section="section-5"></div>
     <div class="scroll-dot" data-section="conclusion"></div>
   </div>
 
-  <div class="scroll-container">
-    <section id="intro" class="section bg-stress-gradient text-white">
+  <div class="fullpage-container">
+    <section id="intro" class="section active">
       <div class="heart-bg">
         <svg class="heart-svg" viewBox="0 0 32 32" fill="white" xmlns="http://www.w3.org/2000/svg">
           <path d="M16 28.7c-.7 0-1.4-.3-1.9-.8L4.8 18.6C1.7 15.5 1.7 10.4 4.8 7.3c1.5-1.5 3.5-2.3 5.6-2.3s4.1.8 5.6 2.3L16 7.3l.1-.1c1.5-1.5 3.5-2.3 5.6-2.3s4.1.8 5.6 2.3c3.1 3.1 3.1 8.2 0 11.3L17.9 27.9c-.5.5-1.2.8-1.9.8z"/>
@@ -237,65 +221,42 @@
       </div>
     </section>
     
-    <section id="section-1" class="section bg-stress-pattern">
-      <div class="content-wrapper">
-        <h2 class="text-3xl font-bold mb-6 text-white">Heart Rate Patterns</h2>
-        <div class="mb-8 w-full max-w-lg mx-auto h-64 bg-black/40 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-lg border border-stress-700/30">
-          <span class="metric text-stress-400 text-2xl">Heart Rate: <span class="text-3xl">92</span> BPM</span>
-        </div>
-        <p class="text-lg mb-4 text-white/80">During high-stress moments, students showed an average increase of <span class="metric text-stress-400">24%</span> in heart rate compared to their baseline.</p>
-        <p class="text-lg text-white/80">Students with <span class="metric-calm text-calm-400">lower anxiety scores</span> maintained more stable heart rates throughout the exam period.</p>
-      </div>
+    <section id="section-1" class="section">
+      <iframe src="desks.html" class="section-frame" title="Heart Rate Patterns"></iframe>
     </section>
     
-    <section id="section-2" class="section bg-calm-pattern">
-      <div class="content-wrapper">
-        <h2 class="text-3xl font-bold mb-6 text-white">Electrodermal Activity</h2>
-        <div class="mb-8 w-full max-w-lg mx-auto h-64 bg-black/40 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-lg border border-calm-700/30">
-          <span class="metric-calm text-calm-400 text-2xl">EDA: <span class="text-3xl">4.7</span> μS</span>
-        </div>
-        <p class="text-lg mb-4 text-white/80">Electrodermal activity (EDA) spiked by <span class="metric text-stress-400">215%</span> in the first 10 minutes of exam sessions.</p>
-        <p class="text-lg text-white/80">Students who performed better showed <span class="metric-calm text-calm-400">regulated EDA patterns</span> after the initial spike, suggesting better stress management.</p>
-      </div>
+    <section id="section-2" class="section">
+      <iframe src="student-heart-monitor.html" class="section-frame" title="Electrodermal Activity"></iframe>
     </section>
     
-    <section id="section-3" class="section bg-stress-pattern">
-      <div class="content-wrapper">
+    <section id="section-3" class="section">
+      <div class="w-full h-full flex flex-col items-center justify-center bg-stress-pattern">
         <h2 class="text-3xl font-bold mb-6 text-white">Performance Correlation</h2>
-        <div class="mb-8 w-full max-w-lg mx-auto h-64 bg-black/40 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-lg border border-stress-700/30">
-          <span class="metric text-stress-400 text-2xl">Correlation: <span class="text-3xl">-0.68</span></span>
+        <div class="text-center">
+          <span class="metric text-stress-400 text-5xl">Correlation: <span class="text-6xl">-0.68</span></span>
+          <p class="text-lg mt-8 mb-4 text-white/80 max-w-2xl mx-auto">We found a <span class="metric text-stress-400">negative correlation</span> between sustained high stress levels and exam performance.</p>
+          <p class="text-lg text-white/80 max-w-2xl mx-auto">However, students with <span class="metric-calm text-calm-400">moderate stress responses</span> often outperformed those with minimal physiological reactions.</p>
         </div>
-        <p class="text-lg mb-4 text-white/80">We found a <span class="metric text-stress-400">negative correlation</span> between sustained high stress levels and exam performance.</p>
-        <p class="text-lg text-white/80">However, students with <span class="metric-calm text-calm-400">moderate stress responses</span> often outperformed those with minimal physiological reactions.</p>
       </div>
     </section>
     
-    <section id="section-4" class="section bg-calm-pattern">
-      <div class="content-wrapper">
+    <section id="section-4" class="section">
+      <div class="w-full h-full flex flex-col items-center justify-center bg-calm-pattern">
         <h2 class="text-3xl font-bold mb-6 text-white">Stress Management</h2>
-        <div class="mb-8 w-full max-w-lg mx-auto h-64 bg-black/40 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-lg border border-calm-700/30">
-          <span class="metric-calm text-calm-400 text-2xl">Recovery Time: <span class="text-3xl">8.2</span> min</span>
+        <div class="text-center">
+          <span class="metric-calm text-calm-400 text-5xl">Recovery Time: <span class="text-6xl">8.2</span> min</span>
+          <p class="text-lg mt-8 mb-4 text-white/80 max-w-2xl mx-auto">Top-performing students showed an average stress recovery time of <span class="metric-calm text-calm-400">8.2 minutes</span> after encountering difficult questions.</p>
+          <p class="text-lg text-white/80 max-w-2xl mx-auto">Students who practiced mindfulness techniques showed <span class="metric-calm text-calm-400">42% faster</span> physiological recovery from stress spikes.</p>
         </div>
-        <p class="text-lg mb-4 text-white/80">Top-performing students showed an average stress recovery time of <span class="metric-calm text-calm-400">8.2 minutes</span> after encountering difficult questions.</p>
-        <p class="text-lg text-white/80">Students who practiced mindfulness techniques showed <span class="metric-calm text-calm-400">42% faster</span> physiological recovery from stress spikes.</p>
       </div>
     </section>
     
-    <section id="conclusion" class="section bg-stress-gradient text-white">
-      <div class="content-wrapper">
-        <h2 class="text-3xl font-bold mb-6">Key Findings</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div class="bg-black/30 backdrop-blur-sm p-6 rounded-lg shadow-lg border border-white/10">
-            <h3 class="text-xl font-semibold mb-3">Optimal Stress</h3>
-            <p>Moderate stress levels (<span class="metric-calm text-calm-400">15-25% HR increase</span>) correlated with peak performance</p>
-          </div>
-          <div class="bg-black/30 backdrop-blur-sm p-6 rounded-lg shadow-lg border border-white/10">
-            <h3 class="text-xl font-semibold mb-3">Recovery Patterns</h3>
-            <p>The ability to <span class="metric-calm text-calm-400">recover quickly</span> from stress spikes was more important than baseline stress levels</p>
-          </div>
-        </div>
-        <p class="text-lg italic">© 2023 Exam Stress Visualization Project</p>
-      </div>
+    <section id="section-5" class="section">
+      <iframe src="student-scatter-plot.html" class="section-frame" title="Performance Correlation"></iframe>
+    </section>
+    
+    <section id="conclusion" class="section">
+      <iframe src="reflection-wall.html" class="section-frame" title="Key Findings"></iframe>
     </section>
   </div>
 
@@ -305,71 +266,282 @@
       const scrollDots = document.querySelectorAll('.scroll-dot');
       const fadeElements = document.querySelectorAll('.fade-in');
       
-      const observerOptions = {
-        root: null,
-        rootMargin: '0px',
-        threshold: 0.3 
-      };
+      // Initialize
+      let currentSectionIndex = 0;
+      updateActiveSection(currentSectionIndex);
       
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const sectionId = entry.target.id;
-            
-            entry.target.classList.add('visible');
-            
-            if (sectionId === 'intro') {
-              fadeElements.forEach(el => {
-                el.classList.add('visible');
-              });
-            }
-            
-            scrollDots.forEach(dot => {
-              if (dot.dataset.section === sectionId) {
-                dot.classList.add('active');
-              } else {
-                dot.classList.remove('active');
-              }
-            });
-            
-            history.replaceState(null, null, `#${sectionId}`);
-          } else {
-          
-            
-            if (entry.target.id === 'intro') {
-              fadeElements.forEach(el => {
-                el.classList.remove('visible');
-              });
-            }
-          }
-        });
-      }, observerOptions);
-      
-
-      sections.forEach(section => {
-        observer.observe(section);
+      // Make intro fade elements visible
+      fadeElements.forEach(el => {
+        el.classList.add('visible');
       });
-
-      scrollDots.forEach(dot => {
+      
+      // Handle wheel events for scrolling with strict control
+      let isScrolling = false;
+      
+      document.addEventListener('wheel', (e) => {
+        // Prevent multiple scroll events from firing too quickly
+        if (isScrolling) return;
+        isScrolling = true;
+        
+        // Determine scroll direction
+        if (e.deltaY > 0 && currentSectionIndex < sections.length - 1) {
+          // Scroll down - only move one section at a time
+          currentSectionIndex++;
+          updateActiveSection(currentSectionIndex);
+        } else if (e.deltaY < 0 && currentSectionIndex > 0) {
+          // Scroll up - only move one section at a time
+          currentSectionIndex--;
+          updateActiveSection(currentSectionIndex);
+        }
+        
+        // Reset scroll lock after a delay
+        setTimeout(() => {
+          isScrolling = false;
+        }, 1000); // Longer delay to prevent accidental multi-scrolling
+        
+        e.preventDefault();
+      }, { passive: false });
+      
+      // Handle keyboard navigation
+      document.addEventListener('keydown', (e) => {
+        if (isScrolling) return;
+        
+        if (e.key === 'ArrowDown' && currentSectionIndex < sections.length - 1) {
+          isScrolling = true;
+          currentSectionIndex++;
+          updateActiveSection(currentSectionIndex);
+          e.preventDefault();
+          
+          setTimeout(() => {
+            isScrolling = false;
+          }, 1000);
+        } else if (e.key === 'ArrowUp' && currentSectionIndex > 0) {
+          isScrolling = true;
+          currentSectionIndex--;
+          updateActiveSection(currentSectionIndex);
+          e.preventDefault();
+          
+          setTimeout(() => {
+            isScrolling = false;
+          }, 1000);
+        }
+      });
+      
+      // Handle dot navigation
+      scrollDots.forEach((dot, index) => {
         dot.addEventListener('click', () => {
-          const sectionId = dot.dataset.section;
-          const section = document.getElementById(sectionId);
+          if (isScrolling) return;
+          isScrolling = true;
           
-          if (section) {
-            section.scrollIntoView({ behavior: 'smooth' });
+          currentSectionIndex = index;
+          updateActiveSection(currentSectionIndex);
+          
+          setTimeout(() => {
+            isScrolling = false;
+          }, 1000);
+        });
+      });
+      
+      // Handle hash changes
+      window.addEventListener('hashchange', () => {
+        if (isScrolling) return;
+        
+        const hash = window.location.hash.substring(1);
+        const targetSection = document.getElementById(hash);
+        if (targetSection) {
+          const index = Array.from(sections).indexOf(targetSection);
+          if (index !== -1) {
+            isScrolling = true;
+            currentSectionIndex = index;
+            updateActiveSection(currentSectionIndex);
+            
+            setTimeout(() => {
+              isScrolling = false;
+            }, 1000);
+          }
+        }
+      });
+      
+      // Check initial hash
+      if (window.location.hash) {
+        const hash = window.location.hash.substring(1);
+        const targetSection = document.getElementById(hash);
+        if (targetSection) {
+          const index = Array.from(sections).indexOf(targetSection);
+          if (index !== -1) {
+            currentSectionIndex = index;
+            updateActiveSection(currentSectionIndex);
+          }
+        }
+      }
+      
+      // Update active section
+      function updateActiveSection(index) {
+        // Update sections
+        sections.forEach((section, i) => {
+          if (i === index) {
+            section.classList.add('active');
+          } else {
+            section.classList.remove('active');
+          }
+        });
+        
+        // Update dots
+        scrollDots.forEach((dot, i) => {
+          if (i === index) {
+            dot.classList.add('active');
+          } else {
+            dot.classList.remove('active');
+          }
+        });
+        
+        // Update URL hash without scrolling
+        const sectionId = sections[index].id;
+        history.replaceState(null, null, `#${sectionId}`);
+      }
+      
+      // Handle link clicks
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+          e.preventDefault();
+          
+          if (isScrolling) return;
+          isScrolling = true;
+          
+          const targetId = this.getAttribute('href').substring(1);
+          const targetSection = document.getElementById(targetId);
+          if (targetSection) {
+            const index = Array.from(sections).indexOf(targetSection);
+            if (index !== -1) {
+              currentSectionIndex = index;
+              updateActiveSection(currentSectionIndex);
+            }
+          }
+          
+          setTimeout(() => {
+            isScrolling = false;
+          }, 1000);
+        });
+      });
+      
+      // Fix iframe focus issue - ensure parent page can still capture keyboard events
+      const iframes = document.querySelectorAll('iframe');
+      iframes.forEach(iframe => {
+        iframe.addEventListener('load', () => {
+          // Add event listeners to handle focus/blur on iframes
+          iframe.contentWindow.addEventListener('focus', () => {
+            // When iframe gets focus, set up a message listener for key events
+            window.addEventListener('keydown', handleParentKeydown);
+          });
+          
+          iframe.contentWindow.addEventListener('blur', () => {
+            // When iframe loses focus, remove the message listener
+            window.removeEventListener('keydown', handleParentKeydown);
+          });
+          
+          // Add wheel event listener to the iframe content
+          try {
+            iframe.contentDocument.addEventListener('wheel', (e) => {
+              // If at the top or bottom of the iframe content, allow parent scrolling
+              const scrollableHeight = iframe.contentDocument.documentElement.scrollHeight;
+              const visibleHeight = iframe.contentDocument.documentElement.clientHeight;
+              const scrollTop = iframe.contentDocument.documentElement.scrollTop;
+              
+              if ((scrollTop <= 0 && e.deltaY < 0) || 
+                  (scrollTop + visibleHeight >= scrollableHeight && e.deltaY > 0)) {
+                // Only process if we're not already scrolling
+                if (isScrolling) return;
+                isScrolling = true;
+                
+                if (e.deltaY > 0 && currentSectionIndex < sections.length - 1) {
+                  // Scroll down - only one section at a time
+                  currentSectionIndex++;
+                  updateActiveSection(currentSectionIndex);
+                  e.preventDefault();
+                } else if (e.deltaY < 0 && currentSectionIndex > 0) {
+                  // Scroll up - only one section at a time
+                  currentSectionIndex--;
+                  updateActiveSection(currentSectionIndex);
+                  e.preventDefault();
+                }
+                
+                setTimeout(() => {
+                  isScrolling = false;
+                }, 1000);
+              }
+            }, { passive: false });
+          } catch (e) {
+            // Handle cross-origin iframe errors silently
+            console.log("Could not add wheel listener to iframe content");
           }
         });
       });
-    
-      if (window.location.hash) {
-        const targetSection = document.querySelector(window.location.hash);
-        if (targetSection) {
-          targetSection.scrollIntoView();
+      
+      // Handle keydown events when iframe has focus
+      function handleParentKeydown(e) {
+        if (isScrolling) return;
+        
+        if (e.key === 'ArrowDown' && currentSectionIndex < sections.length - 1) {
+          isScrolling = true;
+          currentSectionIndex++;
+          updateActiveSection(currentSectionIndex);
+          e.preventDefault();
+          
+          setTimeout(() => {
+            isScrolling = false;
+          }, 1000);
+        } else if (e.key === 'ArrowUp' && currentSectionIndex > 0) {
+          isScrolling = true;
+          currentSectionIndex--;
+          updateActiveSection(currentSectionIndex);
+          e.preventDefault();
+          
+          setTimeout(() => {
+            isScrolling = false;
+          }, 1000);
+        }
+      }
+      
+      // Add touch swipe support for mobile
+      let touchStartY = 0;
+      let touchEndY = 0;
+      
+      document.addEventListener('touchstart', (e) => {
+        touchStartY = e.changedTouches[0].screenY;
+      }, { passive: true });
+      
+      document.addEventListener('touchend', (e) => {
+        if (isScrolling) return;
+        
+        touchEndY = e.changedTouches[0].screenY;
+        handleSwipe();
+      }, { passive: true });
+      
+      function handleSwipe() {
+        const swipeDistance = touchEndY - touchStartY;
+        const minSwipeDistance = 50;
+        
+        if (swipeDistance > minSwipeDistance && currentSectionIndex > 0) {
+          // Swipe down (previous section)
+          isScrolling = true;
+          currentSectionIndex--;
+          updateActiveSection(currentSectionIndex);
+          
+          setTimeout(() => {
+            isScrolling = false;
+          }, 1000);
+        } else if (swipeDistance < -minSwipeDistance && currentSectionIndex < sections.length - 1) {
+          // Swipe up (next section)
+          isScrolling = true;
+          currentSectionIndex++;
+          updateActiveSection(currentSectionIndex);
+          
+          setTimeout(() => {
+            isScrolling = false;
+          }, 1000);
         }
       }
     });
   </script>
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script src="main.js"></script>  
 </body>
 </html>
