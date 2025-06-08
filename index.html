@@ -289,7 +289,7 @@
             Ten students. Three exams. One question: does stress help or hurt?
           </p>
           <div class="mt-8 fade-in delay-600">
-            <a href="#section-1" class="cursor-pointer">
+            <a href="#section-1" class="cursor-pointer scroll-arrow">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto text-white animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
               </svg>
@@ -492,6 +492,17 @@
               
               // Initialize the main content scrolling functionality
               initMainContent();
+              
+              // Setup arrow navigation after main content is initialized
+              document.querySelectorAll('.scroll-arrow').forEach(arrow => {
+                arrow.addEventListener('click', function(e) {
+                  e.preventDefault();
+                  const targetId = this.getAttribute('href').substring(1);
+                  if (window.scrollToSection) {
+                    window.scrollToSection(targetId);
+                  }
+                });
+              });
             }, 1000);
           }, 2500);
         }
@@ -770,7 +781,47 @@
             }
           }
         }
+        
+        // Make scrollToSection available globally
+        window.scrollToSection = function(sectionId) {
+          const targetSection = document.getElementById(sectionId);
+          if (targetSection) {
+            const index = Array.from(sections).indexOf(targetSection);
+            if (index !== -1) {
+              scrollToSection(index);
+            }
+          }
+        };
       }
+      
+      // Call setupArrowNavigation after the countdown completes
+      const originalInitMainContent = initMainContent;
+      initMainContent = function() {
+        originalInitMainContent();
+        setupArrowNavigation();
+      };
+      
+      // If you're not using the countdown, or want arrows to work immediately:
+      document.querySelectorAll('a[href^="#"]').forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          const targetId = this.getAttribute('href').substring(1);
+          
+          // If the main content is already visible, use the scrollToSection function
+          if (!document.getElementById('countdown-overlay') || 
+              document.getElementById('countdown-overlay').style.display === 'none') {
+            if (window.scrollToSection) {
+              window.scrollToSection(targetId);
+            } else {
+              // Fallback if scrollToSection isn't available yet
+              const targetElement = document.getElementById(targetId);
+              if (targetElement) {
+                targetElement.scrollIntoView({ behavior: 'smooth' });
+              }
+            }
+          }
+        });
+      });
     });
   </script>
 </body>
