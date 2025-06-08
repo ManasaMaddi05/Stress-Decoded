@@ -6,6 +6,251 @@
   <title>Student Morning Routine Timeline</title>
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <link rel="stylesheet" href="css/student-timeline.css">
+  <style>
+    /* 1. Fix spacing between title and exam dropdown */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      gap: 1.5rem;
+    }
+    
+    h1 {
+      margin: 0;
+      font-size: 1.8rem;
+      white-space: nowrap;
+    }
+    
+    .selectors {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    
+    /* 2. Center the visualization on the page */
+    .container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      padding: 1rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .main-content {
+      width: 100%;
+    }
+    
+    /* 3. Match UI for generate stress summary button */
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1rem;
+      gap: 1rem;
+    }
+    
+    .timeline-info {
+      flex: 1;
+    }
+    
+    .summary-btn {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(79, 70, 229, 0.3);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      color: white;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      backdrop-filter: blur(10px);
+    }
+    
+    .summary-btn:hover {
+      border-color: rgba(79, 70, 229, 0.5);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2), 0 0 0 2px rgba(79, 70, 229, 0.1);
+    }
+    
+    .summary-btn::before {
+      content: '🧠';
+      font-size: 1.1rem;
+    }
+    
+    /* Hide the trash/shopping bag */
+    .trash, .trash-area {
+      display: none !important;
+    }
+    
+    /* Style the exam selector */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      width: 100%;
+    }
+    
+    .selectors {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    
+    .selector {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    
+    .selector-label {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.7);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    select {
+      background-color: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 0.5rem;
+      color: white;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24' width='16' height='16'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.5rem center;
+      padding-right: 2rem;
+      cursor: pointer;
+    }
+    
+    select:focus {
+      outline: none;
+      border-color: rgba(79, 70, 229, 0.5);
+      box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.25);
+    }
+    
+    /* Timeline styles */
+    .timeline-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      margin-top: 2rem;
+      width: 100%;
+    }
+    
+    .timeline {
+      display: flex;
+      height: 140px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      overflow-x: auto;
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      scrollbar-width: thin;
+      scrollbar-color: rgba(79, 70, 229, 0.5) rgba(0, 0, 0, 0.2);
+    }
+    
+    .timeline::-webkit-scrollbar {
+      height: 8px;
+    }
+    
+    .timeline::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 4px;
+    }
+    
+    .timeline::-webkit-scrollbar-thumb {
+      background: rgba(79, 70, 229, 0.5);
+      border-radius: 4px;
+    }
+    
+    .timeline::-webkit-scrollbar-thumb:hover {
+      background: rgba(79, 70, 229, 0.7);
+    }
+    
+    .timeline-block {
+      flex: 1;
+      min-width: 20px;
+      height: 100%;
+      border-right: 1px solid rgba(255, 255, 255, 0.05);
+      position: relative;
+      transition: background-color 0.3s;
+    }
+    
+    .timeline-block:nth-child(15n+1) {
+      border-right: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .timeline-block:hover {
+      background-color: rgba(79, 70, 229, 0.15);
+    }
+    
+    .time-label {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.7);
+      padding: 0.25rem 0;
+      font-family: 'JetBrains Mono', monospace;
+      white-space: nowrap;
+    }
+    
+    .timeline-card {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(30, 41, 59, 0.8);
+      border-radius: 4px;
+      padding: 4px;
+      font-size: 0.7rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      cursor: grab;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      transition: all 0.2s ease;
+    }
+    
+    .timeline-block.dragover {
+      background-color: rgba(255, 255, 255, 0.15);
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.3);
+    }
+
+
+    
+  </style>
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Morning Routine Timeline</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <link rel="stylesheet" href="css/student-timeline.css">
 </head>
 <body>
   <div class="container">
@@ -46,7 +291,7 @@
         <div class="controls">
           <div class="timeline-info">Drag and drop morning activities onto the timeline</div>
           <button id="reveal-btn" class="reveal-btn">Show Physiological Patterns</button>
-          <button id="summary-btn" class="summary-btn">🧠 Generate Stress Summary</button>
+          <button id="summary-btn" class="summary-btn">Generate Stress Summary</button>
         </div>
         
         <div class="legend" id="legend" style="display: none;">
@@ -499,6 +744,8 @@
   </script>
 </body>
 </html>
+
+
 
 
 
