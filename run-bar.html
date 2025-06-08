@@ -47,23 +47,52 @@
         
         h1 {
             font-weight: 700;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
             background: linear-gradient(90deg, #fff, #a5b4fc, #c4b5fd);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            font-size: 2rem;
+            font-size: 2.5rem; /* Increased font size */
             letter-spacing: -0.5px;
-            text-align: center;
+            text-align: center; /* Center alignment */
             position: relative;
+            font-family: 'Inter', sans-serif;
+            padding-bottom: 1rem;
         }
         
         h1::after {
             content: '';
             position: absolute;
-            bottom: -8px;
+            bottom: 0;
             left: 50%;
             transform: translateX(-50%);
-            width: 80px;
+            width: 100px; /* Wider underline */
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 3px;
+        }
+        
+        /* Make sure all visualization titles use this style */
+        .visualization-title {
+            font-weight: 700;
+            margin-bottom: 2rem;
+            background: linear-gradient(90deg, #fff, #a5b4fc, #c4b5fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 2.5rem; /* Increased font size */
+            letter-spacing: -0.5px;
+            text-align: center; /* Center alignment */
+            position: relative;
+            font-family: 'Inter', sans-serif;
+            padding-bottom: 1rem;
+        }
+        
+        .visualization-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px; /* Wider underline */
             height: 3px;
             background: linear-gradient(90deg, var(--primary), var(--accent));
             border-radius: 3px;
@@ -269,7 +298,7 @@
 </head>
 <body class="font-sans">
     <div class="container">
-        <h1 class="text-3xl font-bold mb-6">Physiological Metrics Analysis</h1>
+        <h1 class="visualization-title">Physiological Metrics Analysis</h1>
         
         <div class="controls">
             <div class="flex items-center gap-2">
@@ -692,6 +721,8 @@
     </script>
 </body>
 </html>
+
+
 
 
 
