@@ -409,8 +409,8 @@
         </div>
         
         <div class="description">
-            <p>Heart Rate (HR) measurements show the number of heartbeats per minute during exam periods.</p>
-            <p>Higher HR values indicate increased heart rate, often associated with stress and physical exertion.</p>
+            <p>Blood Volume Pulse (BVP) measurements show changes in blood flow and vascular activity during exam periods.</p>
+            <p>Higher BVP values indicate increased blood flow, often associated with stress and anxiety responses.</p>
         </div>
         
         <div class="time-indicator" id="time-display">
@@ -728,19 +728,58 @@
                 return mockData;
             }
 
-            // Initial data load
+            // Initial data load - but don't start animation yet
             let currentTimeIndex = 0;
             let processedData = [];
             let animationInterval;
 
-            function startAnimation(data) {
+            // Load data but don't start animation immediately
+            loadData(chartConfig.currentMetric).then(data => {
                 processedData = data;
-                currentTimeIndex = 0;
+                // Just initialize the chart with the first frame
                 updateChart(processedData, currentTimeIndex);
+                
+                // Set isPaused to true initially
+                chartConfig.isPaused = true;
+                
+                // Update pause button to show play state
+                const pauseButton = document.getElementById('pause-button');
+                if (pauseButton) {
+                    pauseButton.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>
+                        </svg>
+                        Play
+                    `;
+                    pauseButton.classList.add('bg-purple-600/50');
+                    pauseButton.classList.remove('bg-black/40');
+                }
+            });
 
+            // Function to start animation
+            function startAnimation() {
                 if (animationInterval) {
                     clearInterval(animationInterval);
                 }
+
+                // Reset to beginning
+                currentTimeIndex = 0;
+                chartConfig.isPaused = false;
+                
+                // Update pause button to show pause state
+                const pauseButton = document.getElementById('pause-button');
+                if (pauseButton) {
+                    pauseButton.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M5 3.5h2A.5.5 0 0 1 7.5 4v8a.5.5 0 0 1-.5.5H5a.5.5 0 0 1-.5-.5V4a.5.5 0 0 1 .5-.5zm4 0h2a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5H9a.5.5 0 0 1-.5-.5V4a.5.5 0 0 1 .5-.5z"/>
+                        </svg>
+                        Pause
+                    `;
+                    pauseButton.classList.remove('bg-purple-600/50');
+                    pauseButton.classList.add('bg-black/40');
+                }
+                
+                updateChart(processedData, currentTimeIndex);
 
                 animationInterval = setInterval(() => {
                     if (!chartConfig.isPaused) {
@@ -775,28 +814,7 @@
                 }, 500);
             }
 
-            // Load initial data
-            loadData(chartConfig.currentMetric).then(startAnimation);
-
-            // Set up metric selector
-            const metricSelector = document.getElementById('metric-selector');
-            if (metricSelector) {
-                metricSelector.addEventListener('change', function() {
-                    const newMetric = this.value;
-                    chartConfig.currentMetric = newMetric;
-                    
-                    // Update similar student ID if needed
-                    if (chartConfig.similarStudentId) {
-                        const studentNum = chartConfig.similarStudentId.split('_')[0];
-                        chartConfig.similarStudentId = `${studentNum}_${newMetric}`;
-                    }
-                    
-                    // Load new data
-                    loadData(newMetric).then(startAnimation);
-                });
-            }
-
-            // Set up pause button
+            // Set up pause button to also act as play button
             const pauseButton = document.getElementById('pause-button');
             if (pauseButton) {
                 pauseButton.addEventListener('click', function() {
@@ -807,7 +825,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                                 <path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>
                             </svg>
-                            Resume
+                            Play
                         `;
                         this.classList.add('bg-purple-600/50');
                         this.classList.remove('bg-black/40');
@@ -824,9 +842,45 @@
                         this.classList.remove('bg-purple-600/50');
                         this.classList.add('bg-black/40');
                         
+                        // If animation hasn't started yet, start it
+                        if (!animationInterval) {
+                            startAnimation();
+                        }
+                        
                         // Update chart to hide value labels
                         updateChart(processedData, currentTimeIndex);
                     }
+                });
+            }
+
+            // Add intersection observer to detect when chart is visible
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && !animationInterval && chartConfig.isPaused) {
+                        // Start animation when chart becomes visible
+                        startAnimation();
+                    }
+                });
+            }, { threshold: 0.5 }); // Start when 50% of the chart is visible
+
+            // Observe the chart container
+            observer.observe(document.querySelector('.chart-container'));
+
+            // Set up metric selector
+            const metricSelector = document.getElementById('metric-selector');
+            if (metricSelector) {
+                metricSelector.addEventListener('change', function() {
+                    const newMetric = this.value;
+                    chartConfig.currentMetric = newMetric;
+                    
+                    // Update similar student ID if needed
+                    if (chartConfig.similarStudentId) {
+                        const studentNum = chartConfig.similarStudentId.split('_')[0];
+                        chartConfig.similarStudentId = `${studentNum}_${newMetric}`;
+                    }
+                    
+                    // Load new data
+                    loadData(newMetric).then(startAnimation);
                 });
             }
 
