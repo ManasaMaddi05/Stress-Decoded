@@ -731,7 +731,10 @@
             let animationInterval;
 
             function startAnimation(data) {
-                processedData = data;
+                if (data) {
+                    processedData = data;
+                }
+                
                 currentTimeIndex = 0;
                 updateChart(processedData, currentTimeIndex);
 
@@ -802,9 +805,8 @@
                         processedData = data;
                         updateChart(processedData, currentTimeIndex);
                         
-                        if (!chartConfig.isPaused) {
-                            startAnimation();
-                        }
+                        // Start animation with the data directly instead of calling startAnimation without args
+                        startAnimation(data);
                     });
                 });
             }
@@ -837,8 +839,10 @@
                         this.classList.remove('bg-purple-600/50');
                         this.classList.add('bg-black/40');
                         
-                        // Update chart to hide value labels
-                        updateChart(processedData, currentTimeIndex);
+                        // If animation was stopped, restart it
+                        if (!animationInterval) {
+                            startAnimation(processedData);
+                        }
                     }
                 });
             }
