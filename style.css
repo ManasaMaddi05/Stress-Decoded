@@ -313,3 +313,254 @@ opacity: 0 !important;
     min-height: 70vh !important; /* Taller on mobile */
   }
 }
+
+/* Add styles for the floating cards */
+.card-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.card-container.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.delay-300 {
+  transition-delay: 300ms;
+}
+
+.delay-600 {
+  transition-delay: 600ms;
+}
+
+.delay-900 {
+  transition-delay: 900ms;
+}
+
+/* Update card styling to match the instructions box from "Meet the Students" page */
+.card-container > div {
+  background: rgba(15, 23, 42, 0.8);
+  border-radius: 1rem;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid rgba(79, 70, 229, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.card-container.mb-10 > div {
+  background: rgba(15, 23, 42, 0.8);
+  border-radius: 1rem;
+  padding: 1.5rem 2rem;
+  border: 1px solid rgba(79, 70, 229, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.card-container.mb-10 > div::before,
+.card-container.mb-10 > div::after {
+  display: none;
+}
+
+.card-container p {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.card-container.mb-10 p {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+/* Add consistent styling for the metrics vs score section */
+.metrics-vs-score-title {
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #a5b4fc;
+  font-size: 3rem;
+  letter-spacing: 0px;
+  text-align: center;
+  position: relative;
+  font-family: 'Inter', sans-serif;
+  padding-bottom: 1.5rem;
+  text-shadow: 0 0 15px rgba(165, 180, 252, 0.3);
+}
+
+.metrics-vs-score-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 140px;
+  height: 4px;
+  background: #6366f1;
+  border-radius: 2px;
+}
+
+.metrics-subtitle {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+}
+
+.metrics-instructions {
+  background: rgba(15, 23, 42, 0.8);
+  border-radius: 1rem;
+  padding: 1.5rem 2rem;
+  border: 1px solid rgba(79, 70, 229, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  margin-bottom: 2rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.metrics-instructions p {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  text-align: center;
+  margin: 0;
+}
+
+.metrics-selector {
+  display: flex;
+  justify-content: center;
+  margin: 2rem 0;
+}
+
+.metrics-selector select {
+  background-color: rgba(79, 70, 229, 0.2);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 8px;
+  color: white;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  min-width: 180px;
+  height: 42px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24' width='16' height='16'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 2.5rem;
+}
+
+.metrics-selector select:hover {
+  background-color: rgba(99, 102, 241, 0.3);
+  border-color: rgba(129, 140, 248, 0.4);
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+  transform: translateY(-1px);
+}
+
+.metrics-selector select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.25);
+}
+
+.chart-container {
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  border: 1px solid rgba(79, 70, 229, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.legend-container {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.legend-label {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.95rem;
+}
+
+/* Add styles for the instructions panel */
+.instructions-panel {
+  background: rgba(15, 23, 42, 0.7);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid rgba(79, 70, 229, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.instructions-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, 
+      transparent, 
+      rgba(79, 70, 229, 0.5), 
+      rgba(168, 85, 247, 0.5), 
+      rgba(79, 70, 229, 0.5), 
+      transparent
+  );
+}
+
+.instructions-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #a5b4fc;
+  margin-bottom: 0.5rem;
+}
+
+.instructions-text {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.05rem;
+  line-height: 1.6;
+  text-align: left;
+}
+
+@media (max-width: 768px) {
+  .instructions-panel {
+    padding: 1rem;
+  }
+  
+  .instructions-text {
+    font-size: 0.95rem;
+  }
+  
+  .instructions-title {
+    font-size: 1.1rem;
+  }
+}
+
