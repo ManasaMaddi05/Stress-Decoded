@@ -246,22 +246,22 @@
     </div>
     
     <div class="reflection-wall" id="reflection-wall">
-      <!-- Reflection cards will be added here -->
+
     </div>
   </div>
   
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // DOM elements
+   
       const reflectionInput = document.getElementById('reflection-input');
       const charCount = document.getElementById('char-count');
       const submitButton = document.getElementById('submit-button');
       const reflectionWall = document.getElementById('reflection-wall');
       
-      // Max character limit
+   
       const MAX_CHARS = 120;
       
-      // Sample reflections for demo
+    
       const sampleReflections = [
         "I'd actually sleep the night before. I thought cramming would help, but I was running on fumes by the time I got to the test.",
         "I'd skip the energy drink. It made me jittery and my hands were shaking during the first question.",
@@ -273,10 +273,10 @@
         "I'd focus less on the grade and more on doing my best. The anxiety was worse than the test."
       ];
       
-      // Load reflections from localStorage or use sample data
+      
       let reflections = JSON.parse(localStorage.getItem('reflections')) || [];
       
-      // If no stored reflections, use sample data
+      
       if (reflections.length === 0) {
         reflections = sampleReflections.map(text => ({
           text,
@@ -286,35 +286,34 @@
           rotation: (Math.random() * 6 - 3).toFixed(1)
         }));
         
-        // Save to localStorage
+
         localStorage.setItem('reflections', JSON.stringify(reflections));
       }
       
-      // Render existing reflections
+
       renderReflections();
       
-      // Character counter
+
       reflectionInput.addEventListener('input', function() {
         const count = this.value.length;
         charCount.textContent = count;
         
-        // Update counter color if approaching limit
+
         if (count >= MAX_CHARS) {
           charCount.parentElement.classList.add('limit');
         } else {
           charCount.parentElement.classList.remove('limit');
         }
         
-        // Enable/disable submit button
+   
         submitButton.disabled = count === 0 || count > MAX_CHARS;
       });
       
-      // Submit reflection
+ 
       submitButton.addEventListener('click', function() {
         const text = reflectionInput.value.trim();
         if (!text) return;
-        
-        // Create new reflection object
+
         const newReflection = {
           text,
           timestamp: new Date().toISOString(),
@@ -323,26 +322,26 @@
           rotation: (Math.random() * 6 - 3).toFixed(1)
         };
         
-        // Add to reflections array
+
         reflections.unshift(newReflection);
         
-        // Save to localStorage
+  
         localStorage.setItem('reflections', JSON.stringify(reflections));
         
-        // Clear input
+
         reflectionInput.value = '';
         charCount.textContent = '0';
         submitButton.disabled = true;
         
-        // Render reflections
+ 
         renderReflections();
       });
       
-      // Render reflections
+
       function renderReflections() {
         reflectionWall.innerHTML = '';
         
-        // Sort reflections by timestamp, newest first
+
         const sortedReflections = [...reflections].sort((a, b) => {
           return new Date(b.timestamp) - new Date(a.timestamp);
         });
@@ -368,14 +367,14 @@
           
           reflectionWall.appendChild(card);
           
-          // Add floating animation
+
           setTimeout(() => {
             card.style.animation = `float ${3 + Math.random() * 2}s ease-in-out infinite`;
             card.classList.add('visible');
           }, 100 + index * 100);
         });
         
-        // Add reaction event listeners
+
         document.querySelectorAll('.reaction-button').forEach(button => {
           button.addEventListener('click', function() {
             const index = parseInt(this.dataset.index);
@@ -383,16 +382,16 @@
             this.classList.add('active');
             this.querySelector('.reaction-count').textContent = reflections[index].reactions;
             
-            // Save to localStorage
+     
             localStorage.setItem('reflections', JSON.stringify(reflections));
             
-            // Disable button after click
+         
             this.disabled = true;
           });
         });
       }
       
-      // Helper function to format time ago
+
       function getTimeAgo(date) {
         const seconds = Math.floor((new Date() - date) / 1000);
         
