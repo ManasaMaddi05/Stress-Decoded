@@ -141,7 +141,6 @@
       { student: 'S09', exam: 'Midterm1', meanHR: 108.354602, peakHR: 205.53, meanEDA: 1.176600, meanTemp: 28.75, score: 80 },
       { student: 'S10', exam: 'Midterm1', meanHR: 106.602260, peakHR: 191.60, meanEDA: 1.614813, meanTemp: 28.35, score: 89 },
       // Midterm 2
-
       { student: 'S01', exam: 'Midterm2', meanHR: 110.994480, peakHR: 192.68, meanEDA: 0.598382, meanTemp: 32.73, score: 82 },
       { student: 'S02', exam: 'Midterm2', meanHR: 106.651489, peakHR: 204.27, meanEDA: 2.146993, meanTemp: 35.16, score: 85 },
       { student: 'S03', exam: 'Midterm2', meanHR: 102.135642, peakHR: 203.78, meanEDA: 2.067670, meanTemp: 32.91, score: 90 },
@@ -202,7 +201,7 @@
       .attr("text-anchor", "middle")
       .text("Exam Score");
 
-    // Add grid lines
+    
     g.append("g")
       .attr("class", "grid")
       .call(d3.axisLeft(y).tickSize(-width).tickFormat(""))
@@ -215,14 +214,14 @@
       .attr("stroke", "#333")
       .attr("stroke-opacity", 0.3);
 
-    // Color scale for exams
+
     const colorScale = d3.scaleOrdinal()
       .domain(fullData.map(d => d.exam))
       .range(d3.schemeCategory10);
 
     const tooltip = d3.select('.tooltip');
 
-    // Initial circle creation
+    
     svg.selectAll('circle')
       .data(fullData)
       .enter()
@@ -245,7 +244,7 @@
           .style('opacity', 0);
       });
 
-    // Calculate trendline
+    
     const calculateTrendline = (data, xKey, yKey) => {
       const n = data.length;
       const sumX = data.reduce((sum, d) => sum + d[xKey], 0);
@@ -259,7 +258,7 @@
 
     const { slope, intercept } = calculateTrendline(fullData, 'meanHR', 'score');
 
-    // Draw trendline
+    
     g.append("line")
       .attr("x1", x(d3.min(fullData, d => d.meanHR)))
       .attr("y1", y(slope * d3.min(fullData, d => d.meanHR) + intercept))
@@ -269,7 +268,7 @@
       .attr("stroke-width", 1)
       .attr("stroke-dasharray", "5,5");
 
-    // Calculate r value
+    
     const calculateR = (data, xKey, yKey) => {
       const n = data.length;
       const sumX = data.reduce((sum, d) => sum + d[xKey], 0);
@@ -283,7 +282,7 @@
 
     const r = calculateR(fullData, 'meanHR', 'score');
 
-    // Display r value
+    
     g.append("text")
       .attr("x", width - 20)
       .attr("y", 20)
@@ -291,7 +290,7 @@
       .attr("fill", "white")
       .text(`r = ${r.toFixed(2)}`);
 
-    // Event listener for dropdown
+    
     document.getElementById('x-axis-select').addEventListener('change', function() {
       const selectedVariable = this.value;
       const xAxisLabel = selectedVariable === 'meanHR' ? 'Mean Heart Rate (bpm)' :
@@ -299,17 +298,15 @@
                          selectedVariable === 'meanEDA' ? 'Mean EDA (μS)' :
                          'Mean Temperature (°C)';
 
-      // Update x scale domain for the new variable
+      
       x.domain([d3.min(fullData, d => d[selectedVariable]) - 5, d3.max(fullData, d => d[selectedVariable]) + 5]);
       
-      // Update x-axis
+      
       g.select("g").call(xAxis);
       
-      // Update x-axis label
       g.select("text").filter(function() { return d3.select(this).text().includes('Rate') || d3.select(this).text().includes('EDA') || d3.select(this).text().includes('Temperature'); })
         .text(xAxisLabel);
       
-      // Update circle positions - IMPORTANT: select from svg, not g
       svg.selectAll('circle')
         .data(fullData)
         .transition()
@@ -317,7 +314,6 @@
         .attr('cx', d => x(d[selectedVariable]) + margin.left)
         .attr('cy', d => y(d.score) + margin.top);
 
-      // Recalculate trendline and r value
       const { slope, intercept } = calculateTrendline(fullData, selectedVariable, 'score');
       g.selectAll("line").remove();
       g.append("line")
@@ -333,7 +329,6 @@
       g.selectAll("text").filter(function() { return d3.select(this).text().includes('r ='); })
         .text(`r = ${r.toFixed(2)}`);
 
-      // Update tooltip to include the new metric
       svg.selectAll('circle')
         .on('mouseover', function(event, d) {
           tooltip.transition()
@@ -344,7 +339,6 @@
             .style('top', (event.pageY - 28) + 'px');
         });
 
-      // Redraw grid lines
       g.selectAll(".grid").remove();
       g.append("g")
         .attr("class", "grid")
