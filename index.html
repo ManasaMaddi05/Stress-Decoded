@@ -55,7 +55,6 @@
     }
   </script>
   <style>
-    /* Add these styles for the landing page elements */
     @import url('css/landing-page.css');
     
     html, body {
@@ -70,11 +69,11 @@
     .fullpage-container {
       height: 100vh;
       overflow-y: auto;
-      scroll-snap-type: y mandatory; /* Change from proximity to mandatory for true snap */
+      scroll-snap-type: y mandatory; 
       scroll-behavior: smooth;
       position: relative;
       background-color: #0d1b3d;
-      overscroll-behavior-y: contain; /* Prevent browser overscroll */
+      overscroll-behavior-y: contain; /
     }
     
     .section {
@@ -82,7 +81,7 @@
       width: 100%;
       position: relative;
       scroll-snap-align: start;
-      scroll-snap-stop: normal; /* Change from always to normal for smoother scrolling */
+      scroll-snap-stop: normal; 
       display: flex;
       align-items: center;
       justify-content: center;
@@ -96,7 +95,7 @@
       pointer-events: all;
     }
     
-    /* Add previous and next section states for smoother transitions */
+   
     .section.prev, .section.next {
       opacity: 1 !important;
       transform: none !important;
@@ -199,7 +198,7 @@
       text-shadow: 0 0 10px rgba(14, 165, 233, 0.7);
     }
     
-    /* Progress indicator */
+  
     .progress-bar {
       position: fixed;
       top: 0;
@@ -210,7 +209,7 @@
       transition: width 0.3s ease;
     }
 
-    /* Add tooltip styles */
+
     .tooltip {
       position: fixed;
       top: 20px;
@@ -264,7 +263,7 @@
       margin-bottom: 8px;
     }
 
-    /* Add styles for the metrics boxes */
+    
     .metric-box {
       transition: all 0.3s ease;
       height: 100%;
@@ -295,7 +294,7 @@
   </style>
 </head>
 <body class="font-sans">
-  <!-- Add tooltip button -->
+
   <div class="tooltip" id="info-tooltip">Info</div>
   <div class="tooltip-popup" id="tooltip-popup">
     <ul>
@@ -318,7 +317,7 @@
     </ul>
   </div>
 
-  <!-- Countdown Timer Overlay (from landing1.html) -->
+
   <div id="countdown-overlay" class="fixed inset-0 bg-black z-50 flex items-center justify-center">
     <div class="wall-clock">
       <div class="clock-frame">
@@ -363,10 +362,10 @@
     </div>
   </div>
 
-  <!-- Progress bar -->
+  
   <div class="progress-bar" id="progress-bar"></div>
   
-  <!-- Update the scroll dots to include post-scatter-plot section -->
+ 
 <div class="scroll-indicator hidden md:flex">
   <div class="scroll-dot active" data-section="intro"></div>
   <div class="scroll-dot" data-section="hook-section"></div>
@@ -388,7 +387,6 @@
   <div class="scroll-dot" data-section="bottom-line"></div>
 </div>
 
-  <!-- Main Content (initially hidden) -->
   <main class="fullpage-container opacity-0 transition-opacity duration-1000" id="fullpage-container">
     <section id="intro" class="section active">
       <div class="heart-bg">
@@ -397,7 +395,6 @@
         </svg>
       </div>
       
-      <!-- Overlaid Content Block -->
       <div class="absolute inset-0 flex items-center justify-center z-10">
         <div class="text-center px-4">
           <h1 class="text-4xl md:text-6xl font-bold text-white tracking-wide leading-tight fade-in shadow-glow">
@@ -417,7 +414,7 @@
       </div>
     </section>
     
-    <!-- Hook Section (Before Desks Visualization) -->
+  
     <section id="hook-section" class="section">
       <div class="heart-bg">
         <svg class="heart-svg" viewBox="0 0 32 32" fill="white" xmlns="http://www.w3.org/2000/svg">
@@ -425,13 +422,13 @@
         </svg>
       </div>
       
-      <!-- Hook Content Block with 4 floating cards -->
+      
       <div class="absolute inset-0 flex items-center justify-center z-10">
         <div class="max-w-5xl mx-auto py-16 px-4">
           <h2 class="text-3xl md:text-4xl font-bold text-a5b4fc mb-12 text-center">Under Pressure: What Exam Stress Really Looks Like</h2>
           
           <div class="flex flex-col items-center space-y-8">
-            <!-- Card 1 -->
+        
             <div class="card-container fade-in">
               <div class="max-w-xl rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl p-6 transform transition-all duration-500 hover:scale-105">
                 <p class="text-lg text-white/90 leading-relaxed">
@@ -440,7 +437,7 @@
               </div>
             </div>
             
-            <!-- Card 2 -->
+      
             <div class="card-container fade-in delay-300">
               <div class="max-w-xl rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl p-6 transform transition-all duration-500 hover:scale-105">
                 <p class="text-lg text-white/90 leading-relaxed">
@@ -448,8 +445,7 @@
                 </p>
               </div>
             </div>
-            
-            <!-- Card 3 -->
+       
             <div class="card-container fade-in delay-600">
               <div class="max-w-xl rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl p-6 transform transition-all duration-500 hover:scale-105">
                 <p class="text-lg text-white/90 leading-relaxed">
@@ -458,7 +454,7 @@
               </div>
             </div>
             
-            <!-- Card 4 -->
+       
             <div class="card-container fade-in delay-900">
               <div class="max-w-xl rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl p-6 transform transition-all duration-500 hover:scale-105">
                 <p class="text-lg text-white/90 leading-relaxed font-semibold">
@@ -467,7 +463,7 @@
               </div>
             </div>
             
-            <!-- Scroll arrow -->
+         
             <div class="mt-8 text-center">
               <a href="#introduction-section" class="cursor-pointer scroll-arrow">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto text-white animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -480,7 +476,7 @@
       </div>
     </section>
     
-    <!-- Introduction Section (New) -->
+   
     <section id="introduction-section" class="section">
       <div class="heart-bg">
         <svg class="heart-svg" viewBox="0 0 32 32" fill="white" xmlns="http://www.w3.org/2000/svg">
@@ -488,14 +484,14 @@
         </svg>
       </div>
       
-      <!-- Introduction Content Block with 4 floating cards -->
+   
       <div class="absolute inset-0 flex items-center justify-center z-10">
         <div class="max-w-5xl mx-auto py-16 px-4">
           <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 text-center">Everyone experiences stress...</h2>
           <h3 class="text-2xl md:text-3xl font-semibold text-white mb-12 text-center italic">But not in the same way.</h3>
           
           <div class="flex flex-col items-center space-y-8">
-            <!-- Card 1 -->
+       
             <div class="card-container fade-in">
               <div class="max-w-xl rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl p-6 transform transition-all duration-500 hover:scale-105">
                 <p class="text-lg text-white/90 leading-relaxed">
@@ -504,7 +500,7 @@
               </div>
             </div>
             
-            <!-- Card 2 -->
+      
             <div class="card-container fade-in delay-300">
               <div class="max-w-xl rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl p-6 transform transition-all duration-500 hover:scale-105">
                 <p class="text-lg text-white/90 leading-relaxed">
@@ -513,7 +509,7 @@
               </div>
             </div>
             
-            <!-- Card 3 -->
+      
             <div class="card-container fade-in delay-600">
               <div class="max-w-xl rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl p-6 transform transition-all duration-500 hover:scale-105">
                 <p class="text-lg text-white/90 leading-relaxed">
@@ -522,7 +518,7 @@
               </div>
             </div>
             
-            <!-- Card 4 -->
+       
             <div class="card-container fade-in delay-900">
               <div class="max-w-xl rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl p-6 transform transition-all duration-500 hover:scale-105">
                 <p class="text-lg text-white/90 leading-relaxed">
@@ -531,7 +527,7 @@
               </div>
             </div>
             
-            <!-- Scroll arrow -->
+        
             <div class="mt-8 text-center">
               <a href="#metrics-section" class="cursor-pointer scroll-arrow">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto text-white animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -544,7 +540,7 @@
       </div>
     </section>
 
-    <!-- Metrics Behind Stress Section (New) -->
+   
     <section id="metrics-section" class="section">
       <div class="heart-bg">
         <svg class="heart-svg" viewBox="0 0 32 32" fill="white" xmlns="http://www.w3.org/2000/svg">
@@ -552,21 +548,19 @@
         </svg>
       </div>
       
-      <!-- Metrics Content Block -->
+      
       <div class="absolute inset-0 flex items-center justify-center z-10">
         <div class="text-content-box max-w-5xl mx-auto p-8 rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl">
           <h2 class="text-3xl md:text-4xl font-bold text-a5b4fc mb-8 text-center">The Metrics Behind Stress</h2>
           
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- EDA Metric -->
             <div class="metric-box p-5 rounded-lg backdrop-blur-sm bg-slate-800/50 border border-indigo-500/30 hover:shadow-glow transition-shadow duration-300">
               <h3 class="text-xl font-bold text-white mb-3"><span class="text-stress-400">Electrodermal Activity (EDA)</span></h3>
               <p class="text-white/90">
                 Tracks changes in the skin's electrical conductivity caused by sweat gland activity, which is a reliable signal of emotional or physiological arousal.
               </p>
             </div>
-            
-            <!-- HR Metric -->
+      
             <div class="metric-box p-5 rounded-lg backdrop-blur-sm bg-slate-800/50 border border-indigo-500/30 hover:shadow-glow transition-shadow duration-300">
               <h3 class="text-xl font-bold text-white mb-3"><span class="text-stress-400">Heart Rate (HR)</span></h3>
               <p class="text-white/90">
@@ -574,7 +568,7 @@
               </p>
             </div>
             
-            <!-- BVP Metric -->
+         
             <div class="metric-box p-5 rounded-lg backdrop-blur-sm bg-slate-800/50 border border-indigo-500/30 hover:shadow-glow transition-shadow duration-300">
               <h3 class="text-xl font-bold text-white mb-3"><span class="text-stress-400">Blood Volume Pulse (BVP)</span></h3>
               <p class="text-white/90">
@@ -582,7 +576,7 @@
               </p>
             </div>
             
-            <!-- TEMP Metric -->
+        
             <div class="metric-box p-5 rounded-lg backdrop-blur-sm bg-slate-800/50 border border-indigo-500/30 hover:shadow-glow transition-shadow duration-300">
               <h3 class="text-xl font-bold text-white mb-3"><span class="text-stress-400">Skin Temperature (TEMP)</span></h3>
               <p class="text-white/90">
@@ -602,7 +596,7 @@
       </div>
     </section>
     
-    <!-- Add classroom visual description before section-1 -->
+
     <section id="classroom-intro" class="section">
       <div class="heart-bg">
         <svg class="heart-svg" viewBox="0 0 32 32" fill="white" xmlns="http://www.w3.org/2000/svg">
@@ -610,12 +604,12 @@
         </svg>
       </div>
       
-      <!-- Classroom Intro Content Block with added title and highlighted hook -->
+     
       <div class="absolute inset-0 flex items-center justify-center z-10">
         <div class="max-w-5xl mx-auto py-16 px-4">
           <h2 class="text-3xl md:text-4xl font-bold text-a5b4fc mb-12 text-center">Inside the Exam Room</h2>
           
-          <!-- Featured Hook - Special Styling to make it stand out -->
+        
           <div class="mb-12">
             <div class="max-w-3xl mx-auto p-8 rounded-xl backdrop-blur-md bg-slate-800/80 border-2 border-indigo-500/30 shadow-2xl transform transition-all duration-500">
               <p class="text-xl md:text-2xl text-white leading-relaxed font-medium text-center">
@@ -625,7 +619,6 @@
           </div>
           
           <div class="flex flex-col items-center space-y-8">
-            <!-- Card 1 -->
             <div class="card-container fade-in">
               <div class="max-w-xl rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl p-6 transform transition-all duration-500 hover:scale-105">
                 <p class="text-lg text-white/90 leading-relaxed">
@@ -634,7 +627,7 @@
               </div>
             </div>
             
-            <!-- Card 2 -->
+        
             <div class="card-container fade-in delay-300">
               <div class="max-w-xl rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl p-6 transform transition-all duration-500 hover:scale-105">
                 <p class="text-lg text-white/90 leading-relaxed">
@@ -643,7 +636,7 @@
               </div>
             </div>
             
-            <!-- Card 3 -->
+       
             <div class="card-container fade-in delay-600">
               <div class="max-w-xl rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl p-6 transform transition-all duration-500 hover:scale-105">
                 <p class="text-lg text-white/90 leading-relaxed">
@@ -652,7 +645,7 @@
               </div>
             </div>
             
-            <!-- Scroll arrow -->
+      
             <div class="mt-8 text-center">
               <a href="#section-1" class="cursor-pointer scroll-arrow">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto text-white animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -666,11 +659,11 @@
     </section>
     
     <section id="section-1" class="section">
-      <!-- Instructions for Desks Visualization -->
+  
       <iframe src="desks.html" class="section-frame" title="Heart Rate Patterns"></iframe>
     </section>
     
-    <!-- Add stress response analysis page after section-1 (desk visualization) -->
+   
     <section id="stress-analysis" class="section">
       <div class="heart-bg">
         <svg class="heart-svg" viewBox="0 0 32 32" fill="white" xmlns="http://www.w3.org/2000/svg">
@@ -683,7 +676,7 @@
           <h2 class="text-3xl md:text-4xl font-bold text-a5b4fc mb-12 text-center">Individual Stress Signatures</h2>
           
           <div class="flex flex-col items-center space-y-8">
-            <!-- Box 1 -->
+     
             <div class="card-container fade-in">
               <div class="max-w-xl rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl p-6 transform transition-all duration-500 hover:scale-105">
                 <h3 class="text-xl font-semibold text-white mb-3">Shared Room, Different Stories</h3>
@@ -693,7 +686,7 @@
               </div>
             </div>
             
-            <!-- Box 2 -->
+    
             <div class="card-container fade-in delay-300">
               <div class="max-w-xl rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl p-6 transform transition-all duration-500 hover:scale-105">
                 <h3 class="text-xl font-semibold text-white mb-3">Spikes, Plateaus, and Flatlines</h3>
@@ -703,7 +696,7 @@
               </div>
             </div>
             
-            <!-- Box 3 -->
+        
             <div class="card-container fade-in delay-600">
               <div class="max-w-xl rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl p-6 transform transition-all duration-500 hover:scale-105">
                 <h3 class="text-xl font-semibold text-white mb-3">Just How High Did Stress Go?</h3>
@@ -713,7 +706,7 @@
               </div>
             </div>
             
-            <!-- Scroll arrow -->
+          
             <div class="mt-10 text-center">
               <a href="#section-3" class="cursor-pointer scroll-arrow">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto text-white animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -726,7 +719,7 @@
       </div>
     </section>
     
-    <!-- Add heart rate introduction page before section-2 -->
+    
     <section id="heart-rate-intro" class="section">
       <div class="heart-bg">
         <svg class="heart-svg" viewBox="0 0 32 32" fill="white" xmlns="http://www.w3.org/2000/svg">
@@ -734,7 +727,7 @@
         </svg>
       </div>
       
-      <!-- Heart Rate Introduction Content Block - Same size as previous box -->
+    
       <div class="absolute inset-0 flex items-center justify-center z-10">
         <div class="text-content-box max-w-5xl mx-auto p-10 rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl">
           <h2 class="text-3xl md:text-4xl font-bold text-a5b4fc mb-8 text-center">The Hidden Rhythm of Stress</h2>
@@ -766,7 +759,7 @@
       <iframe src="student-heart-monitor.html" class="section-frame" title="Electrodermal Activity"></iframe>
     </section>
     
-    <!-- Add post-heart-rate analysis section after section-2 -->
+   
     <section id="post-heart-rate" class="section">
       <div class="heart-bg">
         <svg class="heart-svg" viewBox="0 0 32 32" fill="white" xmlns="http://www.w3.org/2000/svg">
@@ -774,7 +767,7 @@
         </svg>
       </div>
       
-      <!-- Post Heart Rate Analysis Content Block -->
+     
       <div class="absolute inset-0 flex items-center justify-center z-10">
         <div class="text-content-box max-w-5xl mx-auto p-10 rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl">
           <h2 class="text-3xl md:text-4xl font-bold text-a5b4fc mb-8 text-center">Behind the Peaks and Valleys</h2>
@@ -814,7 +807,7 @@
       <iframe src="student-timeline.html" class="section-frame" title="Student Timeline"></iframe>
     </section>
     
-    <!-- Add post-timeline analysis section after section-3 -->
+   
     <section id="post-timeline" class="section">
       <div class="heart-bg">
         <svg class="heart-svg" viewBox="0 0 32 32" fill="white" xmlns="http://www.w3.org/2000/svg">
@@ -822,7 +815,7 @@
         </svg>
       </div>
       
-      <!-- Post Timeline Analysis Content Block -->
+  
       <div class="absolute inset-0 flex items-center justify-center z-10">
         <div class="text-content-box max-w-5xl mx-auto p-10 rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl">
           <h2 class="text-3xl md:text-4xl font-bold text-a5b4fc mb-8 text-center">The Morning Effect</h2>
@@ -869,7 +862,7 @@
       <iframe src="run-bar.html" class="section-frame" title="Running Bar Chart"></iframe>
     </section>
     
-    <!-- Add post-bar-chart section after section-4 -->
+   
     <section id="post-bar-chart" class="section">
       <div class="heart-bg">
         <svg class="heart-svg" viewBox="0 0 32 32" fill="white" xmlns="http://www.w3.org/2000/svg">
@@ -877,7 +870,7 @@
         </svg>
       </div>
       
-      <!-- Post Bar Chart Analysis Content Block -->
+   
       <div class="absolute inset-0 flex items-center justify-center z-10">
         <div class="text-content-box max-w-5xl mx-auto p-10 rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl">
           <h2 class="text-3xl md:text-4xl font-bold text-a5b4fc mb-8 text-center">The Stress Race: Individual Patterns Revealed</h2>
@@ -904,7 +897,7 @@
     <section id="section-5" class="section">
       <iframe src="student-scatter-plot.html" class="section-frame" title="Stress vs. Performance"></iframe>
       
-      <!-- Add navigation arrow to post-scatter-plot -->
+     
       <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
         <a href="#post-scatter-plot" class="cursor-pointer scroll-arrow">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto text-white animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -921,7 +914,7 @@
         </svg>
       </div>
       
-      <!-- Post Scatter Plot Analysis Content Block -->
+   
       <div class="absolute inset-0 flex items-center justify-center z-10">
         <div class="text-content-box max-w-5xl mx-auto p-10 rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl">
           <h2 class="text-3xl md:text-4xl font-bold text-a5b4fc mb-8 text-center">Beyond the Numbers: The Personal Stress Equation</h2>
@@ -958,9 +951,9 @@
     
     <section id="conclusion" class="section">
       <iframe src="reflection-wall.html" class="section-frame" title="Key Findings"></iframe>
-    </section> <!-- Update post-scatter-plot to link to conclusion -->
+    </section> 
 
-    <!-- The Bottom Line Section (Now Last) -->
+ 
     <section id="bottom-line" class="section">
       <div class="heart-bg">
         <svg class="heart-svg" viewBox="0 0 32 32" fill="white" xmlns="http://www.w3.org/2000/svg">
@@ -968,7 +961,7 @@
         </svg>
       </div>
       
-      <!-- The Bottom Line Content Block -->
+    
       <div class="absolute inset-0 flex items-center justify-center z-10">
         <div class="text-content-box max-w-4xl mx-auto p-8 rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl">
           <h2 class="text-3xl md:text-5xl font-bold text-a5b4fc mb-8 text-center">
@@ -988,7 +981,7 @@
         </div>
       </div>
 
-      <!-- Final quote outside the box -->
+     
       <div class="absolute bottom-16 left-0 right-0 z-20 text-center">
         <p class="final-quote text-xl md:text-2xl font-bold text-white mx-auto max-w-3xl px-6 py-4">
           Because when it comes to stress, <span class="text-stress-400">awareness</span> is the most powerful tool we have.
@@ -996,7 +989,7 @@
       </div>
     </section>
 
-    <!-- Add Sources Section -->
+  
 <section id="sources" class="section">
   <div class="heart-bg">
     <svg class="heart-svg" viewBox="0 0 32 32" fill="white" xmlns="http://www.w3.org/2000/svg">
@@ -1004,7 +997,7 @@
     </svg>
   </div>
   
-  <!-- Sources Content Block -->
+
   <div class="absolute inset-0 flex items-center justify-center z-10">
     <div class="text-content-box max-w-4xl mx-auto p-8 rounded-xl backdrop-blur-md bg-slate-900/70 border border-indigo-500/20 shadow-xl">
       <h2 class="text-4xl md:text-6xl font-bold text-a5b4fc mb-8 text-center">
@@ -1036,7 +1029,6 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // Add tooltip click functionality
       const tooltip = document.getElementById('info-tooltip');
       const tooltipPopup = document.getElementById('tooltip-popup');
       
@@ -1048,14 +1040,13 @@
         }
       });
 
-      // Close tooltip when clicking outside
       document.addEventListener('click', function(event) {
         if (!tooltip.contains(event.target) && !tooltipPopup.contains(event.target)) {
           tooltipPopup.style.display = 'none';
         }
       });
 
-      // Preload audio files (from landing1.html)
+  
       const tickSound = new Audio('sounds/clock-tick.mp3');
       tickSound.volume = 0.9;
       tickSound.preload = 'auto';
@@ -1064,30 +1055,30 @@
       finalSound.volume = 0.9;
       finalSound.preload = 'auto';
       
-      // Force audio to load
+  
       tickSound.load();
       finalSound.load();
       
-      // Countdown timer functionality
+   
       const countdownOverlay = document.getElementById('countdown-overlay');
       const countdownTimer = document.getElementById('countdown-timer');
       const countdownPulse = document.getElementById('countdown-pulse');
       const mainContent = document.getElementById('fullpage-container');
       const punMessage = document.getElementById('pun-message');
       
-      // Animate clock hands
+    
       const hourHand = document.querySelector('.hour-hand');
       const minuteHand = document.querySelector('.minute-hand');
       const secondHand = document.querySelector('.second-hand');
       
-      // Set initial random positions for hands
+      
       hourHand.style.transform = `rotate(${Math.random() * 360}deg)`;
       minuteHand.style.transform = `rotate(${Math.random() * 360}deg)`;
       
-      // Initialize audio context on user interaction
+   
       let audioContext;
       
-      // Function to initialize audio context
+     
       function initAudio() {
         if (!audioContext) {
           audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -1096,25 +1087,25 @@
         }
       }
       
-      // Add event listeners to initialize audio context on user interaction
+     
       document.addEventListener('click', initAudio);
       document.addEventListener('keydown', initAudio);
       
-      // Alternative audio playback function using multiple approaches
+    
       function playSound(sound) {
-        // Try the standard way first
+   
         const playPromise = sound.play();
         
         if (playPromise !== undefined) {
           playPromise.catch(error => {
             console.log('Audio play prevented, trying alternative method:', error);
             
-            // If standard play fails, try creating a new Audio instance
+         
             const newSound = new Audio(sound.src);
             newSound.volume = sound.volume;
             newSound.play().catch(e => console.log('Alternative method also failed:', e));
             
-            // Also try with audio context as a last resort
+        
             if (audioContext) {
               try {
                 const source = audioContext.createBufferSource();
@@ -1134,43 +1125,42 @@
         }
       }
       
-      // Animate second hand
+
       let secondRotation = 0;
       const secondHandTick = setInterval(() => {
         secondRotation += 6;
         secondHand.style.transform = `rotate(${secondRotation}deg)`;
         
-        // Play tick sound every 5 seconds
+    
         if (secondRotation % 30 === 0) {
           tickSound.currentTime = 0;
           playSound(tickSound);
         }
       }, 1000);
       
-      // Start countdown
+  
       let timeLeft = 3;
       
       const countdown = setInterval(() => {
-        // Play tick sound for each second
         tickSound.currentTime = 0;
         playSound(tickSound);
         
         timeLeft--;
         
-        // Format time as 00:XX
+
         const formattedTime = `00:0${timeLeft}`;
         countdownTimer.textContent = formattedTime;
         
-        // Create pulse effect
+   
         const pulse = document.createElement('div');
         pulse.classList.add('timer-pulse');
         countdownPulse.appendChild(pulse);
         
-        // Make timer red and more urgent as we get closer to zero
+  
         countdownTimer.style.color = timeLeft === 1 ? '#ff0000' : '#ff5555';
         countdownTimer.style.textShadow = `0 0 10px rgba(255, ${timeLeft * 85}, ${timeLeft * 85}, 0.7), 0 0 20px rgba(255, ${timeLeft * 85}, ${timeLeft * 85}, 0.7)`;
         
-        // Remove pulse after animation
+    
         setTimeout(() => {
           pulse.remove();
         }, 2000);
@@ -1179,35 +1169,35 @@
           clearInterval(countdown);
           clearInterval(secondHandTick);
           
-          // Play school bell sound
+   
           playSound(finalSound);
           
-          // Explosion effect
+
           countdownTimer.classList.add('explosion-effect');
           countdownOverlay.classList.add('shake-effect');
           
-          // Create explosion particles
+      
           for (let i = 0; i < 20; i++) {
             createExplosionParticle();
           }
           
-          // Show message with enhanced animation and ensure it's light purple
+      
           setTimeout(() => {
             punMessage.style.opacity = '1';
             punMessage.classList.add('pun-animate');
-            punMessage.style.color = '#a5b4fc'; // Force light purple color
+            punMessage.style.color = '#a5b4fc'; 
             punMessage.style.background = 'rgba(15, 23, 42, 0.7)';
             punMessage.style.textShadow = '0 0 10px rgba(165, 180, 252, 0.8), 0 0 20px rgba(99, 102, 241, 0.7)';
             punMessage.style.border = '1px solid rgba(165, 180, 252, 0.3)';
             punMessage.style.backdropFilter = 'blur(5px)';
             
-            // Remove any gradient background that might be overriding
+       
             punMessage.style.backgroundImage = 'none';
             punMessage.style.webkitBackgroundClip = 'initial';
             punMessage.style.webkitTextFillColor = 'initial';
           }, 800);
           
-          // Fade out overlay and show main content
+      
           setTimeout(() => {
             countdownOverlay.classList.add('fade-out');
             mainContent.classList.remove('opacity-0');
@@ -1215,10 +1205,10 @@
             setTimeout(() => {
               countdownOverlay.style.display = 'none';
               
-              // Initialize the main content scrolling functionality
+        
               initMainContent();
               
-              // Setup arrow navigation after main content is initialized
+           
               document.querySelectorAll('.scroll-arrow').forEach(arrow => {
                 arrow.addEventListener('click', function(e) {
                   e.preventDefault();
@@ -1233,12 +1223,12 @@
         }
       }, 1000);
       
-      // Function to create explosion particles
+   
       function createExplosionParticle() {
         const particle = document.createElement('div');
         particle.classList.add('explosion-particle');
         
-        // Random position, size and color
+  
         const size = Math.random() * 10 + 5;
         const xPos = (Math.random() - 0.5) * 100;
         const yPos = (Math.random() - 0.5) * 100;
@@ -1255,13 +1245,13 @@
         
         countdownPulse.appendChild(particle);
         
-        // Remove particle after animation
+  
         setTimeout(() => {
           particle.remove();
         }, duration * 1000);
       }
       
-      // Initialize main content scrolling functionality
+     
       function initMainContent() {
         const container = document.getElementById('fullpage-container');
         const sections = document.querySelectorAll('.section');
@@ -1269,7 +1259,7 @@
         const fadeElements = document.querySelectorAll('.fade-in');
         const progressBar = document.getElementById('progress-bar');
         
-        // Force all sections to be visible
+       
         sections.forEach(section => {
           section.style.opacity = '1';
           section.style.pointerEvents = 'auto';
@@ -1277,19 +1267,19 @@
           section.style.position = 'relative'; // Change from absolute to relative
         });
         
-        // Initialize
+     
         let currentSectionIndex = 0;
         let isScrolling = false;
         let scrollTimeout;
         let lastScrollTop = 0;
         let scrollDirection = 0;
         
-        // Make intro fade elements visible
+    
         fadeElements.forEach(el => {
           el.classList.add('visible');
         });
         
-        // Update progress bar based on scroll position
+ 
         function updateProgressBar() {
           const scrollPosition = container.scrollTop;
           const totalHeight = container.scrollHeight - container.clientHeight;
@@ -1297,7 +1287,7 @@
           progressBar.style.width = `${progress}%`;
         }
         
-        // Improved highlight active section function
+    
         function highlightActiveSection() {
           const scrollPosition = container.scrollTop;
           const windowHeight = window.innerHeight;
@@ -1306,15 +1296,15 @@
             const sectionTop = section.offsetTop;
             const sectionHeight = section.offsetHeight;
             
-            // More lenient check for section visibility
+       
             if (scrollPosition >= sectionTop - windowHeight * 0.6 && 
                 scrollPosition < sectionTop + sectionHeight - windowHeight * 0.4) {
               
-              // Only update if the section changed
+           
               if (currentSectionIndex !== index) {
                 currentSectionIndex = index;
                 
-                // Update active dot
+    
                 scrollDots.forEach((dot, i) => {
                   if (i === index) {
                     dot.classList.add('active');
@@ -1323,7 +1313,7 @@
                   }
                 });
                 
-                // Update URL hash without scrolling
+        
                 const sectionId = section.id;
                 history.replaceState(null, null, `#${sectionId}`);
               }
@@ -1331,20 +1321,20 @@
           });
         }
         
-        // Improved smooth scroll to section
+      
         function scrollToSection(index) {
           if (isScrolling) return;
           isScrolling = true;
           
           const targetSection = sections[index];
           
-          // Smooth scroll to the target section
+ 
           container.scrollTo({
             top: targetSection.offsetTop,
             behavior: 'smooth'
           });
           
-          // Update active dot
+    
           scrollDots.forEach((dot, i) => {
             if (i === index) {
               dot.classList.add('active');
@@ -1353,40 +1343,40 @@
             }
           });
           
-          // Update current section index
+         
           currentSectionIndex = index;
           
-          // Update URL hash
+        
           const sectionId = targetSection.id;
           history.replaceState(null, null, `#${sectionId}`);
           
-          // Reset scrolling flag after animation completes
+         
           clearTimeout(scrollTimeout);
           scrollTimeout = setTimeout(() => {
             isScrolling = false;
           }, 800);
         }
         
-        // Improved scroll event listener
+       
         container.addEventListener('scroll', () => {
-          // Update progress bar
+    
           updateProgressBar();
           
-          // Determine scroll direction
+      
           const st = container.scrollTop;
           scrollDirection = st > lastScrollTop ? 1 : -1;
           lastScrollTop = st;
           
-          // Debounce the section highlighting
+        
           clearTimeout(scrollTimeout);
           scrollTimeout = setTimeout(() => {
             highlightActiveSection();
             
-            // Check if we need to snap to a section after manual scrolling stops
+       
             if (!isScrolling) {
               const currentScrollPos = container.scrollTop;
               
-              // Find the closest section
+            
               let closestSectionIndex = 0;
               let closestDistance = Infinity;
               
@@ -1398,7 +1388,7 @@
                 }
               });
               
-              // Only snap if we're not already very close to a section boundary
+             
               if (closestDistance > 20 && closestDistance < window.innerHeight * 0.3) {
                 scrollToSection(closestSectionIndex);
               }
@@ -1406,14 +1396,14 @@
           }, 100);
         });
         
-        // Handle dot navigation
+ 
         scrollDots.forEach((dot, index) => {
           dot.addEventListener('click', () => {
             scrollToSection(index);
           });
         });
         
-        // Improved wheel event handler with less aggressive prevention
+       
         let wheelTimeout;
         container.addEventListener('wheel', function(e) {
           clearTimeout(wheelTimeout);
@@ -1421,20 +1411,20 @@
           wheelTimeout = setTimeout(() => {
             if (isScrolling) return;
             
-            // Determine scroll direction
+        
             const direction = e.deltaY > 0 ? 1 : -1;
             
-            // Calculate target section
+      
             let targetIndex = currentSectionIndex + direction;
             
-            // Ensure target index is within bounds
+         
             if (targetIndex >= 0 && targetIndex < sections.length) {
-              // Allow some natural scrolling before taking over
+            
               const currentScrollPos = container.scrollTop;
               const currentSection = sections[currentSectionIndex];
               const sectionTop = currentSection.offsetTop;
               
-              // Only take over scrolling if we're near a section boundary
+          
               const distanceFromTop = Math.abs(currentScrollPos - sectionTop);
               
               if ((direction > 0 && distanceFromTop > window.innerHeight * 0.7) || 
@@ -1443,9 +1433,9 @@
               }
             }
           }, 50);
-        }, { passive: true }); // Change to passive for better performance
+        }, { passive: true }); 
         
-        // Add keyboard navigation
+     
         document.addEventListener('keydown', function(e) {
           if (isScrolling) return;
           
@@ -1458,7 +1448,7 @@
           }
         });
         
-        // Improved touch swipe support
+     
         let touchStartY = 0;
         let touchEndY = 0;
         let touchStartTime = 0;
@@ -1476,30 +1466,30 @@
           const diffY = touchStartY - touchEndY;
           const timeDiff = touchEndTime - touchStartTime;
           
-          // Only trigger for quick swipes (faster than 300ms)
+         
           if (Math.abs(diffY) > 50 && timeDiff < 300) {
             if (diffY > 0 && currentSectionIndex < sections.length - 1) {
-              // Swipe up - go to next section
+         
               scrollToSection(currentSectionIndex + 1);
             } else if (diffY < 0 && currentSectionIndex > 0) {
-              // Swipe down - go to previous section
+            
               scrollToSection(currentSectionIndex - 1);
             }
           }
         }, { passive: true });
         
-        // Initialize with first section
+      
         updateProgressBar();
         highlightActiveSection();
         
-        // Handle initial hash in URL
+      
         if (window.location.hash) {
           const targetId = window.location.hash.substring(1);
           const targetSection = document.getElementById(targetId);
           if (targetSection) {
             const index = Array.from(sections).indexOf(targetSection);
             if (index !== -1) {
-              // Use setTimeout to ensure the page is fully loaded
+          
               setTimeout(() => {
                 scrollToSection(index);
               }, 500);
@@ -1507,7 +1497,7 @@
           }
         }
         
-        // Make scrollToSection available globally
+     
         window.scrollToSection = function(sectionId) {
           const targetSection = document.getElementById(sectionId);
           if (targetSection) {
@@ -1519,26 +1509,26 @@
         };
       }
       
-      // Call setupArrowNavigation after the countdown completes
+     
       const originalInitMainContent = initMainContent;
       initMainContent = function() {
         originalInitMainContent();
         setupArrowNavigation();
       };
       
-      // If you're not using the countdown, or want arrows to work immediately:
+      
       document.querySelectorAll('a[href^="#"]').forEach(link => {
         link.addEventListener('click', function(e) {
           e.preventDefault();
           const targetId = this.getAttribute('href').substring(1);
           
-          // If the main content is already visible, use the scrollToSection function
+      
           if (!document.getElementById('countdown-overlay') || 
               document.getElementById('countdown-overlay').style.display === 'none') {
             if (window.scrollToSection) {
               window.scrollToSection(targetId);
             } else {
-              // Fallback if scrollToSection isn't available yet
+             
               const targetElement = document.getElementById(targetId);
               if (targetElement) {
                 targetElement.scrollIntoView({ behavior: 'smooth' });
