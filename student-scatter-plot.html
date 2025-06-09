@@ -124,6 +124,7 @@
       </div>
     </div>
   </div>
+  <div class="tooltip" style="position: absolute; background-color: white; border: 1px solid #ccc; padding: 10px; border-radius: 5px; pointer-events: none; opacity: 0; color: black;"></div>
 
   <script>
     const fullData = [
@@ -219,16 +220,30 @@
       .domain(fullData.map(d => d.exam))
       .range(d3.schemeCategory10);
 
-    g.selectAll("circle")
+    const tooltip = d3.select('.tooltip');
+
+    svg.selectAll('circle')
       .data(fullData)
       .enter()
-      .append("circle")
-      .attr("cx", d => x(d.meanHR))
-      .attr("cy", d => y(d.score))
-      .attr("r", 6)
-      .attr("fill", d => colorScale(d.exam))
-      .attr("stroke", "white")
-      .attr("stroke-width", 1.5);
+      .append('circle')
+      .attr('cx', d => x(d.meanHR))
+      .attr('cy', d => y(d.score))
+      .attr('r', 5)
+      .attr('fill', d => colorScale(d.exam))
+      .on('mouseover', function(event, d) {
+        tooltip.transition()
+          .duration(200)
+          .style('opacity', .9);
+        tooltip.html(`Exam: ${d.exam}<br>Student: ${d.student}<br>Score: ${d.score}`)
+       
+          .style('left', (event.pageX + 10) + 'px')
+          .style('top', (event.pageY - 28) + 'px');
+      })
+      .on('mouseout', function(d) {
+        tooltip.transition()
+          .duration(500)
+          .style('opacity', 0);
+      });
 
     // Calculate trendline
     const calculateTrendline = (data, xKey, yKey) => {
