@@ -577,7 +577,10 @@
                     `;
                 }
                 
-                // Update scales
+                // Update x-axis label to match current metric
+                xAxisLabel.text(metricInfo[chartConfig.currentMetric].label);
+                
+                // Update scales with appropriate domain for the current metric
                 const maxValue = d3.max([...currentData, ...nextData], d => d.value);
                 const minValue = chartConfig.currentMetric === 'BVP' ? 
                     d3.min([...currentData, ...nextData], d => d.value) : 0;
@@ -587,7 +590,7 @@
                 xScale.domain(chartConfig.currentMetric === 'BVP' ? [-absMax, absMax] : [0, absMax]);
                 yScale.domain(currentData.map(d => d.student));
 
-                // Update zero line
+                // Update zero line visibility based on metric
                 zeroLine
                     .attr('x1', xScale(0))
                     .attr('y1', 0)
@@ -611,9 +614,6 @@
                     .tickSize(-chartHeight)
                     .tickFormat('')
                 );
-
-                // Update x-axis label
-                xAxisLabel.text(metricInfo[chartConfig.currentMetric].label);
 
                 // Update bars
                 const bars = chartGroup.selectAll('.bar')
@@ -877,8 +877,24 @@
                         chartConfig.similarStudentId = `${studentNum}_${newMetric}`;
                     }
                     
-                    // Load new data
-                    loadData(newMetric).then(startAnimation);
+                    // Clear any existing animation
+                    if (animationInterval) {
+                        clearInterval(animationInterval);
+                        animationInterval = null;
+                    }
+                    
+                    // Reset time index
+                    currentTimeIndex = 0;
+                    
+                    // Load new data and restart animation
+                    loadData(newMetric).then(data => {
+                        processedData = data;
+                        updateChart(processedData, currentTimeIndex);
+                        
+                        if (!chartConfig.isPaused) {
+                            startAnimation();
+                        }
+                    });
                 });
             }
 
