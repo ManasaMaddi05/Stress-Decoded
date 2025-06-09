@@ -3,808 +3,321 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Stress vs. Score: What's the Real Cost?</title>
+  <title>Stress vs. Score: Full Data</title>
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <style>
-    :root {
-      --stress-color: #a855f7;
-      --calm-color: #0ea5e9;
-      --bg-dark: #0f172a;
-      --card-bg: rgba(15, 23, 42, 0.8);
-      --low-stress: #0ea5e9;
-      --moderate-stress: #f59e0b;
-      --high-stress: #ef4444;
-      --midterm1-color: #8b5cf6;
-      --midterm2-color: #06b6d4;
-      --final-color: #f97316;
-    }
-    
     body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Inter', sans-serif;
-      background-color: var(--bg-dark);
+      background-color: #0f172a;
       color: white;
-      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-    }
-    
-    .container {
-      width: 100%;
-      max-width: 1200px;
       padding: 2rem;
     }
-    
     h1 {
-      text-align: center;
-      margin-bottom: 1rem;
-      font-size: 3rem;
-      font-weight: 700;
       color: #a5b4fc;
-      position: relative;
-      padding-bottom: 1.5rem;
-      text-shadow: 0 0 15px rgba(165, 180, 252, 0.3);
-      letter-spacing: 0px;
-    }
-    
-    h1::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 140px;
-      height: 4px;
-      background: #6366f1;
-      border-radius: 2px;
-    }
-    
-    .subtitle {
-      text-align: center;
+      font-size: 2rem;
       margin-bottom: 2rem;
-      font-size: 1rem;
-      opacity: 0.7;
     }
-    
-    .controls {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 1rem;
+    h2 {
+      color: #cccccc;
+      font-size: 0.9rem;
       margin-bottom: 2rem;
-      background: var(--card-bg);
-      padding: 1rem;
-      border-radius: 0.75rem;
-      border: 1px solid rgba(255, 255, 255, 0.1);
     }
-    
-    .control-group {
-      display: flex;
-      flex-direction: column;
-      min-width: 150px;
-    }
-    
-    .control-label {
-      font-size: 0.875rem;
-      margin-bottom: 0.5rem;
-      opacity: 0.8;
-    }
-    
-    select, button {
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: white;
-      padding: 0.5rem;
-      border-radius: 0.375rem;
-      font-family: 'Inter', sans-serif;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    
-    select:hover, button:hover {
-      border-color: var(--stress-color);
-    }
-    
-    button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-    }
-    
-    button.active {
-      background: var(--stress-color);
-      border-color: var(--stress-color);
-    }
-    
     .chart-container {
-      background: var(--card-bg);
-      border-radius: 0.75rem;
-      padding: 1.5rem;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.1);
       width: 100%;
-      height: 600px;
-      position: relative;
+      max-width: 800px;
+      height: 500px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 1rem;
+      padding: 1rem;
     }
-    
-    .tooltip {
-      position: absolute;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid var(--stress-color);
-      border-radius: 0.375rem;
-      padding: 0.75rem;
-      font-size: 0.875rem;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.2s ease;
-      z-index: 10;
-      box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
-      max-width: 200px;
-    }
-    
-    .tooltip-title {
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-      padding-bottom: 0.25rem;
-    }
-    
-    .tooltip-row {
+    .controls {
+      margin-top: 20px;
       display: flex;
-      justify-content: space-between;
-      margin-bottom: 0.25rem;
+      justify-content: center;
     }
-    
-    .tooltip-label {
-      opacity: 0.7;
+    .control-group {
+      margin-top: -5px;
+      margin-right: 10px;
     }
-    
-    .tooltip-value {
-      font-weight: 600;
+    .control-label {
+      font-weight: bold;
+      margin-bottom: 5px;
     }
-    
-    .axis-label {
-      font-size: 0.875rem;
-      fill: rgba(255, 255, 255, 0.7);
+    select {
+      padding: 8px;
+      border-radius: 20px;
+      background-color: #8b5cf6;
+      color: white;
+      border: none;
+      outline: none;
+      cursor: pointer;
     }
-    
-    .tick text {
-      fill: rgba(255, 255, 255, 0.6);
-      font-size: 0.75rem;
+    .legend-container {
+      margin-top: 20px;
+      text-align: center;
     }
-    
-    .tick line {
-      stroke: rgba(255, 255, 255, 0.1);
-    }
-    
-    .domain {
-      stroke: rgba(255, 255, 255, 0.2);
-    }
-    
-    .regression-line {
-      stroke-width: 2;
-      stroke-dasharray: 5,5;
-      opacity: 0.7;
-    }
-    
-    .annotation {
-      font-size: 0.75rem;
-      fill: rgba(255, 255, 255, 0.8);
-      font-style: italic;
-    }
-    
-    .annotation-line {
-      stroke: rgba(255, 255, 255, 0.3);
-      stroke-width: 1;
-      stroke-dasharray: 3,3;
-    }
-    
     .legend {
       display: flex;
       justify-content: center;
-      gap: 1.5rem;
-      margin-top: 1rem;
+      background-color: rgba(255,255,255,0.1);
+      padding: 10px;
+      border-radius: 10px;
     }
-    
     .legend-item {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      font-size: 0.875rem;
-      opacity: 0.8;
+      margin-right: 20px;
     }
-    
     .legend-color {
-      width: 12px;
-      height: 12px;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
+      margin-right: 5px;
     }
-    
-    .point {
-      transition: all 0.5s ease;
-    }
-    
-    .point:hover {
-      stroke: white;
-      stroke-width: 2;
-    }
-    
-    .outlier-label {
-      font-size: 0.75rem;
-      fill: rgba(255, 255, 255, 0.9);
-      font-weight: 600;
-      text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-    }
-    
-    /* Add styles for the instructions panel */
-    .instructions-panel {
-      background: rgba(15, 23, 42, 0.6);
-      border-radius: 0.75rem;
-      padding: 1.25rem;
-      margin: 1rem 0 1.5rem;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-    
-    .instructions-content {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    
-    .instructions-text {
-      color: rgba(255, 255, 255, 0.9);
-      font-size: 1rem;
-      line-height: 1.6;
-      margin-bottom: 0.75rem;
-      text-align: center;
-    }
-    
-    .instructions-text:last-child {
-      margin-bottom: 0;
-    }
-    
-    /* Adjust spacing for controls to accommodate instructions */
-    .controls {
-      margin-bottom: 1.5rem;
-    }
-    
-    /* Adjust container padding */
-    .container {
-      padding: 2rem;
-    }
-    
-    @media (max-width: 768px) {
-      .instructions-panel {
-        padding: 1rem;
-        margin: 0.75rem 0 1.25rem;
-      }
-      
-      .instructions-text {
-        font-size: 0.9rem;
-      }
+    .legend-text {
+      font-size: 0.9rem;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Stress vs. Score: What's the Real Cost?</h1>
-    <div class="subtitle">Explore the relationship between physiological stress and academic performance</div>
-    
-    <!-- Add instructions panel between title and controls -->
-    <div class="instructions-panel">
-      <div class="instructions-content">
-        <p class="instructions-text">
-          Use the dropdowns above the graph to choose different stress indicators (like Mean Heart Rate, EDA, or Temperature) and see how they relate to final exam scores. Toggle between exam types and turn on the trendline to uncover patterns.
-        </p>
-        <p class="instructions-text">
-          This chart helps answer one of the biggest questions students ask themselves after a tough test: did my stress actually hurt my grade?
-        </p>
-      </div>
-    </div>
-    
-    <div class="controls">
-      <div class="control-group">
-        <div class="control-label">X-Axis</div>
-        <select id="x-axis-select">
-          <option value="meanHR">Mean Heart Rate</option>
-          <option value="peakHR">Peak Heart Rate</option>
-          <option value="meanEDA">Mean EDA</option>
-          <option value="stdHR">HR Variability</option>
-          <option value="stdEDA">EDA Variability</option>
-          <option value="score">Exam Score</option>
-        </select>
-      </div>
-      
-      <div class="control-group">
-        <div class="control-label">Y-Axis</div>
-        <select id="y-axis-select">
-          <option value="score">Exam Score</option>
-          <option value="meanHR">Mean Heart Rate</option>
-          <option value="peakHR">Peak Heart Rate</option>
-          <option value="meanEDA">Mean EDA</option>
-          <option value="stdHR">HR Variability</option>
-          <option value="stdEDA">EDA Variability</option>
-        </select>
-      </div>
-      
-      <div class="control-group">
-        <div class="control-label">Color By</div>
-        <select id="color-select">
-          <option value="exam">Exam Type</option>
-          <option value="stress">Stress Level</option>
-        </select>
-      </div>
-      
-      <div class="control-group">
-        <div class="control-label">Options</div>
-        <button id="trendline-toggle">
-          <span>Trendline</span>
-        </button>
-      </div>
-    </div>
-    
-    <div class="chart-container">
-      <div id="chart"></div>
-      <div class="tooltip" id="tooltip"></div>
-    </div>
-    
-    <div class="legend" id="legend"></div>
+  <h1>Health Metrics vs. Score: What's the Real Cost?</h1>
+  <h2>Explore the relationship between different metrics and academic performance</h2>
+  <div style="background-color: transparent; padding: 15px; border: 1px solid #cccccc; border-radius: 10px; margin-bottom: 2rem; text-align: center; max-width: 800px; margin-left: auto; margin-right: auto;">
+    <p style="line-height: 1.6;">
+      Use the dropdowns above the graph to choose different stress indicators (like Mean Heart Rate, EDA, or Temperature) and see how they relate to final exam scores. Look at the trendline to uncover patterns.
+      <br>
+      This chart helps answer one of the biggest questions students ask themselves after a tough test: did my stress actually hurt my grade?
+    </p>
   </div>
-  
+  <div class="controls" style="margin-top: 20px;">
+    <div class="control-group" style="margin-bottom: 40px;">
+      <div class="control-label"></div>
+      <select id="x-axis-select">
+        <option value="meanHR">Mean Heart Rate</option>
+        <option value="peakHR">Peak Heart Rate</option>
+        <option value="meanEDA">Mean EDA</option>
+        <option value="meanTemp">Mean Temperature</option>
+      </select>
+    </div>
+  </div>
+  <div class="chart-container">
+    <svg id="chart" width="800" height="500"></svg>
+  </div>
+  <div class="legend-container">
+    <div class="legend">
+      <div class="legend-item">
+        <span class="legend-color" style="background-color: #1f77b4;"></span>
+        <span class="legend-text">Midterm1</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-color" style="background-color: #ff7f0e;"></span>
+        <span class="legend-text">Midterm2</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-color" style="background-color: #2ca02c;"></span>
+        <span class="legend-text">Final</span>
+      </div>
+    </div>
+  </div>
+
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // Configuration
-      const config = {
-        xAxis: 'meanHR',
-        yAxis: 'score',
-        colorBy: 'exam',
-        showTrendline: false
-      };
-      
-      // Sample data (replace with actual data)
-      const generateSampleData = () => {
-        const exams = ['Midterm1', 'Midterm2', 'Final'];
-        const students = Array.from({ length: 10 }, (_, i) => `S${i + 1}`);
-        const data = [];
-        
-        students.forEach(student => {
-          exams.forEach(exam => {
-            // Generate realistic values
-            const baseHR = 70 + Math.random() * 20;
-            const baseEDA = 0.2 + Math.random() * 0.3;
-            const examFactor = exam === 'Final' ? 1.2 : (exam === 'Midterm2' ? 1.1 : 1);
-            
-            const meanHR = baseHR * examFactor * (1 + (Math.random() - 0.5) * 0.2);
-            const peakHR = meanHR * (1.2 + Math.random() * 0.3);
-            const meanEDA = baseEDA * examFactor * (1 + (Math.random() - 0.5) * 0.3);
-            const stdHR = 5 + Math.random() * 10;
-            const stdEDA = 0.05 + Math.random() * 0.1;
-            
-            // Create negative correlation between stress and score for some students
-            const stressLevel = (meanHR / 70 - 1) + (meanEDA / 0.2 - 1);
-            let score;
-            
-            if (student === 'S1' || student === 'S3') {
-              // These students perform better under stress
-              score = 70 + stressLevel * 10 + Math.random() * 20;
-            } else if (student === 'S2' || student === 'S8') {
-              // These students are outliers - low stress but low scores
-              score = 60 + Math.random() * 15;
-            } else if (student === 'S5' || student === 'S9') {
-              // These students are outliers - high stress but high scores
-              score = 85 + Math.random() * 15;
-            } else {
-              // Normal negative correlation
-              score = 90 - stressLevel * 15 + Math.random() * 20;
-            }
-            
-            // Clamp score between 0 and 100
-            score = Math.max(0, Math.min(100, score));
-            
-            data.push({
-              student,
-              exam,
-              meanHR,
-              peakHR,
-              meanEDA,
-              stdHR,
-              stdEDA,
-              score,
-              stressLevel: getStressLevel(meanHR, meanEDA)
-            });
-          });
-        });
-        
-        return data;
-      };
-      
-      // Determine stress level based on HR and EDA
-      function getStressLevel(hr, eda) {
-        const hrScore = (hr - 60) / 40; // Normalize between 0-1 for HR range 60-100
-        const edaScore = (eda - 0.1) / 0.5; // Normalize between 0-1 for EDA range 0.1-0.6
-        const combinedScore = (hrScore + edaScore) / 2;
-        
-        if (combinedScore < 0.33) return 'Low';
-        if (combinedScore < 0.66) return 'Moderate';
-        return 'High';
-      }
-      
-      // Get axis label
-      function getAxisLabel(variable) {
-        switch(variable) {
-          case 'meanHR': return 'Mean Heart Rate (bpm)';
-          case 'peakHR': return 'Peak Heart Rate (bpm)';
-          case 'meanEDA': return 'Mean EDA (μS)';
-          case 'stdHR': return 'Heart Rate Variability';
-          case 'stdEDA': return 'EDA Variability';
-          case 'score': return 'Exam Score';
-          default: return variable;
-        }
-      }
-      
-      // Generate sample data
-      const data = generateSampleData();
-      
-      // Set up the chart
-      function createChart() {
-        // Clear previous chart
-        d3.select('#chart').html('');
-        d3.select('#legend').html('');
-        
-        // Set up dimensions
-        const container = document.getElementById('chart');
-        const width = container.clientWidth || 800;
-        const height = container.clientHeight || 500;
-        const margin = { top: 40, right: 40, bottom: 60, left: 70 };
-        
-        // Create SVG
-        const svg = d3.select('#chart')
-          .append('svg')
-          .attr('width', width)
-          .attr('height', height)
-          .append('g')
-          .attr('transform', `translate(${margin.left},${margin.top})`);
-        
-        // Get axis labels
-        const xAxisLabel = getAxisLabel(config.xAxis);
-        const yAxisLabel = getAxisLabel(config.yAxis);
-        
-        // Create scales
-        const xScale = d3.scaleLinear()
-          .domain([
-            d3.min(data, d => d[config.xAxis]) * 0.9,
-            d3.max(data, d => d[config.xAxis]) * 1.1
-          ])
-          .range([0, width - margin.left - margin.right]);
-        
-        const yScale = d3.scaleLinear()
-          .domain([
-            d3.min(data, d => d[config.yAxis]) * 0.9,
-            d3.max(data, d => d[config.yAxis]) * 1.1
-          ])
-          .range([height - margin.top - margin.bottom, 0]);
-        
-        // Create color scale
-        let colorScale;
-        let colorDomain;
-        let colorRange;
-        
-        if (config.colorBy === 'exam') {
-          colorDomain = ['Midterm1', 'Midterm2', 'Final'];
-          colorRange = [
-            'var(--midterm1-color)',
-            'var(--midterm2-color)',
-            'var(--final-color)'
-          ];
-        } else {
-          colorDomain = ['Low', 'Moderate', 'High'];
-          colorRange = [
-            'var(--low-stress)',
-            'var(--moderate-stress)',
-            'var(--high-stress)'
-          ];
-        }
-        
-        colorScale = d3.scaleOrdinal()
-          .domain(colorDomain)
-          .range(colorRange);
-        
-        // Create axes
-        const xAxis = d3.axisBottom(xScale);
-        const yAxis = d3.axisLeft(yScale);
-        
-        // Add X axis
-        svg.append('g')
-          .attr('transform', `translate(0,${height - margin.top - margin.bottom})`)
-          .call(xAxis)
-          .call(g => g.select('.domain').attr('stroke', 'rgba(255, 255, 255, 0.2)'))
-          .call(g => g.selectAll('.tick line').attr('stroke', 'rgba(255, 255, 255, 0.1)'))
-          .call(g => g.selectAll('.tick text').attr('fill', 'rgba(255, 255, 255, 0.6)'));
-        
-        // Add Y axis
-        svg.append('g')
-          .call(yAxis)
-          .call(g => g.select('.domain').attr('stroke', 'rgba(255, 255, 255, 0.2)'))
-          .call(g => g.selectAll('.tick line').attr('stroke', 'rgba(255, 255, 255, 0.1)'))
-          .call(g => g.selectAll('.tick text').attr('fill', 'rgba(255, 255, 255, 0.6)'));
-        
-        // Add X axis label
-        svg.append('text')
-          .attr('class', 'axis-label')
-          .attr('x', (width - margin.left - margin.right) / 2)
-          .attr('y', height - margin.top - margin.bottom + 40)
-          .attr('text-anchor', 'middle')
-          .text(xAxisLabel);
-        
-        // Add Y axis label
-        svg.append('text')
-          .attr('class', 'axis-label')
-          .attr('transform', 'rotate(-90)')
-          .attr('x', -(height - margin.top - margin.bottom) / 2)
-          .attr('y', -40)
-          .attr('text-anchor', 'middle')
-          .text(yAxisLabel);
-        
-        // Add grid lines
-        svg.append('g')
-          .attr('class', 'grid')
-          .selectAll('line')
-          .data(xScale.ticks())
-          .enter()
-          .append('line')
-          .attr('x1', d => xScale(d))
-          .attr('y1', 0)
-          .attr('x2', d => xScale(d))
-          .attr('y2', height - margin.top - margin.bottom)
-          .attr('stroke', 'rgba(255, 255, 255, 0.1)');
-        
-        svg.append('g')
-          .attr('class', 'grid')
-          .selectAll('line')
-          .data(yScale.ticks())
-          .enter()
-          .append('line')
-          .attr('x1', 0)
-          .attr('y1', d => yScale(d))
-          .attr('x2', width - margin.left - margin.right)
-          .attr('y2', d => yScale(d))
-          .attr('stroke', 'rgba(255, 255, 255, 0.1)');
-        
-        // Add trendline if enabled
-        if (config.showTrendline) {
-          // Calculate regression line
-          const xVals = data.map(d => d[config.xAxis]);
-          const yVals = data.map(d => d[config.yAxis]);
-          
-          // Simple linear regression
-          const n = xVals.length;
-          const sumX = xVals.reduce((a, b) => a + b, 0);
-          const sumY = yVals.reduce((a, b) => a + b, 0);
-          const sumXY = xVals.reduce((a, b, i) => a + b * yVals[i], 0);
-          const sumXX = xVals.reduce((a, b) => a + b * b, 0);
-          
-          const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
-          const intercept = (sumY - slope * sumX) / n;
-          
-          // Create line function
-          const line = d3.line()
-            .x(d => xScale(d))
-            .y(d => yScale(slope * d + intercept));
-          
-          // Add line to chart
-          const xMin = d3.min(data, d => d[config.xAxis]);
-          const xMax = d3.max(data, d => d[config.xAxis]);
-          
-          svg.append('path')
-            .datum([xMin, xMax])
-            .attr('class', 'regression-line')
-            .attr('d', line)
-            .attr('stroke', 'white')
-            .attr('fill', 'none');
-          
-          // Add correlation coefficient
-          const xMean = sumX / n;
-          const yMean = sumY / n;
-          const ssxx = sumXX - n * xMean * xMean;
-          const ssyy = yVals.reduce((a, b) => a + b * b, 0) - n * yMean * yMean;
-          const ssxy = sumXY - n * xMean * yMean;
-          const correlation = ssxy / Math.sqrt(ssxx * ssyy);
-          
-          svg.append('text')
-            .attr('class', 'annotation')
-            .attr('x', width - margin.left - margin.right - 20)
-            .attr('y', 20)
-            .attr('text-anchor', 'end')
-            .text(`r = ${correlation.toFixed(2)}`);
-        }
-        
-        // Create tooltip
-        const tooltip = d3.select('#tooltip');
-        
-        // Add points
-        svg.selectAll('.point')
-          .data(data)
-          .enter()
-          .append('circle')
-          .attr('class', 'point')
-          .attr('cx', d => xScale(d[config.xAxis]))
-          .attr('cy', d => yScale(d[config.yAxis]))
-          .attr('r', 6)
-          .attr('fill', d => colorScale(d[config.colorBy === 'exam' ? 'exam' : 'stressLevel']))
-          .attr('opacity', 0.8)
-          .attr('stroke', 'none')
-          .on('mouseover', function(event, d) {
-            d3.select(this)
-              .attr('stroke', 'white')
-              .attr('stroke-width', 2)
-              .attr('r', 8);
-            
-            tooltip.style('opacity', 1)
-              .html(`
-                <div class="tooltip-title">${d.student} - ${d.exam}</div>
-                <div class="tooltip-row">
-                  <span class="tooltip-label">Score:</span>
-                  <span class="tooltip-value">${d.score.toFixed(1)}</span>
-                </div>
-                <div class="tooltip-row">
-                  <span class="tooltip-label">Mean HR:</span>
-                  <span class="tooltip-value">${d.meanHR.toFixed(1)} bpm</span>
-                </div>
-                <div class="tooltip-row">
-                  <span class="tooltip-label">Mean EDA:</span>
-                  <span class="tooltip-value">${d.meanEDA.toFixed(2)} μS</span>
-                </div>
-                <div class="tooltip-row">
-                  <span class="tooltip-label">Stress Level:</span>
-                  <span class="tooltip-value">${d.stressLevel}</span>
-                </div>
-              `)
-              .style('left', `${event.pageX + 10}px`)
-              .style('top', `${event.pageY - 10}px`);
-          })
-          .on('mouseout', function() {
-            d3.select(this)
-              .attr('stroke', 'none')
-              .attr('r', 6);
-            
-            tooltip.style('opacity', 0);
-          });
-        
-        // Add outlier annotations
-        const outliers = data.filter(d => {
-          // Define outliers based on specific criteria
-          if (config.xAxis === 'meanHR' && config.yAxis === 'score') {
-            // Low stress but low score
-            if (d.meanHR < 80 && d.score < 70) {
-              d.outlierType = 'low-stress-low-score';
-              return true;
-            }
-            // High stress but high score
-            if (d.meanHR > 90 && d.score > 85) {
-              d.outlierType = 'high-stress-high-score';
-              return true;
-            }
-          } else if (config.xAxis === 'meanEDA' && config.yAxis === 'score') {
-            // Low EDA but low score
-            if (d.meanEDA < 0.3 && d.score < 70) {
-              d.outlierType = 'low-stress-low-score';
-              return true;
-            }
-            // High EDA but high score
-            if (d.meanEDA > 0.4 && d.score > 85) {
-              d.outlierType = 'high-stress-high-score';
-              return true;
-            }
-          }
-          return false;
-        });
+    const fullData = [
 
-        // Group outliers by type
-        const outlierGroups = {};
-        outliers.forEach(d => {
-          if (!outlierGroups[d.outlierType]) {
-            outlierGroups[d.outlierType] = [];
-          }
-          outlierGroups[d.outlierType].push(d);
-        });
+      // Midterm 1
+      { student: 'S01', exam: 'Midterm1', meanHR: 103.113747, peakHR: 194.47, meanEDA: 2.863800, meanTemp: 28.73, score: 78 },
+      { student: 'S02', exam: 'Midterm1', meanHR: 111.459520, peakHR: 206.12, meanEDA: 1.734180, meanTemp: 34.31, score: 82 },
+      { student: 'S03', exam: 'Midterm1', meanHR: 105.683180, peakHR: 196.88, meanEDA: 5.054469, meanTemp: 29.85, score: 77 },
+      { student: 'S04', exam: 'Midterm1', meanHR: 110.635803, peakHR: 203.17, meanEDA: 4.440963, meanTemp: 27.09, score: 75 },
+      { student: 'S05', exam: 'Midterm1', meanHR: 108.256690, peakHR: 205.02, meanEDA: 3.086022, meanTemp: 29.23, score: 67 },
+      { student: 'S06', exam: 'Midterm1', meanHR: 107.045593, peakHR: 175.12, meanEDA: 2.877974, meanTemp: 32.31, score: 71 },
+      { student: 'S07', exam: 'Midterm1', meanHR: 112.383056, peakHR: 194.68, meanEDA: 3.340750, meanTemp: 27.17, score: 64 },
+      { student: 'S08', exam: 'Midterm1', meanHR: 113.672423, peakHR: 200.33, meanEDA: 2.213893, meanTemp: 30.23, score: 92 },
+      { student: 'S09', exam: 'Midterm1', meanHR: 108.354602, peakHR: 205.53, meanEDA: 1.176600, meanTemp: 28.75, score: 80 },
+      { student: 'S10', exam: 'Midterm1', meanHR: 106.602260, peakHR: 191.60, meanEDA: 1.614813, meanTemp: 28.35, score: 89 },
+      // Midterm 2
 
-        // Add outlier labels with better spacing
-        if (outlierGroups['high-stress-high-score']) {
-          // Calculate centroid of high-stress-high-score points
-          const highStressPoints = outlierGroups['high-stress-high-score'];
-          const centroidX = d3.mean(highStressPoints, d => xScale(d[config.xAxis]));
-          const centroidY = d3.mean(highStressPoints, d => yScale(d[config.yAxis]));
-          
-          // Calculate radius that encompasses all points
-          const radius = d3.max(highStressPoints, d => 
-            Math.sqrt(
-              Math.pow(xScale(d[config.xAxis]) - centroidX, 2) + 
-              Math.pow(yScale(d[config.yAxis]) - centroidY, 2)
-            )
-          ) + 15; // Add padding
-          
-          // Add single label for the group
-          svg.append('text')
-            .attr('class', 'outlier-label')
-            .attr('x', centroidX)
-            .attr('y', centroidY - radius - 10)
-            .attr('text-anchor', 'middle')
-            .attr('fill', 'rgba(255, 255, 255, 0.9)')
-            .text('High stress but high score!');
-        }
+      { student: 'S01', exam: 'Midterm2', meanHR: 110.994480, peakHR: 192.68, meanEDA: 0.598382, meanTemp: 32.73, score: 82 },
+      { student: 'S02', exam: 'Midterm2', meanHR: 106.651489, peakHR: 204.27, meanEDA: 2.146993, meanTemp: 35.16, score: 85 },
+      { student: 'S03', exam: 'Midterm2', meanHR: 102.135642, peakHR: 203.78, meanEDA: 2.067670, meanTemp: 32.91, score: 90 },
+      { student: 'S04', exam: 'Midterm2', meanHR: 94.808198, peakHR: 200.87, meanEDA: 6.693083, meanTemp: 31.57, score: 77 },
+      { student: 'S05', exam: 'Midterm2', meanHR: 113.318483, peakHR: 195.53, meanEDA: 1.619451, meanTemp: 33.41, score: 77 },
+      { student: 'S06', exam: 'Midterm2', meanHR: 104.692952, peakHR: 204.57, meanEDA: 3.935066, meanTemp: 34.34, score: 64 },
+      { student: 'S07', exam: 'Midterm2', meanHR: 98.947397, peakHR: 168.73, meanEDA: 1.811692, meanTemp: 29.23, score: 33 },
+      { student: 'S08', exam: 'Midterm2', meanHR: 102.700564, peakHR: 164.73, meanEDA: 1.843211, meanTemp: 34.34, score: 88 },
+      { student: 'S09', exam: 'Midterm2', meanHR: 103.106930, peakHR: 169.32, meanEDA: 3.924276, meanTemp: 33.59, score: 39 },
+      { student: 'S10', exam: 'Midterm2', meanHR: 107.400837, peakHR: 191.70, meanEDA: 7.412322, meanTemp: 32.18, score: 64 },
+      // Final
+      { student: 'S01', exam: 'Final', meanHR: 106.121509, peakHR: 174.85, meanEDA: 0.440778, meanTemp: 31.21, score: 91 },
+      { student: 'S02', exam: 'Final', meanHR: 119.901866, peakHR: 201.67, meanEDA: 0.733188, meanTemp: 36.07, score: 90 },
+      { student: 'S03', exam: 'Final', meanHR: 104.510099, peakHR: 185.92, meanEDA: 1.699582, meanTemp: 33.25, score: 94 },
+      { student: 'S04', exam: 'Final', meanHR: 92.670820, peakHR: 193.58, meanEDA: 6.570713, meanTemp: 32.43, score: 74.5 },
+      { student: 'S05', exam: 'Final', meanHR: 95.404440, peakHR: 139.68, meanEDA: 3.671499, meanTemp: 34.00, score: 78.5 },
+      { student: 'S06', exam: 'Final', meanHR: 103.860285, peakHR: 198.70, meanEDA: 3.559353, meanTemp: 33.45, score: 87.5 },
+      { student: 'S07', exam: 'Final', meanHR: 101.228184, peakHR: 167.08, meanEDA: 1.706552, meanTemp: 30.21, score: 55 },
+      { student: 'S08', exam: 'Final', meanHR: 102.171506, peakHR: 175.93, meanEDA: 3.789544, meanTemp: 34.79, score: 92 },
+      { student: 'S09', exam: 'Final', meanHR: 86.703446, peakHR: 164.55, meanEDA: 1.680260, meanTemp: 34.66, score: 63 },
+      { student: 'S10', exam: 'Final', meanHR: 105.473729, peakHR: 187.67, meanEDA: 6.985178, meanTemp: 32.03, score: 58 }
+    ];
 
-        // Add individual outlier labels with better spacing
-        outliers.forEach((d, i) => {
-          if (d.outlierType === 'low-stress-low-score') {
-            svg.append('text')
-              .attr('class', 'outlier-label')
-              .attr('x', xScale(d[config.xAxis]) + 10)
-              .attr('y', yScale(d[config.yAxis]) - 10)
-              .text('Low stress but low score?');
-            
-            svg.append('line')
-              .attr('class', 'annotation-line')
-              .attr('x1', xScale(d[config.xAxis]))
-              .attr('y1', yScale(d[config.yAxis]))
-              .attr('x2', xScale(d[config.xAxis]) + 8)
-              .attr('y2', yScale(d[config.yAxis]) - 8);
-          }
-        });
-        
-        // Create legend
-        const legend = d3.select('#legend');
-        
-        colorDomain.forEach(key => {
-          const legendItem = legend.append('div')
-            .attr('class', 'legend-item');
-          
-          legendItem.append('div')
-            .attr('class', 'legend-color')
-            .style('background-color', colorScale(key));
-          
-          legendItem.append('div')
-            .text(key);
-        });
-      }
-      
-      // Initial chart creation
-      createChart();
-      
-      // Add event listeners for controls
-      document.getElementById('x-axis-select').addEventListener('change', function() {
-        config.xAxis = this.value;
-        createChart();
-      });
-      
-      document.getElementById('y-axis-select').addEventListener('change', function() {
-        config.yAxis = this.value;
-        createChart();
-      });
-      
-      document.getElementById('color-select').addEventListener('change', function() {
-        config.colorBy = this.value;
-        createChart();
-      });
-      
-      document.getElementById('trendline-toggle').addEventListener('click', function() {
-        config.showTrendline = !config.showTrendline;
-        this.classList.toggle('active');
-        createChart();
-      });
-      
-      // Handle window resize
-      window.addEventListener('resize', function() {
-        createChart();
-      });
+    const svg = d3.select("#chart"),
+          margin = { top: 40, right: 40, bottom: 60, left: 70 },
+          width = +svg.attr("width") - margin.left - margin.right,
+          height = +svg.attr("height") - margin.top - margin.bottom,
+          g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+    const x = d3.scaleLinear()
+      .domain([d3.min(fullData, d => d.meanHR) - 5, d3.max(fullData, d => d.meanHR) + 5])
+      .range([0, width]);
+
+    const y = d3.scaleLinear()
+      .domain([d3.min(fullData, d => d.score) - 5, d3.max(fullData, d => d.score) + 5])
+      .range([height, 0]);
+
+    const xAxis = d3.axisBottom(x),
+          yAxis = d3.axisLeft(y);
+
+    g.append("g")
+      .attr("transform", `translate(0,${height})`)
+      .call(xAxis)
+      .append("text")
+      .attr("x", width / 2)
+      .attr("y", 40)
+      .attr("fill", "white")
+      .attr("text-anchor", "middle")
+      .text("Mean Heart Rate (bpm)");
+
+    g.append("g")
+      .call(yAxis)
+      .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("x", -height / 2)
+      .attr("y", -50)
+      .attr("fill", "white")
+      .attr("text-anchor", "middle")
+      .text("Exam Score");
+
+    // Add grid lines
+    g.append("g")
+      .attr("class", "grid")
+      .call(d3.axisLeft(y).tickSize(-width).tickFormat(""))
+      .attr("stroke", "#333")
+      .attr("stroke-opacity", 0.3);
+
+    g.append("g")
+      .attr("class", "grid")
+      .call(d3.axisBottom(x).tickSize(-height).tickFormat(""))
+      .attr("stroke", "#333")
+      .attr("stroke-opacity", 0.3);
+
+    // Color scale for exams
+    const colorScale = d3.scaleOrdinal()
+      .domain(fullData.map(d => d.exam))
+      .range(d3.schemeCategory10);
+
+    g.selectAll("circle")
+      .data(fullData)
+      .enter()
+      .append("circle")
+      .attr("cx", d => x(d.meanHR))
+      .attr("cy", d => y(d.score))
+      .attr("r", 6)
+      .attr("fill", d => colorScale(d.exam))
+      .attr("stroke", "white")
+      .attr("stroke-width", 1.5);
+
+    // Calculate trendline
+    const calculateTrendline = (data, xKey, yKey) => {
+      const n = data.length;
+      const sumX = data.reduce((sum, d) => sum + d[xKey], 0);
+      const sumY = data.reduce((sum, d) => sum + d[yKey], 0);
+      const sumXY = data.reduce((sum, d) => sum + d[xKey] * d[yKey], 0);
+      const sumX2 = data.reduce((sum, d) => sum + d[xKey] * d[xKey], 0);
+      const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+      const intercept = (sumY - slope * sumX) / n;
+      return { slope, intercept };
+    };
+
+    const { slope, intercept } = calculateTrendline(fullData, 'meanHR', 'score');
+
+    // Draw trendline
+    g.append("line")
+      .attr("x1", x(d3.min(fullData, d => d.meanHR)))
+      .attr("y1", y(slope * d3.min(fullData, d => d.meanHR) + intercept))
+      .attr("x2", x(d3.max(fullData, d => d.meanHR)))
+      .attr("y2", y(slope * d3.max(fullData, d => d.meanHR) + intercept))
+      .attr("stroke", "white")
+      .attr("stroke-width", 1)
+      .attr("stroke-dasharray", "5,5");
+
+    // Calculate r value
+    const calculateR = (data, xKey, yKey) => {
+      const n = data.length;
+      const sumX = data.reduce((sum, d) => sum + d[xKey], 0);
+      const sumY = data.reduce((sum, d) => sum + d[yKey], 0);
+      const sumXY = data.reduce((sum, d) => sum + d[xKey] * d[yKey], 0);
+      const sumX2 = data.reduce((sum, d) => sum + d[xKey] * d[xKey], 0);
+      const sumY2 = data.reduce((sum, d) => sum + d[yKey] * d[yKey], 0);
+      const r = (n * sumXY - sumX * sumY) / Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
+      return r;
+    };
+
+    const r = calculateR(fullData, 'meanHR', 'score');
+
+    // Display r value
+    g.append("text")
+      .attr("x", width - 20)
+      .attr("y", 20)
+      .attr("text-anchor", "end")
+      .attr("fill", "white")
+      .text(`r = ${r.toFixed(2)}`);
+
+    // Event listener for dropdown
+    document.getElementById('x-axis-select').addEventListener('change', function() {
+      const selectedVariable = this.value;
+      const xAxisLabel = selectedVariable === 'meanHR' ? 'Mean Heart Rate (bpm)' :
+                         selectedVariable === 'peakHR' ? 'Peak Heart Rate (bpm)' :
+                         selectedVariable === 'meanEDA' ? 'Mean EDA (μS)' :
+                         'Mean Temperature (°C)';
+
+      x.domain([d3.min(fullData, d => d[selectedVariable]) - 5, d3.max(fullData, d => d[selectedVariable]) + 5]);
+      g.selectAll("circle")
+        .attr("cx", d => x(d[selectedVariable]));
+
+      // Recalculate trendline and r value
+      const { slope, intercept } = calculateTrendline(fullData, selectedVariable, 'score');
+      g.selectAll("line").remove();
+      g.append("line")
+        .attr("x1", x(d3.min(fullData, d => d[selectedVariable])))
+        .attr("y1", y(slope * d3.min(fullData, d => d[selectedVariable]) + intercept))
+        .attr("x2", x(d3.max(fullData, d => d[selectedVariable])))
+        .attr("y2", y(slope * d3.max(fullData, d => d[selectedVariable]) + intercept))
+        .attr("stroke", "white")
+        .attr("stroke-width", 1)
+        .attr("stroke-dasharray", "5,5");
+
+      const r = calculateR(fullData, selectedVariable, 'score');
+      g.selectAll("text").filter(function() { return d3.select(this).text().includes('r ='); })
+        .text(`r = ${r.toFixed(2)}`);
+
+      // Redraw grid lines
+      g.selectAll(".grid").remove();
+      g.append("g")
+        .attr("class", "grid")
+        .call(d3.axisLeft(y).tickSize(-width).tickFormat(""))
+        .attr("stroke", "#333")
+        .attr("stroke-opacity", 0.3);
+
+      g.append("g")
+        .attr("class", "grid")
+        .call(d3.axisBottom(x).tickSize(-height).tickFormat(""))
+        .attr("stroke", "#333")
+        .attr("stroke-opacity", 0.3);
     });
   </script>
-
-
-
-
-
-
+</body>
+</html>
