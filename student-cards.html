@@ -181,10 +181,8 @@
       let currentExam = 'midterm1';
       let selectedStudents = new Set();
       
-      // Set initial active button
       document.querySelector('[data-exam="midterm1"]').classList.add('active');
       
-      // Add click handlers for exam buttons
       examButtons.forEach(button => {
         button.addEventListener('click', function() {
           examButtons.forEach(btn => btn.classList.remove('active'));
@@ -194,7 +192,6 @@
         });
       });
 
-      // Listen for messages from parent window
       window.addEventListener('message', function(event) {
         if (event.data.type === 'updateSelectedStudents') {
           selectedStudents = new Set(event.data.students);
@@ -208,10 +205,9 @@
         }
       });
 
-      // Notify parent that iframe is loaded
+
       window.parent.postMessage({ type: 'iframeLoaded' }, '*');
       
-      // Function to load and display data
       function loadAndDisplayData(exam) {
         let filePath;
         switch(exam) {
@@ -226,10 +222,10 @@
             break;
         }
         
-        // Clear previous chart
+
         document.getElementById('chart').innerHTML = '';
         
-        // Show loading state
+
         document.getElementById('max-eda').textContent = 'Loading...';
         document.getElementById('avg-eda').textContent = 'Loading...';
         document.getElementById('peak-time').textContent = 'Loading...';
@@ -238,44 +234,42 @@
         d3.csv(filePath)
           .then(data => {
             try {
-              // Check if data is valid
+            
               if (!data || data.length === 0) {
                 throw new Error('No data found in CSV file');
               }
               
-              // Get all student columns (S1_EDA, S2_EDA, etc.)
+           
               const studentColumns = Object.keys(data[0])
                 .filter(key => key.startsWith('S') && key.endsWith('_EDA'))
-                .filter(key => selectedStudents.has(key.split('_')[0])); // Only include selected students
+                .filter(key => selectedStudents.has(key.split('_')[0]));
               
               if (studentColumns.length === 0) {
                 throw new Error('No student EDA columns found in CSV file');
               }
-              
-              // Process the data for each student
+   
               const processedData = studentColumns.map(studentKey => {
                 try {
                   const values = data.map(d => {
                     const val = parseFloat(d[studentKey]);
-                    return isNaN(val) ? 0 : val; // Handle NaN values
+                    return isNaN(val) ? 0 : val;
                   });
                   
                   const times = data.map(d => {
                     const time = parseFloat(d.relative_time);
-                    return isNaN(time) ? 0 : time; // Handle NaN values
+                    return isNaN(time) ? 0 : time; 
                   });
                   
                   const maxEDA = d3.max(values) || 0;
                   const avgEDA = d3.mean(values) || 0;
                   
-                  // Find peak index safely
                   let peakIndex = 0;
                   if (values.length > 0) {
                     peakIndex = values.indexOf(maxEDA);
-                    if (peakIndex === -1) peakIndex = 0; // Fallback if max not found
+                    if (peakIndex === -1) peakIndex = 0;
                   }
                   
-                  // Calculate recovery time (time to reach 50% of peak)
+         
                   let recoveryIndex = peakIndex;
                   const recoveryThreshold = maxEDA * 0.5;
                   
@@ -302,10 +296,10 @@
                 }
               }).filter(Boolean);
               
-              // Create the visualization
+
               createVisualization(processedData);
               
-              // Update stats with the first student's data
+           
               if (processedData.length > 0) {
                 const firstStudent = processedData[0];
                 document.getElementById('max-eda').textContent = firstStudent.stats.maxEDA.toFixed(1);
@@ -332,8 +326,7 @@
             `;
           });
       }
-      
-      // Function to create visualization
+
       function createVisualization(studentsData) {
         try {
           if (!studentsData || studentsData.length === 0) {
@@ -341,7 +334,7 @@
           }
           
           const container = document.getElementById('chart');
-          container.innerHTML = ''; // Clear previous chart
+          container.innerHTML = '';
           
           const width = container.clientWidth || 800;
           const height = 700;
@@ -352,13 +345,13 @@
             .attr('width', width)
             .attr('height', height);
           
-          // Find the maximum EDA value across all students
+
           const maxEDA = d3.max(studentsData, d => {
             const max = d3.max(d.values);
             return max !== undefined ? max : 0;
           }) || 10;
           
-          // Get the time range from the first student's data
+        
           const timeRange = studentsData[0].times.length > 0 ? 
             d3.extent(studentsData[0].times) : [0, 100];
           
@@ -370,15 +363,14 @@
             .domain([0, maxEDA * 1.1])
             .range([height - margin.bottom, margin.top]);
           
-          // Add X axis
+
           svg.append('g')
             .attr('transform', `translate(0,${height - margin.bottom})`)
             .call(d3.axisBottom(x).ticks(10).tickFormat(d => `${d}m`))
             .call(g => g.select('.domain').attr('stroke', 'rgba(255, 255, 255, 0.3)'))
             .call(g => g.selectAll('.tick line').attr('stroke', 'rgba(255, 255, 255, 0.3)'))
             .call(g => g.selectAll('.tick text').attr('fill', 'rgba(255, 255, 255, 0.7)'));
-          
-          // Add Y axis
+
           svg.append('g')
             .attr('transform', `translate(${margin.left},0)`)
             .call(d3.axisLeft(y).ticks(5))
@@ -386,7 +378,7 @@
             .call(g => g.selectAll('.tick line').attr('stroke', 'rgba(255, 255, 255, 0.3)'))
             .call(g => g.selectAll('.tick text').attr('fill', 'rgba(255, 255, 255, 0.7)'));
           
-          // Add Y axis label
+
           svg.append('text')
             .attr('transform', 'rotate(-90)')
             .attr('y', margin.left / 3)
@@ -395,7 +387,7 @@
             .attr('fill', 'white')
             .text('EDA (μS)');
           
-          // Add X axis label
+
           svg.append('text')
             .attr('x', width / 2)
             .attr('y', height - 10)
@@ -403,7 +395,7 @@
             .attr('fill', 'white')
             .text('Time (minutes)');
           
-          // Define fixed colors for each student
+  
           const studentColors = {
             'S1_EDA': '#ff4560',  // Red
             'S2_EDA': '#008ffb',  // Blue
@@ -417,20 +409,20 @@
             'S10_EDA': '#ff9800'  // Orange
           };
           
-          // Process data for each student to ensure it's valid for line drawing
+     
           studentsData.forEach(student => {
-            // Make sure we have valid data points
+
             if (student.values.length !== student.times.length) {
               console.error(`Data length mismatch for ${student.student}`);
             }
             
-            // Create array of [time, value] pairs for line drawing
+          
             student.dataPoints = student.times.map((time, i) => {
               return { time: time, value: student.values[i] || 0 };
             }).filter(point => !isNaN(point.time) && !isNaN(point.value));
           });
           
-          // Create a group for each student's visualization
+
           const studentGroups = svg.selectAll('.student-group')
             .data(studentsData)
             .enter()
@@ -438,17 +430,15 @@
             .attr('class', 'student-group')
             .attr('data-student', d => d.student);
           
-          // Add the lines with fixed colors using the proper line generator
           studentGroups.each(function(student) {
             const group = d3.select(this);
-            
-            // Create line generator for this student
+         
+
             const lineGen = d3.line()
               .x(d => x(d.time))
               .y(d => y(d.value))
               .curve(d3.curveMonotoneX);
-            
-            // Add the line path
+
             group.append('path')
               .datum(student.dataPoints)
               .attr('fill', 'none')
@@ -456,7 +446,7 @@
               .attr('stroke-width', 2.5)
               .attr('d', lineGen);
             
-            // Add area under the curve
+
             const areaGen = d3.area()
               .x(d => x(d.time))
               .y0(height - margin.bottom)
@@ -469,7 +459,7 @@
               .attr('opacity', 0.1)
               .attr('d', areaGen);
             
-            // Add peak point
+
             if (student.stats.peakTime >= 0 && student.stats.peakTime < student.values.length) {
               group.append('circle')
                 .attr('cx', x(student.times[student.stats.peakTime] || 0))
@@ -481,7 +471,7 @@
             }
           });
           
-          // Add legend
+
           const legend = svg.append('g')
             .attr('transform', `translate(${width - margin.right + 10}, ${margin.top})`);
           
@@ -495,11 +485,11 @@
               const studentGroup = svg.select(`.student-group[data-student="${d.student}"]`);
               const isActive = !studentGroup.classed('inactive');
               
-              // Toggle visibility
+
               studentGroup.classed('inactive', isActive);
               d3.select(this).classed('inactive', isActive);
               
-              // Update statistics if this is the first student
+
               if (d.student === studentsData[0].student) {
                 const stats = !isActive ? d.stats : (studentsData[1] ? studentsData[1].stats : d.stats);
                 document.getElementById('max-eda').textContent = stats.maxEDA.toFixed(1);
@@ -509,7 +499,7 @@
               }
             });
           
-          // Add legend rectangles with fixed colors
+
           legendItems.append('rect')
             .attr('width', 15)
             .attr('height', 15)
@@ -531,7 +521,7 @@
         }
       }
       
-      // Load initial data
+
       loadAndDisplayData(currentExam);
     });
   </script>
