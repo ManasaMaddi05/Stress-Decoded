@@ -222,20 +222,20 @@
 
     const tooltip = d3.select('.tooltip');
 
+    // Initial circle creation
     svg.selectAll('circle')
       .data(fullData)
       .enter()
       .append('circle')
-      .attr('cx', d => x(d.meanHR))
-      .attr('cy', d => y(d.score))
+      .attr('cx', d => x(d.meanHR) + margin.left)
+      .attr('cy', d => y(d.score) + margin.top)
       .attr('r', 5)
       .attr('fill', d => colorScale(d.exam))
       .on('mouseover', function(event, d) {
         tooltip.transition()
           .duration(200)
           .style('opacity', .9);
-        tooltip.html(`Exam: ${d.exam}<br>Student: ${d.student}<br>Score: ${d.score}`)
-       
+        tooltip.html(`Exam: ${d.exam}<br>Student: ${d.student}<br>Score: ${d.score}<br>Mean Heart Rate: ${d.meanHR.toFixed(2)} bpm`)
           .style('left', (event.pageX + 10) + 'px')
           .style('top', (event.pageY - 28) + 'px');
       })
@@ -299,9 +299,23 @@
                          selectedVariable === 'meanEDA' ? 'Mean EDA (μS)' :
                          'Mean Temperature (°C)';
 
+      // Update x scale domain for the new variable
       x.domain([d3.min(fullData, d => d[selectedVariable]) - 5, d3.max(fullData, d => d[selectedVariable]) + 5]);
-      g.selectAll("circle")
-        .attr("cx", d => x(d[selectedVariable]));
+      
+      // Update x-axis
+      g.select("g").call(xAxis);
+      
+      // Update x-axis label
+      g.select("text").filter(function() { return d3.select(this).text().includes('Rate') || d3.select(this).text().includes('EDA') || d3.select(this).text().includes('Temperature'); })
+        .text(xAxisLabel);
+      
+      // Update circle positions - IMPORTANT: select from svg, not g
+      svg.selectAll('circle')
+        .data(fullData)
+        .transition()
+        .duration(500)
+        .attr('cx', d => x(d[selectedVariable]) + margin.left)
+        .attr('cy', d => y(d.score) + margin.top);
 
       // Recalculate trendline and r value
       const { slope, intercept } = calculateTrendline(fullData, selectedVariable, 'score');
@@ -318,6 +332,17 @@
       const r = calculateR(fullData, selectedVariable, 'score');
       g.selectAll("text").filter(function() { return d3.select(this).text().includes('r ='); })
         .text(`r = ${r.toFixed(2)}`);
+
+      // Update tooltip to include the new metric
+      svg.selectAll('circle')
+        .on('mouseover', function(event, d) {
+          tooltip.transition()
+            .duration(200)
+            .style('opacity', .9);
+          tooltip.html(`Exam: ${d.exam}<br>Student: ${d.student}<br>Score: ${d.score}<br>${xAxisLabel}: ${d[selectedVariable].toFixed(2)}`)
+            .style('left', (event.pageX + 10) + 'px')
+            .style('top', (event.pageY - 28) + 'px');
+        });
 
       // Redraw grid lines
       g.selectAll(".grid").remove();
