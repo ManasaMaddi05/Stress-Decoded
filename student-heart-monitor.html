@@ -656,34 +656,30 @@
       let currentHeartRate = 0;
       let isAudioPlaying = false;
       
-      // Function to adjust heartbeat sound based on heart rate
+     
       function updateHeartbeatSound(heartRate) {
-        // Adjust playback rate based on heart rate
-        // Normal heart rate (~70 bpm) = normal speed (1.0)
-        // Higher heart rates = faster playback
-        // Lower heart rates = slower playback
+
         const playbackRate = heartRate / 70;
         heartbeatSound.playbackRate = Math.max(0.6, Math.min(2.5, playbackRate));
         
-        // Adjust volume based on heart rate zone
+
         if (heartRate < 60) {
-          heartbeatSound.volume = 0.6; // Increased from 0.2 to 0.4
+          heartbeatSound.volume = 0.6; 
         } else if (heartRate < 80) {
-          heartbeatSound.volume = 0.7; // Increased from 0.3 to 0.5
+          heartbeatSound.volume = 0.7;
         } else if (heartRate < 100) {
-          heartbeatSound.volume = 0.8; // Increased from 0.4 to 0.6
+          heartbeatSound.volume = 0.8;
         } else {
-          heartbeatSound.volume = 0.9; // Increased from 0.5 to 0.7
+          heartbeatSound.volume = 0.9;
         }
         
-        // Play sound if not already playing
+     
         if (heartbeatSound.paused) {
           heartbeatSound.play().catch(e => console.log('Audio play prevented:', e));
           isAudioPlaying = true;
         }
       }
-      
-      // Update title based on student and exam selection
+     
       function updateTitle(studentId, examType) {
         const examNames = {
           'midterm1': 'Midterm 1',
@@ -695,7 +691,7 @@
           `Heart Rate Profile: Student #${studentId} During ${examNames[examType]}`;
       }
       
-      // Update config based on URL parameters
+
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.has('student')) {
         config.studentId = parseInt(urlParams.get('student'));
@@ -703,17 +699,17 @@
       }
       if (urlParams.has('exam')) {
         config.examType = urlParams.get('exam');
-        // Update dropdown to match URL parameter
+
         document.getElementById('exam-dropdown').value = config.examType;
       }
 
-      // Update student title with new format
+
       updateTitle(config.studentId, config.examType);
       
-      // Function to load heart rate data from CSV
+ 
       async function loadHeartRateData(studentId, examType) {
         try {
-          // Convert examType to the format used in filenames (e.g., 'midterm1' to 'Midterm_1')
+
           const formattedExamType = examType.charAt(0).toUpperCase() + examType.slice(1).replace(/(\d+)/, '_$1');
           const filePath = `${config.dataPath}${formattedExamType}_HR.csv`;
           const response = await fetch(filePath);
@@ -728,7 +724,7 @@
           
           console.log("CSV Headers:", headers);
           
-          // Find the column indices
+
           const timeColumnIndex = headers.findIndex(header => 
             header.trim().toLowerCase() === 'relative_time'
           );
@@ -746,7 +742,7 @@
             throw new Error(`Data for Student #${studentId} (${studentColumnName}) not found in CSV`);
           }
           
-          // Parse the data for the selected student
+
           const data = [];
           let maxTime = 0;
           
@@ -779,14 +775,14 @@
         }
       }
       
-      // Generate sample heart rate data as fallback
+
       function generateHeartRateData(duration, baseRate = 70) {
         console.warn('Using generated data as fallback');
         const data = [];
         const dataPoints = Math.min(duration, 1000);
         const interval = duration / dataPoints;
         
-        // Create stress events at specific times
+    
         const stressEvents = [
           { start: 0.1, end: 0.15, intensity: 1.2 },
           { start: 0.3, end: 0.4, intensity: 1.5 },
@@ -820,7 +816,7 @@
         return data;
       }
       
-      // Format time as HH:MM:SS
+
       function formatTime(seconds) {
         const startTime = config.examStartTimes[config.examType];
         const date = new Date(startTime.getTime() + seconds * 1000);
@@ -831,7 +827,7 @@
         });
       }
       
-      // Get heart rate zone
+
       function getHeartRateZone(rate) {
         if (rate < config.heartRateZones.low.max) return 'low';
         if (rate < config.heartRateZones.resting.max) return 'resting';
@@ -839,53 +835,48 @@
         return 'high';
       }
       
-      // Get color for heart rate
+
       function getHeartRateColor(rate) {
         return config.heartRateZones[getHeartRateZone(rate)].color;
       }
       
-      // Initialize the visualization
+
       async function initVisualization(studentId, examType) {
-        // Get the correct exam duration based on exam type
-        const examDuration = config.examDurations[examType] || 5400; // Default to 5400 if not found
-        
-        // Update student title and dropdowns
+      
+        const examDuration = config.examDurations[examType] || 5400; 
+  
         document.getElementById('student-title').textContent = `Student #${studentId} - ${examType.toUpperCase()}`;
         document.getElementById('student-dropdown').value = studentId;
         document.getElementById('exam-dropdown').value = examType.toLowerCase();
         
-        // Clear any existing audio toggle button before creating a new one
+       
         const existingAudioToggle = document.querySelector('.audio-toggle');
         if (existingAudioToggle) {
           existingAudioToggle.remove();
         }
         
-        // Load heart rate data for the selected student and exam
         const heartRateData = await loadHeartRateData(studentId, examType);
         
-        // If data loading failed, don't proceed
+   
         if (!heartRateData) return;
         
-        // Set up the chart
         const chartElement = document.getElementById('heart-rate-chart');
         const chartWidth = chartElement.clientWidth;
         const chartHeight = chartElement.clientHeight;
         
-        // Calculate the height needed to show the full range of heart rates
+       
         const minHeartRate = Math.max(40, d3.min(heartRateData, d => d.heartRate) - 10);
         const maxHeartRate = Math.min(180, d3.max(heartRateData, d => d.heartRate) + 10);
         
-        // Create a shorter SVG to fit better in the container
-        const svgHeight = 500; // Reduced from 600 to 500
+       
+        const svgHeight = 500; 
         
         const margin = { top: 20, right: 30, bottom: 40, left: 50 };
         const width = chartWidth - margin.left - margin.right;
         const height = svgHeight - margin.top - margin.bottom;
         
-        // Clear any existing chart
         d3.select('#heart-rate-chart').selectAll('*').remove();
         
-        // Create SVG with fixed width but shorter height
         const svg = d3.select('#heart-rate-chart')
           .append('svg')
           .attr('width', '100%')
@@ -895,33 +886,33 @@
           .append('g')
           .attr('transform', `translate(${margin.left},${margin.top})`);
         
-        // Create scales
+      
         const x = d3.scaleLinear()
-          .domain([0, examDuration]) // Use the correct exam duration
+          .domain([0, examDuration])
           .range([0, width]);
         
         const y = d3.scaleLinear()
           .domain([minHeartRate, maxHeartRate])
           .range([height, 0]);
         
-        // Create axes
+ 
         const xAxis = d3.axisBottom(x)
           .tickFormat(d => formatTime(d))
-          .ticks(12); // More time points
+          .ticks(12);
         
         const yAxis = d3.axisLeft(y)
           .ticks(15);
         
-        // Add X axis
+
         svg.append('g')
           .attr('transform', `translate(0,${height})`)
           .call(xAxis);
         
-        // Add Y axis
+
         svg.append('g')
           .call(yAxis);
         
-        // Add X axis label
+
         svg.append('text')
           .attr('class', 'axis-label')
           .attr('x', width / 2)
@@ -929,7 +920,7 @@
           .attr('text-anchor', 'middle')
           .text('Time (HH:MM:SS)');
         
-        // Add Y axis label
+
         svg.append('text')
           .attr('class', 'axis-label')
           .attr('transform', 'rotate(-90)')
@@ -938,7 +929,7 @@
           .attr('text-anchor', 'middle')
           .text('Heart Rate (bpm)');
         
-        // Add horizontal grid lines
+
         svg.append('g')
           .attr('class', 'grid')
           .call(d3.axisLeft(y)
@@ -946,9 +937,9 @@
             .tickFormat('')
           );
         
-        // Add zone backgrounds
+
         Object.entries(config.heartRateZones).forEach(([zone, { min, max, color }]) => {
-          // Only show zones that are within our y-axis domain
+         
           if (max >= minHeartRate && min <= maxHeartRate) {
             const zoneMin = Math.max(min, minHeartRate);
             const zoneMax = Math.min(max, maxHeartRate);
@@ -963,7 +954,7 @@
           }
         });
         
-        // Add heart rate line
+
         const line = d3.line()
           .x(d => x(d.time))
           .y(d => y(d.heartRate))
@@ -976,7 +967,7 @@
           .attr('stroke', 'var(--glow-green)')
           .attr('stroke-width', 3);
         
-        // Add heart rate area
+
         const area = d3.area()
           .x(d => x(d.time))
           .y0(height)
@@ -989,7 +980,7 @@
           .attr('d', area)
           .attr('fill', 'var(--glow-green)');
         
-        // Add vertical line indicator for current time
+
         const timeIndicator = svg.append('line')
           .attr('class', 'time-indicator')
           .attr('x1', 0)
@@ -1001,7 +992,7 @@
           .attr('stroke-dasharray', '5,5')
           .style('opacity', 0);
         
-        // Add dot indicator for current heart rate
+ 
         const dotIndicator = svg.append('circle')
           .attr('class', 'dot-indicator')
           .attr('r', 8)
@@ -1010,7 +1001,7 @@
           .attr('stroke-width', 3)
           .style('opacity', 0);
         
-        // Add tooltip for heart rate value
+
         const tooltip = svg.append('g')
           .attr('class', 'tooltip')
           .style('opacity', 0);
@@ -1028,56 +1019,55 @@
           .attr('fill', 'white')
           .attr('font-size', '14px');
         
-        // Set up slider
+
         const slider = document.getElementById('time-slider');
         const sliderProgress = document.getElementById('slider-progress');
         const progressLabel = document.getElementById('progress-label');
         const timeLabel = document.getElementById('time-label');
         const hrValue = document.getElementById('hr-value');
         
-        // Reset slider to beginning
+
         slider.value = 0;
         sliderProgress.style.width = '0%';
         
-        // Function to update display based on slider position
+
         function updateDisplay(sliderValue) {
           const percent = sliderValue / 100;
-          const currentTime = percent * examDuration; // Use the correct exam duration
+          const currentTime = percent * examDuration; 
           
-          // Update slider progress bar
+
           sliderProgress.style.width = `${sliderValue}%`;
           
-          // Update progress and time labels
+      
           progressLabel.textContent = `${sliderValue}% through the exam`;
           timeLabel.textContent = formatTime(currentTime);
-          
-          // Find the closest data point to the current time
+   
           const closestPoint = heartRateData.reduce((prev, curr) => {
             return Math.abs(curr.time - currentTime) < Math.abs(prev.time - currentTime) ? curr : prev;
           });
           
-          // Update heart rate display
+         
           currentHeartRate = Math.round(closestPoint.heartRate);
           hrValue.textContent = currentHeartRate;
           hrValue.style.color = getHeartRateColor(currentHeartRate);
           
-          // Update heartbeat sound based on current heart rate
+          
           updateHeartbeatSound(currentHeartRate);
           
-          // Update vertical line position
+         
           timeIndicator
             .attr('x1', x(currentTime))
             .attr('x2', x(currentTime))
             .style('opacity', 1);
           
-          // Update dot indicator
+          
           dotIndicator
             .attr('cx', x(closestPoint.time))
             .attr('cy', y(closestPoint.heartRate))
             .attr('fill', getHeartRateColor(closestPoint.heartRate))
             .style('opacity', 1);
           
-          // Update tooltip
+         
           tooltip
             .attr('transform', `translate(${x(closestPoint.time) - 45}, ${y(closestPoint.heartRate) - 45})`)
             .style('opacity', 1);
@@ -1085,40 +1075,39 @@
           tooltip.select('text')
             .text(`${Math.round(closestPoint.heartRate)} bpm`);
           
-          // Scroll to the dot indicator if it's outside the visible area
+         
           const chartElement = document.getElementById('heart-rate-chart');
           const dotY = y(closestPoint.heartRate) + margin.top;
           
-          // Only scroll if the dot is outside the visible area
+          
           if (dotY < chartElement.scrollTop || dotY > chartElement.scrollTop + chartElement.clientHeight - 50) {
-            // Calculate scroll position to center the dot
+            
             const scrollPosition = dotY - (chartElement.clientHeight / 2);
             chartElement.scrollTop = Math.max(0, Math.min(svgHeight - chartElement.clientHeight, scrollPosition));
           }
         }
         
-        // Initialize with current slider value
+       
         updateDisplay(slider.value);
         
-        // Add event listeners for slider
+        
         slider.addEventListener('input', function() {
           updateDisplay(this.value);
           
-          // Set flag that slider is moving
+         
           isSliderMoving = true;
           
-          // Clear any existing timeout
+          
           clearTimeout(sliderTimeout);
           
-          // Set timeout to detect when slider stops moving
+          
           sliderTimeout = setTimeout(() => {
             isSliderMoving = false;
-            // Don't pause the sound when slider stops moving
-            // Just update the flag
+            
           }, 1000);
         });
         
-        // Add event listener for slider mousedown/touchstart
+        
         slider.addEventListener('mousedown', function() {
           isSliderMoving = true;
         });
@@ -1127,26 +1116,26 @@
           isSliderMoving = true;
         });
         
-        // Add event listener for slider mouseup/touchend
+       
         document.addEventListener('mouseup', function() {
-          // Set timeout to detect when slider stops moving
+          
           clearTimeout(sliderTimeout);
           sliderTimeout = setTimeout(() => {
             isSliderMoving = false;
-            // Don't pause the sound when slider stops moving
+            
           }, 1000);
         });
         
         document.addEventListener('touchend', function() {
-          // Set timeout to detect when slider stops moving
+          
           clearTimeout(sliderTimeout);
           sliderTimeout = setTimeout(() => {
             isSliderMoving = false;
-            // Don't pause the sound when slider stops moving
+            
           }, 1000);
         });
         
-        // Add a toggle button for audio (only if it doesn't already exist)
+       
         if (!document.querySelector('.audio-toggle')) {
           const controlsContainer = document.querySelector('.controls');
           const audioToggle = document.createElement('div');
@@ -1163,7 +1152,7 @@
           `;
           controlsContainer.appendChild(audioToggle);
           
-          // Add styles for the audio toggle button (only once)
+         
           if (!document.getElementById('audio-toggle-styles')) {
             const style = document.createElement('style');
             style.id = 'audio-toggle-styles';
@@ -1201,16 +1190,16 @@
             document.head.appendChild(style);
           }
           
-          // Add event listener for audio toggle
+  
           const audioToggleBtn = document.getElementById('audio-toggle-btn');
           audioToggleBtn.addEventListener('click', function() {
             if (heartbeatSound.paused) {
-              // Unmute
+            
               updateHeartbeatSound(currentHeartRate);
               this.classList.remove('muted');
               this.querySelector('span').textContent = 'Mute Heartbeat';
             } else {
-              // Mute
+
               heartbeatSound.pause();
               isAudioPlaying = false;
               this.classList.add('muted');
@@ -1219,18 +1208,17 @@
           });
         }
         
-        // Find the maximum heart rate point and scroll to it initially
+       
         const maxHRPoint = heartRateData.reduce((prev, curr) => 
           curr.heartRate > prev.heartRate ? curr : prev
         );
         
-        // Set initial scroll position to show the beginning of the chart
+      
         setTimeout(() => {
-          chartElement.scrollTop = 0; // Start at the top of the chart
+          chartElement.scrollTop = 0;
         }, 100);
       }
-      
-      // Format time as HH:MM:SS
+  
       function formatTime(seconds) {
         const hours = Math.floor(seconds / 3600);
         const minutes = Math.floor((seconds % 3600) / 60);
@@ -1238,7 +1226,7 @@
         return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
       }
       
-      // Get heart rate zone
+     
       function getHeartRateZone(rate) {
         if (rate < config.heartRateZones.low.max) return 'low';
         if (rate < config.heartRateZones.resting.max) return 'resting';
@@ -1246,41 +1234,41 @@
         return 'high';
       }
       
-      // Get color for heart rate
+
       function getHeartRateColor(rate) {
         return config.heartRateZones[getHeartRateZone(rate)].color;
       }
       
-      // Initialize with default student and exam
+    
       initVisualization(config.studentId, config.examType);
       
-      // Add event listener for student dropdown
+
       document.getElementById('student-dropdown').addEventListener('change', function() {
         const selectedStudentId = parseInt(this.value);
         const selectedExamType = document.getElementById('exam-dropdown').value;
         initVisualization(selectedStudentId, selectedExamType);
         updateTitle(selectedStudentId, selectedExamType);
         
-        // Update URL parameter without refreshing the page
+   
         const url = new URL(window.location);
         url.searchParams.set('student', selectedStudentId);
         window.history.pushState({}, '', url);
       });
       
-      // Add event listener for exam dropdown
+
       document.getElementById('exam-dropdown').addEventListener('change', function() {
         const selectedExamType = this.value;
         const selectedStudentId = parseInt(document.getElementById('student-dropdown').value);
         initVisualization(selectedStudentId, selectedExamType);
         updateTitle(selectedStudentId, selectedExamType);
         
-        // Update URL parameter without refreshing the page
+
         const url = new URL(window.location);
         url.searchParams.set('exam', selectedExamType);
         window.history.pushState({}, '', url);
       });
       
-      // Handle window resize
+
       window.addEventListener('resize', function() {
         const selectedStudentId = parseInt(document.getElementById('student-dropdown').value);
         const selectedExamType = document.getElementById('exam-dropdown').value;
