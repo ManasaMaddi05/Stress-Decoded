@@ -451,6 +451,9 @@
           e.dataTransfer.setData('text/plain', card.id);
           e.dataTransfer.effectAllowed = 'copy';
           this.classList.add('dragging');
+          
+          // Set a flag to indicate this is a new card, not a move operation
+          e.dataTransfer.setData('moveOperation', 'false');
         });
         
         cardElement.addEventListener('dragend', function() {
@@ -498,13 +501,21 @@
           const cardInfo = config.eventCards.find(c => c.id === cardId);
           
           if (cardInfo) {
-           
+            // Check if this is a card being moved from another timeline block
+            const draggingElement = document.querySelector(`.timeline-card[data-id="${cardId}"].dragging`);
+            
+            // Remove existing card in this time block if any
             const existingCard = this.querySelector('.timeline-card');
             if (existingCard) {
               existingCard.remove();
             }
             
-          
+            // If we're moving a card from elsewhere in the timeline, remove it from its original position
+            if (draggingElement) {
+              draggingElement.remove();
+            }
+            
+            // Create a new card or use the existing one that's being moved
             const timelineCard = document.createElement('div');
             timelineCard.className = 'timeline-card';
             timelineCard.textContent = cardInfo.label;
@@ -512,12 +523,15 @@
             timelineCard.dataset.hrChange = cardInfo.hrChange;
             timelineCard.style.borderLeft = `4px solid ${cardInfo.color}`;
             
-           
+            // Make the new card draggable
             timelineCard.draggable = true;
             timelineCard.addEventListener('dragstart', function(e) {
               e.stopPropagation();
               e.dataTransfer.setData('text/plain', cardId);
               this.classList.add('dragging');
+              
+              // Set a flag to indicate this is a move operation, not a new card
+              e.dataTransfer.setData('moveOperation', 'true');
             });
             
             timelineCard.addEventListener('dragend', function() {
@@ -778,5 +792,6 @@
   </script>
 </body>
 </html>
+
 
 
