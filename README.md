@@ -2,7 +2,7 @@
 
 An interactive data storytelling project that visualizes real-time physiological stress responses of students during exams. Built with **D3.js** and multi-sensor data, this dashboard explores how stress manifests through signals like electrodermal activity (EDA), heart rate (HR), blood volume pulse (BVP), and skin temperature (TEMP).  
 
----
+![App Screenshot](data/stressedforfinals.png) <!-- replace with actual path if you want to show a screenshot -->
 
 ## 📖 Project Overview
 Exams are stressful — but what does stress actually look like inside the body?  
